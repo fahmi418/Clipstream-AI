@@ -1,0 +1,91 @@
+# ── Dependencies ────────────────────────────────────────────────────────
+node_modules/
+.pnpm-store/
+.pnp
+.pnp.js
+.yarn/cache
+.yarn/unplugged
+.yarn/build-state.yml
+.yarn/install-state.gz
+
+# ── Production & Build Outputs ──────────────────────────────────────────
+dist/
+build/
+out/
+.next/
+.turbo/
+*.tsbuildinfo
+
+# ── Smart Contracts (Foundry & Hardhat) ──────────────────────────────────
+contracts/out/
+contracts/cache/
+contracts/broadcast/
+broadcast/
+artifacts/
+typechain/
+typechain-types/
+
+# ── Environment & Secrets ───────────────────────────────────────────────
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+*.env
+!*.env.example
+*.pem
+*.key
+*.cert
+
+# ── Testing & Code Coverage ────────────────────────────────────────────
+coverage/
+.nyc_output/
+test-results/
+junit.xml
+
+# ── Logs & Debugging ───────────────────────────────────────────────────
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+.pnpm-debug.log*
+
+# ── Operating System & Editor Files ────────────────────────────────────
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
+
+# IDEs
+.idea/
+*.sublime-project
+*.sublime-workspace
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+
+# ── Temporary & Scratch Files ───────────────────────────────────────────
+tmp/
+temp/
+.scratch/
+
+# ── Reference & Specification Documents ────────────────────────────────
+reference/
+APP-FLOW-ClipStream-AI.md
+DESIGN.md
+PRD-ClipStream-AI.md
+TRD-ClipStream-AI.md
+SCHEMA-ClipStream-AI.md
+*APP-FLOW*.md
+*PRD*.md
+*TRD*.md
+*SCHEMA*.md
+

@@ -1,0 +1,12 @@
+{
+  "name": "clipstream-ai",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "build": "pnpm -r run build",
+    "test": "pnpm -r run test"
+  },
+  "devDependencies": {
+    "typescript": "^5.7.3"
+  }
+}

@@ -1,0 +1,20 @@
+packages:
+  - 'packages/*'
+  - 'apps/*'
+
+allowBuilds:
+  '@reown/appkit': true
+  bufferutil: true
+  esbuild: true
+  keccak: true
+  unrs-resolver: true
+  utf-8-validate: true
+
+onlyBuiltDependencies:
+  - '@reown/appkit'
+  - bufferutil
+  - esbuild
+  - keccak
+  - msgpackr-extract
+  - unrs-resolver
+  - utf-8-validate
