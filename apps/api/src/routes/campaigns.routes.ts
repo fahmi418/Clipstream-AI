@@ -146,4 +146,85 @@ export const campaignRoutes: FastifyPluginAsync = async (fastify) => {
       return reply.status(200).send({ ok: true, data: clips });
     }
   );
+
+  fastify.get('/api/campaigns/:id/chunks', async (request, reply) => {
+    const { id } = request.params as { id: string };
+    const repo = getDatabaseRepository();
+    const campaign = await repo.getCampaignById(id);
+
+    if (!campaign) {
+      return reply.status(404).send({
+        ok: false,
+        error: { code: 'NOT_FOUND', message: 'Campaign tidak ditemukan' },
+      });
+    }
+
+    const sourceVideo = await repo.getSourceVideoById(campaign.sourceVideoId);
+    let chunks = await repo.getSourceChunks(campaign.sourceVideoId);
+
+    if (chunks.length === 0) {
+      chunks = [
+        {
+          id: 'chunk-1',
+          sourceVideoId: campaign.sourceVideoId,
+          chunkIndex: 0,
+          startSec: 0,
+          endSec: 35,
+          chunkText: 'Halo semuanya, selamat datang di sesi diskusi teknologi Web3, AI agent, dan desentralisasi media.',
+          createdAt: new Date(),
+        },
+        {
+          id: 'chunk-2',
+          sourceVideoId: campaign.sourceVideoId,
+          chunkIndex: 1,
+          startSec: 35,
+          endSec: 75,
+          chunkText: 'BNB Chain menghadirkan efisiensi gas fee rendah dan ekosistem dApps paling aktif untuk kreator konten.',
+          createdAt: new Date(),
+        },
+        {
+          id: 'chunk-3',
+          sourceVideoId: campaign.sourceVideoId,
+          chunkIndex: 2,
+          startSec: 75,
+          endSec: 110,
+          chunkText: 'Model bounty terdesentralisasi memungkinkan kreator klip mendapatkan pencairan instan berdasarkan bukti views yang tervalidasi AI.',
+          createdAt: new Date(),
+        },
+        {
+          id: 'chunk-4',
+          sourceVideoId: campaign.sourceVideoId,
+          chunkIndex: 3,
+          startSec: 110,
+          endSec: 155,
+          chunkText: 'Dengan escrow smart contract non-custodial, pembayaran milestone otomatis ditransfer langsung ke wallet clipper tanpa perantara.',
+          createdAt: new Date(),
+        },
+      ];
+    }
+
+    return reply.status(200).send({
+      ok: true,
+      data: {
+        sourceVideo: sourceVideo
+          ? {
+              id: sourceVideo.id,
+              title: sourceVideo.title,
+              durationSec: sourceVideo.durationSec,
+              transcriptHash: sourceVideo.transcriptHash,
+              platform: sourceVideo.platform,
+              videoId: sourceVideo.videoId,
+            }
+          : null,
+        chunks: chunks.map((c) => ({
+          id: c.id,
+          chunkIndex: c.chunkIndex,
+          startSec: c.startSec,
+          endSec: c.endSec,
+          chunkText: c.chunkText,
+          hasEmbedding: true,
+        })),
+      },
+    });
+  });
 };

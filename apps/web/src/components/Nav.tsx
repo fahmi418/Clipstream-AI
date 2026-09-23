@@ -2,312 +2,995 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { usePrivy } from "@privy-io/react-auth";
 import { useAuth } from "@/lib/auth-context";
+import { Logo } from "@/components/Logo";
+import { RoleSelectModal } from "@/components/RoleSelectModal";
 import {
   Video,
-  LayoutDashboard,
-  Plus,
-  Scissors,
   ChevronDown,
-  Menu,
-  X,
-  LogOut,
+  Sparkles,
+  ShieldCheck,
+  Zap,
+  TrendingUp,
+  Coins,
+  CheckCircle2,
+  ExternalLink,
   Layers,
+  LogOut,
+  User,
+  Plus,
+  Compass,
+  Scissors,
+  Megaphone,
+  ShieldAlert,
+  ArrowRight,
+  Bot,
+  Sliders,
+  Check,
 } from "lucide-react";
 
 export function Nav() {
   const pathname = usePathname();
-  const { login, authenticated, logout } = usePrivy();
+  const { login: privyLogin, authenticated, logout } = usePrivy();
   const { user } = useAuth();
   const [scrolled, setScrolled] = useState(false);
-  const [mobileOpen, setMobileOpen] = useState(false);
-  const [menuOpen, setMenuOpen] = useState(false);
+  const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
+  const [activeProductTab, setActiveProductTab] = useState<string>("ai-verifier");
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [showRoleModal, setShowRoleModal] = useState(false);
+  const [currentRole, setCurrentRole] = useState<string | null>(null);
+
+  const navRef = useRef<HTMLDivElement>(null);
+
+  // Read stored role on mount and pathname changes
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const stored = localStorage.getItem("clipstream_user_role");
+      if (stored) setCurrentRole(stored);
+    }
+  }, [pathname]);
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 15);
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 20);
+    };
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  // Close dropdown on click outside or escape key
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (navRef.current && !navRef.current.contains(e.target as Node)) {
+        setActiveDropdown(null);
+      }
+    };
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        setActiveDropdown(null);
+        setMobileMenuOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    document.addEventListener("keydown", handleKeyDown);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("keydown", handleKeyDown);
+    };
   }, []);
 
   useEffect(() => {
-    setMobileOpen(false);
-    setMenuOpen(false);
+    setActiveDropdown(null);
+    setMobileMenuOpen(false);
   }, [pathname]);
+
+  const toggleDropdown = (name: string) => {
+    setActiveDropdown((prev) => (prev === name ? null : name));
+  };
+
+  const handleLogout = async () => {
+    if (typeof window !== "undefined") {
+      localStorage.removeItem("clipstream_user_role");
+    }
+    setCurrentRole(null);
+    try {
+      await logout();
+    } catch (err) {
+      console.error("Logout error:", err);
+    }
+  };
+
+  // Determine user login status and destination dashboard
+  const isLoggedIn = Boolean(authenticated || user || currentRole);
+  const dashboardHref =
+    currentRole === "admin"
+      ? "/admin"
+      : currentRole === "brand"
+      ? "/brand/campaigns"
+      : "/clipper";
+  const dashboardLabel =
+    currentRole === "admin"
+      ? "Portal Superadmin"
+      : currentRole === "brand"
+      ? "Dashboard Brand"
+      : "Dashboard Clipper";
 
   return (
     <>
-      <div className="am-navbar" style={{ position: "fixed", top: 0, left: 0, right: 0, zIndex: 99 }}>
-        <nav className="am-section is-navbar" style={{ width: "100%" }}>
-          <div className="am-container" style={{ maxWidth: "69rem", margin: "0 auto", padding: "0 1.5rem" }}>
-            <div className="am-nav-content-wrapper" style={{ paddingTop: "0.75rem", paddingBottom: "0.75rem" }}>
+      <div
+        className="am-navbar-wrapper"
+        style={{
+          position: "fixed",
+          top: 0,
+          left: 0,
+          right: 0,
+          zIndex: 1000,
+          pointerEvents: "none",
+        }}
+      >
+        <nav
+          className="am-section is-navbar"
+          style={{ width: "100%", pointerEvents: "auto" }}
+        >
+          <div className="am-container" ref={navRef}>
+            <div
+              data-color-mode="light"
+              className={`am-nav-content-wrapper ${
+                mobileMenuOpen ? "is-menu-open" : ""
+              }`}
+            >
               <div
-                className={`am-nav-content ${scrolled ? "is-minified" : ""}`}
+                className={`am-nav-content is-big ${
+                  scrolled ? "is-minified" : ""
+                }`}
                 style={{
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "space-between",
-                  padding: "0.625rem 1.25rem",
-                  borderRadius: "0.75rem",
-                  background: scrolled ? "rgba(251, 250, 249, 0.92)" : "rgba(251, 250, 249, 0.8)",
+                  maxWidth: "70rem",
+                  width: "100%",
+                  padding: "0.35rem 0.5rem 0.35rem 1.125rem",
+                  borderRadius: "9999px",
+                  boxSizing: "border-box",
+                  backgroundColor: "rgba(255, 255, 255, 0.95)",
                   backdropFilter: "blur(20px)",
-                  WebkitBackdropFilter: "blur(20px)",
-                  border: "1px solid rgba(17, 17, 17, 0.08)",
-                  boxShadow: scrolled
-                    ? "0 6px 24px rgba(17, 17, 17, 0.06)"
-                    : "0 2px 8px rgba(17, 17, 17, 0.02)",
-                  transition: "all 0.25s cubic-bezier(0.16, 1, 0.3, 1)",
+                  boxShadow: "0 8px 30px rgba(0, 0, 0, 0.08)",
+                  border: "1px solid rgba(0, 0, 0, 0.07)",
                 }}
               >
-                {/* Logo & Navigation */}
-                <div style={{ display: "flex", alignItems: "center", gap: "2rem" }}>
+                {/* Left Side: Logo & Main Navigation Links */}
+                <div
+                  className="am-nav-content-left"
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "1.25rem",
+                    flexShrink: 0,
+                  }}
+                >
                   <Link
                     href="/"
-                    className="am-logo"
+                    aria-current="page"
                     style={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: "0.625rem",
                       textDecoration: "none",
-                      color: "#111",
+                      display: "inline-flex",
+                      alignItems: "center",
+                      marginRight: "0.5rem",
                     }}
                   >
-                    <div
-                      style={{
-                        width: "30px",
-                        height: "30px",
-                        backgroundColor: "#111",
-                        borderRadius: "8px",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        color: "#fff",
-                      }}
-                    >
-                      <Video size={16} strokeWidth={2.2} />
-                    </div>
-                    <span
-                      style={{
-                        fontSize: "1.0625rem",
-                        fontWeight: 600,
-                        letterSpacing: "-0.4px",
-                        color: "#111",
-                      }}
-                    >
-                      ClipStream
-                    </span>
+                    <Logo theme="light" width={145} height={32} />
                   </Link>
 
-                  {/* Desktop navigation links */}
+                  {/* Desktop Dropdowns & Navigation (No Dashboard links here for public) */}
                   <div
-                    className="hidden md:flex items-center"
-                    style={{ gap: "0.5rem" }}
+                    className="am-nav-content-links am-hide-tablet"
+                    style={{ display: "flex", alignItems: "center", gap: "0.35rem" }}
                   >
+                    {/* 1. PRODUK DROPDOWN */}
+                    <div
+                      style={{ position: "relative", overflow: "visible" }}
+                      onMouseEnter={() => setActiveDropdown("product")}
+                      onMouseLeave={() => setActiveDropdown(null)}
+                    >
+                      <button
+                        type="button"
+                        onClick={() => toggleDropdown("product")}
+                        className="am-nav-link"
+                        style={{
+                          background: "none",
+                          border: "none",
+                          cursor: "pointer",
+                          display: "inline-flex",
+                          alignItems: "center",
+                          gap: "0.25rem",
+                          padding: "0.4rem 0.75rem",
+                          fontSize: "0.875rem",
+                          fontWeight: 500,
+                          color: activeDropdown === "product" ? "#111" : "rgba(17,17,17,0.7)",
+                          borderRadius: "9999px",
+                          backgroundColor:
+                            activeDropdown === "product" ? "rgba(17,17,17,0.05)" : "transparent",
+                          transition: "all 0.15s ease",
+                        }}
+                      >
+                        <span>Produk</span>
+                        <ChevronDown
+                          size={14}
+                          style={{
+                            transform: activeDropdown === "product" ? "rotate(180deg)" : "none",
+                            transition: "transform 0.2s ease",
+                          }}
+                        />
+                      </button>
+
+                      {/* Dropdown Menu Box */}
+                      {activeDropdown === "product" && (
+                        <div
+                          style={{
+                            position: "absolute",
+                            top: "100%",
+                            left: 0,
+                            paddingTop: "0.5rem",
+                            zIndex: 99999,
+                            overflow: "visible",
+                          }}
+                        >
+                          <div
+                            style={{
+                              width: "36rem",
+                              backgroundColor: "#ffffff",
+                              borderRadius: "20px",
+                              border: "1px solid rgba(17,17,17,0.08)",
+                              boxShadow: "0 25px 60px -15px rgba(0,0,0,0.18), 0 0 0 1px rgba(0,0,0,0.04)",
+                              padding: "0.75rem",
+                              display: "grid",
+                              gridTemplateColumns: "1.4fr 1fr",
+                              gap: "0.75rem",
+                              animation: "fade-in-up 0.18s ease-out",
+                            }}
+                          >
+                            {/* Left: Product List */}
+                            <div style={{ display: "flex", flexDirection: "column", gap: "0.25rem" }}>
+                              {/* Feature 1 */}
+                              <div
+                                onMouseEnter={() => setActiveProductTab("ai-verifier")}
+                                onClick={() => setActiveDropdown(null)}
+                                style={{
+                                  padding: "0.625rem 0.75rem",
+                                  borderRadius: "12px",
+                                  backgroundColor:
+                                    activeProductTab === "ai-verifier"
+                                      ? "rgba(17,17,17,0.04)"
+                                      : "transparent",
+                                  cursor: "pointer",
+                                  display: "flex",
+                                  alignItems: "flex-start",
+                                  gap: "0.625rem",
+                                  transition: "all 0.15s ease",
+                                }}
+                              >
+                                <div
+                                  style={{
+                                    width: "32px",
+                                    height: "32px",
+                                    borderRadius: "8px",
+                                    backgroundColor: "#fff0ec",
+                                    color: "#e8400d",
+                                    display: "flex",
+                                    alignItems: "center",
+                                    justifyContent: "center",
+                                    flexShrink: 0,
+                                    marginTop: "2px",
+                                  }}
+                                >
+                                  <Bot size={17} />
+                                </div>
+                                <div>
+                                  <div
+                                    style={{
+                                      fontSize: "0.875rem",
+                                      fontWeight: 600,
+                                      color: "#111",
+                                    }}
+                                  >
+                                    AI Verifier Pipeline
+                                  </div>
+                                  <div
+                                    style={{
+                                      fontSize: "0.75rem",
+                                      color: "rgba(17,17,17,0.6)",
+                                      lineHeight: 1.35,
+                                      marginTop: "2px",
+                                    }}
+                                  >
+                                    Whisper deteksi audio &amp; Gemini Vision verifikasi views otomatis.
+                                  </div>
+                                </div>
+                              </div>
+
+                              {/* Feature 2 */}
+                              <div
+                                onMouseEnter={() => setActiveProductTab("escrow")}
+                                onClick={() => setActiveDropdown(null)}
+                                style={{
+                                  padding: "0.625rem 0.75rem",
+                                  borderRadius: "12px",
+                                  backgroundColor:
+                                    activeProductTab === "escrow"
+                                      ? "rgba(17,17,17,0.04)"
+                                      : "transparent",
+                                  cursor: "pointer",
+                                  display: "flex",
+                                  alignItems: "flex-start",
+                                  gap: "0.625rem",
+                                  transition: "all 0.15s ease",
+                                }}
+                              >
+                                <div
+                                  style={{
+                                    width: "32px",
+                                    height: "32px",
+                                    borderRadius: "8px",
+                                    backgroundColor: "#ecfdf5",
+                                    color: "#059669",
+                                    display: "flex",
+                                    alignItems: "center",
+                                    justifyContent: "center",
+                                    flexShrink: 0,
+                                    marginTop: "2px",
+                                  }}
+                                >
+                                  <ShieldCheck size={17} />
+                                </div>
+                                <div>
+                                  <div
+                                    style={{
+                                      fontSize: "0.875rem",
+                                      fontWeight: 600,
+                                      color: "#111",
+                                    }}
+                                  >
+                                    Smart Contract Escrow
+                                  </div>
+                                  <div
+                                    style={{
+                                      fontSize: "0.75rem",
+                                      color: "rgba(17,17,17,0.6)",
+                                      lineHeight: 1.35,
+                                      marginTop: "2px",
+                                    }}
+                                  >
+                                    Budget terkunci di BNB Chain, cair otomatis tanpa invoice manual.
+                                  </div>
+                                </div>
+                              </div>
+
+                              {/* Feature 3 */}
+                              <div
+                                onMouseEnter={() => setActiveProductTab("cpm-engine")}
+                                onClick={() => setActiveDropdown(null)}
+                                style={{
+                                  padding: "0.625rem 0.75rem",
+                                  borderRadius: "12px",
+                                  backgroundColor:
+                                    activeProductTab === "cpm-engine"
+                                      ? "rgba(17,17,17,0.04)"
+                                      : "transparent",
+                                  cursor: "pointer",
+                                  display: "flex",
+                                  alignItems: "flex-start",
+                                  gap: "0.625rem",
+                                  transition: "all 0.15s ease",
+                                }}
+                              >
+                                <div
+                                  style={{
+                                    width: "32px",
+                                    height: "32px",
+                                    borderRadius: "8px",
+                                    backgroundColor: "#fffbeb",
+                                    color: "#d97706",
+                                    display: "flex",
+                                    alignItems: "center",
+                                    justifyContent: "center",
+                                    flexShrink: 0,
+                                    marginTop: "2px",
+                                  }}
+                                >
+                                  <TrendingUp size={17} />
+                                </div>
+                                <div>
+                                  <div
+                                    style={{
+                                      fontSize: "0.875rem",
+                                      fontWeight: 600,
+                                      color: "#111",
+                                    }}
+                                  >
+                                    CPM Dynamic Engine
+                                  </div>
+                                  <div
+                                    style={{
+                                      fontSize: "0.75rem",
+                                      color: "rgba(17,17,17,0.6)",
+                                      lineHeight: 1.35,
+                                      marginTop: "2px",
+                                    }}
+                                  >
+                                    Tarif transparan Rp 15.000 - Rp 35.000 per 1k views terverifikasi.
+                                  </div>
+                                </div>
+                              </div>
+
+                              {/* Feature 4 */}
+                              <div
+                                onMouseEnter={() => setActiveProductTab("anti-sybil")}
+                                onClick={() => setActiveDropdown(null)}
+                                style={{
+                                  padding: "0.625rem 0.75rem",
+                                  borderRadius: "12px",
+                                  backgroundColor:
+                                    activeProductTab === "anti-sybil"
+                                      ? "rgba(17,17,17,0.04)"
+                                      : "transparent",
+                                  cursor: "pointer",
+                                  display: "flex",
+                                  alignItems: "flex-start",
+                                  gap: "0.625rem",
+                                  transition: "all 0.15s ease",
+                                }}
+                              >
+                                <div
+                                  style={{
+                                    width: "32px",
+                                    height: "32px",
+                                    borderRadius: "8px",
+                                    backgroundColor: "#f5f3ff",
+                                    color: "#7c3aed",
+                                    display: "flex",
+                                    alignItems: "center",
+                                    justifyContent: "center",
+                                    flexShrink: 0,
+                                    marginTop: "2px",
+                                  }}
+                                >
+                                  <Layers size={17} />
+                                </div>
+                                <div>
+                                  <div
+                                    style={{
+                                      fontSize: "0.875rem",
+                                      fontWeight: 600,
+                                      color: "#111",
+                                    }}
+                                  >
+                                    Anti-Spoof Shield
+                                  </div>
+                                  <div
+                                    style={{
+                                      fontSize: "0.75rem",
+                                      color: "rgba(17,17,17,0.6)",
+                                      lineHeight: 1.35,
+                                      marginTop: "2px",
+                                    }}
+                                  >
+                                    Proteksi duplikasi klip dan verifikasi kepemilikan video kreator.
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+
+                            {/* Right: Interactive Feature Highlight Box */}
+                            <div
+                              style={{
+                                backgroundColor: "#fbfaf9",
+                                borderRadius: "14px",
+                                padding: "1rem",
+                                border: "1px solid rgba(17,17,17,0.06)",
+                                display: "flex",
+                                flexDirection: "column",
+                                justifyContent: "space-between",
+                              }}
+                            >
+                              <div>
+                                <div
+                                  style={{
+                                    fontSize: "0.6875rem",
+                                    fontWeight: 700,
+                                    letterSpacing: "0.6px",
+                                    color:
+                                      activeProductTab === "ai-verifier"
+                                        ? "#e8400d"
+                                        : activeProductTab === "escrow"
+                                        ? "#059669"
+                                        : activeProductTab === "cpm-engine"
+                                        ? "#d97706"
+                                        : "#7c3aed",
+                                    textTransform: "uppercase",
+                                    marginBottom: "0.35rem",
+                                  }}
+                                >
+                                  {activeProductTab === "ai-verifier" && "AI MULTI-MODAL PIPELINE"}
+                                  {activeProductTab === "escrow" && "BNB CHAIN SMART CONTRACT"}
+                                  {activeProductTab === "cpm-engine" && "TRANSPARENT VALUE ENGINE"}
+                                  {activeProductTab === "anti-sybil" && "SYBIL RESISTANT PROTOCOL"}
+                                </div>
+                                <h4
+                                  style={{
+                                    fontSize: "0.9375rem",
+                                    fontWeight: 600,
+                                    color: "#111",
+                                    marginBottom: "0.35rem",
+                                  }}
+                                >
+                                  {activeProductTab === "ai-verifier" && "Verifikasi Akurat 99.8%"}
+                                  {activeProductTab === "escrow" && "Pencairan USDT Seketika"}
+                                  {activeProductTab === "cpm-engine" && "Rate Kompetitif per View"}
+                                  {activeProductTab === "anti-sybil" && "Tanpa Bot & Akun Palsu"}
+                                </h4>
+                                <p
+                                  style={{
+                                    fontSize: "0.75rem",
+                                    color: "rgba(17,17,17,0.65)",
+                                    lineHeight: 1.45,
+                                  }}
+                                >
+                                  {activeProductTab === "ai-verifier" &&
+                                    "Menggunakan integrasi Whisper OpenAI untuk transkripsi audio sponsor dan Gemini Vision untuk mendeteksi watermark visual secara real-time."}
+                                  {activeProductTab === "escrow" &&
+                                    "Dana kampanye diamankan di smart contract BNB Chain. Payout ditransfer langsung ke wallet clipper tanpa campur tangan pihak ketiga."}
+                                  {activeProductTab === "cpm-engine" &&
+                                    "Perhitungan views terstandarisasi memastikan brand hanya membayar untuk views asli yang telah divalidasi sistem."}
+                                  {activeProductTab === "anti-sybil" &&
+                                    "Setiap video klip memiliki cryptographic hash unik di IPFS sehingga klip curian atau upload ganda otomatis ditolak."}
+                                </p>
+                              </div>
+
+                              <Link
+                                href="/campaigns"
+                                onClick={() => setActiveDropdown(null)}
+                                style={{
+                                  display: "inline-flex",
+                                  alignItems: "center",
+                                  gap: "0.35rem",
+                                  fontSize: "0.75rem",
+                                  fontWeight: 600,
+                                  color: "#111",
+                                  textDecoration: "none",
+                                  marginTop: "0.75rem",
+                                  padding: "0.5rem 0.75rem",
+                                  backgroundColor: "#ffffff",
+                                  borderRadius: "8px",
+                                  border: "1px solid rgba(17,17,17,0.08)",
+                                  boxShadow: "0 2px 5px rgba(0,0,0,0.04)",
+                                }}
+                              >
+                                <span>Jelajahi Marketplace Kampanye</span>
+                                <ArrowRight size={13} />
+                              </Link>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* 2. SOLUSI DROPDOWN */}
+                    <div
+                      style={{ position: "relative", overflow: "visible" }}
+                      onMouseEnter={() => setActiveDropdown("solutions")}
+                      onMouseLeave={() => setActiveDropdown(null)}
+                    >
+                      <button
+                        type="button"
+                        onClick={() => toggleDropdown("solutions")}
+                        className="am-nav-link"
+                        style={{
+                          background: "none",
+                          border: "none",
+                          cursor: "pointer",
+                          display: "inline-flex",
+                          alignItems: "center",
+                          gap: "0.25rem",
+                          padding: "0.4rem 0.75rem",
+                          fontSize: "0.875rem",
+                          fontWeight: 500,
+                          color: activeDropdown === "solutions" ? "#111" : "rgba(17,17,17,0.7)",
+                          borderRadius: "9999px",
+                          backgroundColor:
+                            activeDropdown === "solutions" ? "rgba(17,17,17,0.05)" : "transparent",
+                          transition: "all 0.15s ease",
+                        }}
+                      >
+                        <span>Solusi</span>
+                        <ChevronDown
+                          size={14}
+                          style={{
+                            transform: activeDropdown === "solutions" ? "rotate(180deg)" : "none",
+                            transition: "transform 0.2s ease",
+                          }}
+                        />
+                      </button>
+
+                      {/* Solutions Popover */}
+                      {activeDropdown === "solutions" && (
+                        <div
+                          style={{
+                            position: "absolute",
+                            top: "100%",
+                            left: 0,
+                            paddingTop: "0.5rem",
+                            zIndex: 99999,
+                            overflow: "visible",
+                          }}
+                        >
+                          <div
+                            style={{
+                              width: "28rem",
+                              backgroundColor: "#ffffff",
+                              borderRadius: "20px",
+                              border: "1px solid rgba(17,17,17,0.08)",
+                              boxShadow: "0 25px 60px -15px rgba(0,0,0,0.18), 0 0 0 1px rgba(0,0,0,0.04)",
+                              padding: "0.75rem",
+                              display: "flex",
+                              flexDirection: "column",
+                              gap: "0.35rem",
+                              animation: "fade-in-up 0.18s ease-out",
+                            }}
+                          >
+                            <Link
+                              href="/clipper"
+                              onClick={() => setActiveDropdown(null)}
+                              style={{
+                                textDecoration: "none",
+                                padding: "0.625rem 0.75rem",
+                                borderRadius: "12px",
+                                display: "flex",
+                                alignItems: "flex-start",
+                                gap: "0.75rem",
+                                transition: "background-color 0.15s ease",
+                              }}
+                              className="hover:bg-slate-50"
+                            >
+                              <div
+                                style={{
+                                  width: "34px",
+                                  height: "34px",
+                                  borderRadius: "8px",
+                                  backgroundColor: "#ecfdf5",
+                                  color: "#059669",
+                                  display: "flex",
+                                  alignItems: "center",
+                                  justifyContent: "center",
+                                  flexShrink: 0,
+                                }}
+                              >
+                                <Scissors size={18} />
+                              </div>
+                              <div>
+                                <div style={{ fontSize: "0.875rem", fontWeight: 600, color: "#111" }}>
+                                  Untuk Clipper &amp; Editor Video
+                                </div>
+                                <div
+                                  style={{
+                                    fontSize: "0.75rem",
+                                    color: "rgba(17,17,17,0.6)",
+                                    marginTop: "2px",
+                                  }}
+                                >
+                                  Ubah klip video podcast jadi sumber cuan harian bergaransi.
+                                </div>
+                              </div>
+                            </Link>
+
+                            <Link
+                              href="/brand/campaigns"
+                              onClick={() => setActiveDropdown(null)}
+                              style={{
+                                textDecoration: "none",
+                                padding: "0.625rem 0.75rem",
+                                borderRadius: "12px",
+                                display: "flex",
+                                alignItems: "flex-start",
+                                gap: "0.75rem",
+                                transition: "background-color 0.15s ease",
+                              }}
+                              className="hover:bg-slate-50"
+                            >
+                              <div
+                                style={{
+                                  width: "34px",
+                                  height: "34px",
+                                  borderRadius: "8px",
+                                  backgroundColor: "#fffbeb",
+                                  color: "#d97706",
+                                  display: "flex",
+                                  alignItems: "center",
+                                  justifyContent: "center",
+                                  flexShrink: 0,
+                                }}
+                              >
+                                <Megaphone size={18} />
+                              </div>
+                              <div>
+                                <div style={{ fontSize: "0.875rem", fontWeight: 600, color: "#111" }}>
+                                  Untuk Brand &amp; Bisnis UMKM
+                                </div>
+                                <div
+                                  style={{
+                                    fontSize: "0.75rem",
+                                    color: "rgba(17,17,17,0.6)",
+                                    marginTop: "2px",
+                                  }}
+                                >
+                                  Dapatkan eksposur puluhan juta views tanpa repot negosiasi manual.
+                                </div>
+                              </div>
+                            </Link>
+
+                            <Link
+                              href="/campaigns"
+                              onClick={() => setActiveDropdown(null)}
+                              style={{
+                                textDecoration: "none",
+                                padding: "0.625rem 0.75rem",
+                                borderRadius: "12px",
+                                display: "flex",
+                                alignItems: "flex-start",
+                                gap: "0.75rem",
+                                transition: "background-color 0.15s ease",
+                              }}
+                              className="hover:bg-slate-50"
+                            >
+                              <div
+                                style={{
+                                  width: "34px",
+                                  height: "34px",
+                                  borderRadius: "8px",
+                                  backgroundColor: "#eff6ff",
+                                  color: "#2563eb",
+                                  display: "flex",
+                                  alignItems: "center",
+                                  justifyContent: "center",
+                                  flexShrink: 0,
+                                }}
+                              >
+                                <Video size={18} />
+                              </div>
+                              <div>
+                                <div style={{ fontSize: "0.875rem", fontWeight: 600, color: "#111" }}>
+                                  Untuk Podcaster &amp; Kreator Asli
+                                </div>
+                                <div
+                                  style={{
+                                    fontSize: "0.75rem",
+                                    color: "rgba(17,17,17,0.6)",
+                                    marginTop: "2px",
+                                  }}
+                                >
+                                  Gandakan jangkauan konten video panjang kamu secara organik.
+                                </div>
+                              </div>
+                            </Link>
+
+                            <Link
+                              href="/admin"
+                              onClick={() => setActiveDropdown(null)}
+                              style={{
+                                textDecoration: "none",
+                                padding: "0.625rem 0.75rem",
+                                borderRadius: "12px",
+                                display: "flex",
+                                alignItems: "flex-start",
+                                gap: "0.75rem",
+                                transition: "background-color 0.15s ease",
+                                backgroundColor: "rgba(139, 92, 246, 0.05)",
+                              }}
+                              className="hover:bg-purple-100/50"
+                            >
+                              <div
+                                style={{
+                                  width: "34px",
+                                  height: "34px",
+                                  borderRadius: "8px",
+                                  backgroundColor: "#f5f3ff",
+                                  color: "#7c3aed",
+                                  display: "flex",
+                                  alignItems: "center",
+                                  justifyContent: "center",
+                                  flexShrink: 0,
+                                }}
+                              >
+                                <ShieldAlert size={18} />
+                              </div>
+                              <div>
+                                <div
+                                  style={{
+                                    fontSize: "0.875rem",
+                                    fontWeight: 600,
+                                    color: "#7c3aed",
+                                  }}
+                                >
+                                  Portal Superadmin &amp; DAO
+                                </div>
+                                <div
+                                  style={{
+                                    fontSize: "0.75rem",
+                                    color: "rgba(17,17,17,0.6)",
+                                    marginTop: "2px",
+                                  }}
+                                >
+                                  Monitoring escrow protocol, antrean verifikasi, dan governance.
+                                </div>
+                              </div>
+                            </Link>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Direct Public Link: Marketplace ONLY */}
                     <Link
                       href="/campaigns"
                       className="am-nav-link"
                       style={{
-                        padding: "0.5rem 0.875rem",
-                        borderRadius: "0.5rem",
+                        padding: "0.4rem 0.75rem",
                         fontSize: "0.875rem",
-                        color: pathname.startsWith("/campaigns") ? "#111" : "#6d6c6b",
-                        fontWeight: pathname.startsWith("/campaigns") ? 600 : 400,
+                        fontWeight: 500,
+                        color: "rgba(17,17,17,0.7)",
                         textDecoration: "none",
-                        backgroundColor: pathname.startsWith("/campaigns") ? "rgba(17, 17, 17, 0.05)" : "transparent",
+                        borderRadius: "9999px",
                       }}
                     >
-                      Campaigns
-                    </Link>
-                    <Link
-                      href="/clipper"
-                      className="am-nav-link"
-                      style={{
-                        padding: "0.5rem 0.875rem",
-                        borderRadius: "0.5rem",
-                        fontSize: "0.875rem",
-                        color: pathname.startsWith("/clipper") ? "#111" : "#6d6c6b",
-                        fontWeight: pathname.startsWith("/clipper") ? 600 : 400,
-                        textDecoration: "none",
-                        backgroundColor: pathname.startsWith("/clipper") ? "rgba(17, 17, 17, 0.05)" : "transparent",
-                      }}
-                    >
-                      Clipper Dashboard
-                    </Link>
-                    <Link
-                      href="/brand/campaigns"
-                      className="am-nav-link"
-                      style={{
-                        padding: "0.5rem 0.875rem",
-                        borderRadius: "0.5rem",
-                        fontSize: "0.875rem",
-                        color: pathname.startsWith("/brand") ? "#111" : "#6d6c6b",
-                        fontWeight: pathname.startsWith("/brand") ? 600 : 400,
-                        textDecoration: "none",
-                        backgroundColor: pathname.startsWith("/brand") ? "rgba(17, 17, 17, 0.05)" : "transparent",
-                      }}
-                    >
-                      Brand Portal
+                      Marketplace
                     </Link>
                   </div>
                 </div>
 
-                {/* Right side CTA & Auth */}
-                <div style={{ display: "flex", alignItems: "center", gap: "0.625rem" }}>
-                  {authenticated && user ? (
-                    <div style={{ position: "relative" }}>
-                      <button
-                        onClick={() => setMenuOpen((v) => !v)}
-                        className="am-nav-btn is-secondary"
-                        style={{
-                          padding: "0.5rem 1rem",
-                          fontSize: "0.875rem",
-                          fontWeight: 500,
-                          borderRadius: "0.5rem",
-                          border: "1px solid rgba(17, 17, 17, 0.12)",
-                          backgroundColor: "#fff",
-                          color: "#111",
-                          display: "inline-flex",
-                          alignItems: "center",
-                          gap: "0.5rem",
-                          cursor: "pointer",
-                        }}
-                      >
-                        <span className="w-2 h-2 rounded-full bg-[#1a7f37]" />
-                        <span>{user.displayName || "Akun Saya"}</span>
-                        <ChevronDown size={14} />
-                      </button>
-
-                      {menuOpen && (
-                        <div
+                {/* Right Side: Auth & Conditional Dashboard Button */}
+                <div
+                  className="am-nav-content-right"
+                  style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}
+                >
+                  {isLoggedIn ? (
+                    <>
+                      {/* Persona Indicator Badge (Switch Role) */}
+                      {currentRole && (
+                        <button
+                          type="button"
+                          onClick={() => setShowRoleModal(true)}
+                          title="Klik untuk ganti peran"
+                          className="am-hide-mobile"
                           style={{
-                            position: "absolute",
-                            top: "calc(100% + 8px)",
-                            right: 0,
-                            background: "#fff",
-                            borderRadius: "0.75rem",
-                            border: "1px solid rgba(17, 17, 17, 0.08)",
-                            boxShadow: "0 10px 30px rgba(17, 17, 17, 0.1)",
-                            minWidth: "220px",
-                            padding: "0.5rem",
-                            display: "flex",
-                            flexDirection: "column",
-                            gap: "0.25rem",
-                            zIndex: 100,
+                            display: "inline-flex",
+                            alignItems: "center",
+                            gap: "0.35rem",
+                            padding: "0.25rem 0.625rem",
+                            borderRadius: "9999px",
+                            fontSize: "0.75rem",
+                            fontWeight: 600,
+                            border: "1px solid rgba(17,17,17,0.08)",
+                            backgroundColor:
+                              currentRole === "admin"
+                                ? "#f5f3ff"
+                                : currentRole === "brand"
+                                ? "#fffbeb"
+                                : "#ecfdf5",
+                            color:
+                              currentRole === "admin"
+                                ? "#7c3aed"
+                                : currentRole === "brand"
+                                ? "#d97706"
+                                : "#059669",
+                            cursor: "pointer",
                           }}
                         >
-                          <Link
-                            href="/clipper"
-                            style={{
-                              padding: "0.625rem 0.875rem",
-                              fontSize: "0.875rem",
-                              borderRadius: "0.375rem",
-                              color: "#111",
-                              textDecoration: "none",
-                              display: "flex",
-                              alignItems: "center",
-                              gap: "0.625rem",
-                            }}
-                            className="hover:bg-black/5"
-                          >
-                            <Scissors size={15} />
-                            <span>Dashboard Clipper</span>
-                          </Link>
-                          <Link
-                            href="/brand/campaigns"
-                            style={{
-                              padding: "0.625rem 0.875rem",
-                              fontSize: "0.875rem",
-                              borderRadius: "0.375rem",
-                              color: "#111",
-                              textDecoration: "none",
-                              display: "flex",
-                              alignItems: "center",
-                              gap: "0.625rem",
-                            }}
-                            className="hover:bg-black/5"
-                          >
-                            <LayoutDashboard size={15} />
-                            <span>Dashboard Brand</span>
-                          </Link>
-                          <Link
-                            href="/brand/new"
-                            style={{
-                              padding: "0.625rem 0.875rem",
-                              fontSize: "0.875rem",
-                              borderRadius: "0.375rem",
-                              color: "#111",
-                              textDecoration: "none",
-                              display: "flex",
-                              alignItems: "center",
-                              gap: "0.625rem",
-                            }}
-                            className="hover:bg-black/5"
-                          >
-                            <Plus size={15} />
-                            <span>Buat Campaign</span>
-                          </Link>
-                          <div
-                            style={{
-                              height: "1px",
-                              backgroundColor: "rgba(17, 17, 17, 0.06)",
-                              margin: "0.25rem 0",
-                            }}
-                          />
-                          <button
-                            onClick={() => logout()}
-                            style={{
-                              padding: "0.625rem 0.875rem",
-                              fontSize: "0.875rem",
-                              borderRadius: "0.375rem",
-                              color: "#e8400d",
-                              background: "none",
-                              border: "none",
-                              textAlign: "left",
-                              cursor: "pointer",
-                              display: "flex",
-                              alignItems: "center",
-                              gap: "0.625rem",
-                              width: "100%",
-                            }}
-                            className="hover:bg-red-50"
-                          >
-                            <LogOut size={15} />
-                            <span>Keluar</span>
-                          </button>
-                        </div>
+                          <span style={{ textTransform: "capitalize" }}>
+                            {currentRole === "admin"
+                              ? "Superadmin"
+                              : currentRole === "brand"
+                              ? "Brand"
+                              : "Clipper"}
+                          </span>
+                          <Sliders size={11} />
+                        </button>
                       )}
-                    </div>
+
+                      {/* Direct Dashboard Access Button for Logged In User */}
+                      <Link
+                        href={dashboardHref}
+                        className="am-nav-btn"
+                        style={{
+                          fontSize: "0.8125rem",
+                          padding: "0 1.125rem",
+                          height: "34px",
+                          backgroundColor: "#111",
+                          color: "#fff",
+                          fontWeight: 600,
+                          borderRadius: "9999px",
+                          display: "inline-flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          gap: "0.35rem",
+                          textDecoration: "none",
+                          boxShadow: "0 2px 8px rgba(0,0,0,0.15)",
+                          whiteSpace: "nowrap",
+                          transition: "all 0.15s ease",
+                        }}
+                      >
+                        <span>Dashboard</span>
+                        <ArrowRight size={13} />
+                      </Link>
+
+                      {/* Logout button */}
+                      <button
+                        type="button"
+                        onClick={handleLogout}
+                        title="Keluar akun"
+                        className="am-hide-mobile"
+                        style={{
+                          background: "none",
+                          border: "none",
+                          cursor: "pointer",
+                          padding: "0.4rem",
+                          color: "rgba(17,17,17,0.5)",
+                          display: "inline-flex",
+                          alignItems: "center",
+                          borderRadius: "50%",
+                          transition: "color 0.15s ease",
+                        }}
+                      >
+                        <LogOut size={16} />
+                      </button>
+                    </>
                   ) : (
                     <>
+                      {/* Masuk Button */}
                       <button
-                        onClick={login}
-                        className="am-nav-btn is-secondary"
+                        type="button"
+                        onClick={() => setShowRoleModal(true)}
+                        className="am-nav-btn is-secondary am-hide-mobile"
                         style={{
-                          padding: "0.5rem 1rem",
-                          fontSize: "0.875rem",
+                          fontSize: "0.8125rem",
+                          padding: "0 0.875rem",
+                          height: "34px",
                           fontWeight: 500,
-                          borderRadius: "0.5rem",
-                          border: "1px solid rgba(17, 17, 17, 0.12)",
-                          backgroundColor: "transparent",
-                          color: "#111",
+                          borderRadius: "9999px",
+                          display: "inline-flex",
+                          alignItems: "center",
+                          justifyContent: "center",
                           cursor: "pointer",
+                          backgroundColor: "rgba(17,17,17,0.04)",
+                          border: "1px solid rgba(17,17,17,0.08)",
+                          color: "#111",
+                          transition: "all 0.15s ease",
                         }}
                       >
                         Masuk
                       </button>
+
+                      {/* Mulai Gratis CTA Button */}
                       <button
-                        onClick={login}
+                        type="button"
+                        onClick={() => setShowRoleModal(true)}
                         className="am-nav-btn"
                         style={{
-                          padding: "0.5rem 1.125rem",
-                          fontSize: "0.875rem",
-                          fontWeight: 500,
-                          borderRadius: "0.5rem",
+                          fontSize: "0.8125rem",
+                          padding: "0 1.125rem",
+                          height: "34px",
                           backgroundColor: "#111",
                           color: "#fff",
-                          border: "none",
+                          fontWeight: 600,
+                          borderRadius: "9999px",
                           cursor: "pointer",
+                          display: "inline-flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          border: "none",
+                          boxShadow: "0 2px 8px rgba(0,0,0,0.15)",
+                          whiteSpace: "nowrap",
+                          transition: "all 0.15s ease",
                         }}
                       >
                         Mulai Gratis
@@ -315,142 +998,157 @@ export function Nav() {
                     </>
                   )}
 
-                  {/* Mobile hamburger button */}
+                  {/* Mobile Drawer Hamburger */}
                   <button
-                    onClick={() => setMobileOpen((v) => !v)}
-                    className="md:hidden"
+                    type="button"
+                    onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                    className="am-navbar-mobile-menu-btn am-show-tablet"
                     style={{
-                      padding: "0.5rem",
-                      borderRadius: "0.5rem",
+                      display: "none",
                       background: "none",
                       border: "none",
+                      padding: "0.5rem",
                       cursor: "pointer",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      color: "#111",
                     }}
-                    aria-label="Toggle navigation menu"
+                    aria-label="Toggle menu"
                   >
-                    {mobileOpen ? <X size={20} /> : <Menu size={20} />}
+                    <div
+                      style={{
+                        width: "20px",
+                        height: "2px",
+                        backgroundColor: "#111",
+                        marginBottom: "4px",
+                      }}
+                    />
+                    <div
+                      style={{
+                        width: "20px",
+                        height: "2px",
+                        backgroundColor: "#111",
+                        marginBottom: "4px",
+                      }}
+                    />
+                    <div style={{ width: "20px", height: "2px", backgroundColor: "#111" }} />
                   </button>
                 </div>
               </div>
+
+              {/* Mobile Drawer Menu */}
+              {mobileMenuOpen && (
+                <div
+                  className="am-navbar-mobile-menu-wrapper"
+                  style={{
+                    backgroundColor: "#fbfaf9",
+                    padding: "1.25rem",
+                    borderRadius: "1rem",
+                    marginTop: "0.5rem",
+                    border: "1px solid rgba(17,17,17,0.08)",
+                    boxShadow: "0 12px 35px rgba(0,0,0,0.1)",
+                  }}
+                >
+                  <div style={{ display: "flex", flexDirection: "column", gap: "0.875rem" }}>
+                    <Link
+                      href="/campaigns"
+                      onClick={() => setMobileMenuOpen(false)}
+                      className="am-footer-link"
+                      style={{ fontSize: "1rem", fontWeight: 600, color: "#111" }}
+                    >
+                      Marketplace Kampanye
+                    </Link>
+
+                    {isLoggedIn ? (
+                      <>
+                        <Link
+                          href={dashboardHref}
+                          onClick={() => setMobileMenuOpen(false)}
+                          className="am-footer-link"
+                          style={{ fontSize: "1rem", fontWeight: 600, color: "#e8400d" }}
+                        >
+                          {dashboardLabel}
+                        </Link>
+                        <div className="am-horizontal-divider" />
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setMobileMenuOpen(false);
+                            setShowRoleModal(true);
+                          }}
+                          className="am-nav-btn is-secondary"
+                          style={{
+                            padding: "0.625rem",
+                            borderRadius: "9999px",
+                            fontWeight: 600,
+                            textAlign: "center",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            gap: "0.5rem",
+                          }}
+                        >
+                          <Sliders size={14} />
+                          <span>Ganti Peran ({currentRole || "Pilih"})</span>
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setMobileMenuOpen(false);
+                            handleLogout();
+                          }}
+                          style={{
+                            background: "none",
+                            border: "none",
+                            color: "#dc2626",
+                            fontSize: "0.875rem",
+                            fontWeight: 600,
+                            cursor: "pointer",
+                            padding: "0.5rem",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            gap: "0.35rem",
+                          }}
+                        >
+                          <LogOut size={14} />
+                          <span>Keluar Akun</span>
+                        </button>
+                      </>
+                    ) : (
+                      <>
+                        <div className="am-horizontal-divider" />
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setMobileMenuOpen(false);
+                            setShowRoleModal(true);
+                          }}
+                          className="am-nav-btn"
+                          style={{
+                            backgroundColor: "#111",
+                            color: "#fff",
+                            padding: "0.75rem",
+                            borderRadius: "9999px",
+                            fontWeight: 600,
+                            textAlign: "center",
+                          }}
+                        >
+                          Masuk / Mulai Gratis
+                        </button>
+                      </>
+                    )}
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </nav>
       </div>
 
-      {/* Mobile Drawer Menu */}
-      {mobileOpen && (
-        <div
-          className="md:hidden"
-          style={{
-            position: "fixed",
-            top: "68px",
-            left: "1rem",
-            right: "1rem",
-            backgroundColor: "#fff",
-            borderRadius: "1rem",
-            border: "1px solid rgba(17, 17, 17, 0.08)",
-            boxShadow: "0 12px 40px rgba(17, 17, 17, 0.15)",
-            padding: "1rem",
-            zIndex: 98,
-            display: "flex",
-            flexDirection: "column",
-            gap: "0.5rem",
-          }}
-        >
-          <Link
-            href="/campaigns"
-            style={{
-              padding: "0.75rem 1rem",
-              borderRadius: "0.5rem",
-              fontSize: "1rem",
-              color: "#111",
-              textDecoration: "none",
-            }}
-          >
-            Campaigns
-          </Link>
-          <Link
-            href="/clipper"
-            style={{
-              padding: "0.75rem 1rem",
-              borderRadius: "0.5rem",
-              fontSize: "1rem",
-              color: "#111",
-              textDecoration: "none",
-            }}
-          >
-            Clipper Dashboard
-          </Link>
-          <Link
-            href="/brand/campaigns"
-            style={{
-              padding: "0.75rem 1rem",
-              borderRadius: "0.5rem",
-              fontSize: "1rem",
-              color: "#111",
-              textDecoration: "none",
-            }}
-          >
-            Brand Portal
-          </Link>
-          <Link
-            href="/clipper/submit"
-            style={{
-              padding: "0.75rem 1rem",
-              borderRadius: "0.5rem",
-              fontSize: "1rem",
-              color: "#111",
-              textDecoration: "none",
-            }}
-          >
-            Submit Klip
-          </Link>
-          <div
-            style={{
-              height: "1px",
-              backgroundColor: "rgba(17, 17, 17, 0.08)",
-              margin: "0.5rem 0",
-            }}
-          />
-          {!authenticated ? (
-            <button
-              onClick={login}
-              style={{
-                width: "100%",
-                padding: "0.75rem",
-                borderRadius: "0.5rem",
-                backgroundColor: "#111",
-                color: "#fff",
-                border: "none",
-                fontWeight: 500,
-                cursor: "pointer",
-              }}
-            >
-              Masuk / Mulai Gratis
-            </button>
-          ) : (
-            <button
-              onClick={() => logout()}
-              style={{
-                width: "100%",
-                padding: "0.75rem",
-                borderRadius: "0.5rem",
-                backgroundColor: "#fff",
-                color: "#e8400d",
-                border: "1px solid rgba(232, 64, 13, 0.2)",
-                fontWeight: 500,
-                cursor: "pointer",
-              }}
-            >
-              Keluar
-            </button>
-          )}
-        </div>
-      )}
+      {/* Role Selection & Login Modal */}
+      <RoleSelectModal
+        isOpen={showRoleModal}
+        onClose={() => setShowRoleModal(false)}
+        onSelectRole={(role) => setCurrentRole(role)}
+      />
     </>
   );
 }

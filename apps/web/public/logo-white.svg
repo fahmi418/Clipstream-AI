@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 170 36" fill="none" width="170" height="36">
+  <!-- Squircle Icon Background -->
+  <rect x="2" y="2" width="32" height="32" rx="9" fill="#FFFFFF" />
+  
+  <!-- Video Camera Icon inside Squircle -->
+  <path d="M12 13C12 11.8954 12.8954 11 14 11H20C21.1046 11 22 11.8954 22 13V23C22 24.1046 21.1046 25 20 25H14C12.8954 25 12 24.1046 12 23V13Z" fill="none" stroke="#111111" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+  <path d="M22 15.5L27 12V24L22 20.5" fill="none" stroke="#111111" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+
+  <!-- Wordmark "ClipStream" -->
+  <text x="44" y="24" font-family="'Labil Grotesk Variable', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="18" font-weight="700" letter-spacing="-0.5" fill="#FFFFFF">
+    ClipStream<tspan fill="#e8400d">.ai</tspan>
+  </text>
+</svg>

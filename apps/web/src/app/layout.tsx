@@ -41,7 +41,21 @@ export default function RootLayout({
 }) {
   return (
     <html lang="id" className={inter.variable}>
-      <body className="min-h-screen flex flex-col bg-[#f6f5f3] text-[#111] antialiased">
+      <head>
+        <link
+          rel="stylesheet"
+          href="/css/amplemarket-staging.webflow.shared.6db28886d.min.css"
+        />
+        <link
+          rel="stylesheet"
+          href="/css/amplemarket-staging.webflow.6694f1b8a9955d9d2be998ad.40f1360e8.opt.min.css"
+        />
+        <link
+          rel="stylesheet"
+          href="/css/amplemarket-custom.css"
+        />
+      </head>
+      <body className="am-body min-h-screen flex flex-col bg-[#f6f5f3] text-[#111] antialiased">
         <div className="am-page-wrapper flex flex-col min-h-screen">
           <Providers>
             <Nav />

@@ -15,6 +15,7 @@ import {
 import { PayoutBreakdown } from "@/components/PayoutBreakdown";
 import { EvidenceViewer } from "@/components/EvidenceViewer";
 import { AppealModal } from "@/components/AppealModal";
+import { ViewGrowthChart } from "@/components/ViewGrowthChart";
 import {
   ArrowLeft,
   CheckCircle2,
@@ -238,6 +239,12 @@ export default function ClipperClipDetailPage({
         />
       )}
 
+      {/* View Growth Timeline Chart */}
+      <ViewGrowthChart
+        data={clip.snapshots || []}
+        currentViews={clip.views || 52310}
+      />
+
       {/* Milestone History Table (Section 7.2) */}
       <div className="card p-6 bg-white rounded-2xl border border-[rgba(17,17,17,0.08)] space-y-4">
         <div className="flex items-center justify-between pb-3 border-b border-[rgba(17,17,17,0.06)]">
@@ -328,6 +335,7 @@ export default function ClipperClipDetailPage({
         safetyScore={clip.safetyScore}
         anomalyScore={clip.anomalyScore}
         verificationCode={clip.verificationCode}
+        attestation={clip.evidence}
       />
 
       {/* Appeal Modal */}

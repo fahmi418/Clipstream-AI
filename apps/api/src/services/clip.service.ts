@@ -56,6 +56,12 @@ export interface ClipDetailResponse {
     comments: number;
     lastCheckedAt: string;
   } | null;
+  snapshots?: Array<{
+    views: number;
+    likes: number;
+    comments: number;
+    capturedAt: string;
+  }>;
   verification: {
     stages: Array<{
       stage: string;
@@ -84,6 +90,11 @@ export interface ClipDetailResponse {
   evidence: {
     ipfsCid: string | null;
     evidenceHash: string;
+    signature?: string | null;
+    signerAddress?: string | null;
+    nonce?: string | null;
+    expiry?: string | null;
+    rawBundle?: Record<string, unknown> | null;
   } | null;
   rejection: {
     code: string;
@@ -256,6 +267,11 @@ export class ClipService {
       evidence = {
         ipfsCid: bundle?.ipfsCid || null,
         evidenceHash: latestAtt.evidenceHash,
+        signature: latestAtt.signature,
+        signerAddress: latestAtt.signerAddress,
+        nonce: latestAtt.nonce.toString(),
+        expiry: latestAtt.expiry.toISOString(),
+        rawBundle: (bundle?.payload as unknown as Record<string, unknown>) || null,
       };
     }
 
@@ -281,6 +297,12 @@ export class ClipService {
             lastCheckedAt: latestSnapshot.capturedAt.toISOString(),
           }
         : null,
+      snapshots: snapshots.map((s) => ({
+        views: s.views,
+        likes: s.likes,
+        comments: s.comments,
+        capturedAt: s.capturedAt.toISOString(),
+      })),
       verification: {
         stages,
         completedAt: latestRun?.finishedAt?.toISOString() || null,

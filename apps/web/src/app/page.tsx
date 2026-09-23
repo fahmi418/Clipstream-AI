@@ -6,25 +6,93 @@ import { useSearchParams } from "next/navigation";
 import {
   ShieldCheck,
   Zap,
-  Cpu,
   ArrowRight,
-  Lock,
-  Scissors,
-  Megaphone,
-  CheckCircle2,
   ExternalLink,
-  Sparkles,
-  TrendingUp,
   ChevronDown,
   Play,
   Check,
-  Eye,
+  Video,
+  Sparkles,
+  TrendingUp,
   Coins,
+  Cpu,
+  Layers,
+  Lock,
+  Eye,
+  CheckCircle2,
+  Bot,
 } from "lucide-react";
 import { fetchStats, listCampaigns, type Stats, type Campaign } from "@/lib/api";
 import { formatUsdt, formatIdr, formatViews } from "@/lib/format";
-import { CampaignCard } from "@/components/CampaignCard";
 import { RoleSelectModal } from "@/components/RoleSelectModal";
+import { HeroCreatorRocket } from "@/components/HeroCreatorRocket";
+import { ScrollReveal } from "@/components/ScrollReveal";
+
+const defaultLandingDemoCampaigns: Campaign[] = [
+  {
+    id: "camp-seed-1",
+    onchainId: "1",
+    brandId: "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+    title: "BNB Chain Ecosystem Spotlight",
+    description:
+      "Highlight inovasi dApps dan proyek Web3 unggulan di BNB Chain. Fokus pada kecepatan transaksi, ekosistem DeFi, dan efisiensi gas fee.",
+    sourceUrl: "https://www.youtube.com/watch?v=5-gWpX231y0",
+    rules: "Wajib menyertakan watermark sponsor dan tagar #BNBChain. Durasi klip minimal 30 detik.",
+    cpmRate: "1748466",
+    totalBudget: "1500000000",
+    remainingBudget: "1120000000",
+    maxPayoutPerClip: "250000000",
+    minViews: 1000,
+    deadline: new Date(Date.now() + 14 * 86400000).toISOString(),
+    status: "ACTIVE",
+    clippersCount: 24,
+    clipsCount: 68,
+    txHash: "0xaaaabbbbccccddddeeeeffff0000111122223333444455556666777788889999",
+    createdAt: new Date().toISOString(),
+  },
+  {
+    id: "camp-seed-2",
+    onchainId: "2",
+    brandId: "0x70997970C51812dc3A010C7d01b50e0d17dc79C8",
+    title: "DeFi DEX Launch Campaign",
+    description:
+      "Promosikan peluncuran DEX generasi terbaru di BNB Chain dengan fitur gasless swap dan yield farming terdesentralisasi.",
+    sourceUrl: "https://www.youtube.com/watch?v=k891023948a",
+    rules: "Highlight fitur auto-routing dan keamanan kontrak audit. Tanpa klaim keuntungan finansial berlebihan.",
+    cpmRate: "1503067",
+    totalBudget: "800000000",
+    remainingBudget: "640000000",
+    maxPayoutPerClip: "150000000",
+    minViews: 1000,
+    deadline: new Date(Date.now() + 9 * 86400000).toISOString(),
+    status: "ACTIVE",
+    clippersCount: 18,
+    clipsCount: 42,
+    txHash: "0xbbbbccccddddeeeeffff0000111122223333444455556666777788889999aaaa",
+    createdAt: new Date().toISOString(),
+  },
+  {
+    id: "camp-seed-3",
+    onchainId: "3",
+    brandId: "0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC",
+    title: "AI Agent Trading Hackathon Teaser",
+    description:
+      "Bagikan cuplikan highlight tim dan ide autonomous agent terbaik di ajang AI Agent Hackathon 2026. Fokus pada integrasi Web3 & LLM.",
+    sourceUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+    rules: "Gunakan visual resolusi 1080p, audio jernih, dan watermark akun clipper terpasang.",
+    cpmRate: "1963190",
+    totalBudget: "2000000000",
+    remainingBudget: "1650000000",
+    maxPayoutPerClip: "350000000",
+    minViews: 1500,
+    deadline: new Date(Date.now() + 18 * 86400000).toISOString(),
+    status: "ACTIVE",
+    clippersCount: 31,
+    clipsCount: 89,
+    txHash: "0xccccdddd0000111122223333444455556666777788889999aaaabbbbccccdddd",
+    createdAt: new Date().toISOString(),
+  },
+];
 
 function HomePageContent() {
   const searchParams = useSearchParams();
@@ -32,10 +100,11 @@ function HomePageContent() {
   const [stats, setStats] = useState<Stats | null>(null);
   const [campaigns, setCampaigns] = useState<Campaign[]>([]);
   const [loading, setLoading] = useState(true);
+
+  // Interactive Tab States
+  const [activePillar, setActivePillar] = useState<number>(1);
+  const [activePersona, setActivePersona] = useState<number>(1);
   const [openFaq, setOpenFaq] = useState<number | null>(null);
-  const [activeTab, setActiveTab] = useState<"clipper" | "brand">("clipper");
-  const [simulating, setSimulating] = useState(false);
-  const [simStep, setSimStep] = useState(0);
 
   useEffect(() => {
     if (searchParams.get("new") === "1") {
@@ -58,909 +127,1882 @@ function HomePageContent() {
     setOpenFaq(openFaq === index ? null : index);
   };
 
-  const runSimulation = () => {
-    if (simulating) return;
-    setSimulating(true);
-    setSimStep(1);
-    setTimeout(() => setSimStep(2), 1200);
-    setTimeout(() => setSimStep(3), 2400);
-    setTimeout(() => {
-      setSimStep(4);
-      setSimulating(false);
-    }, 3600);
-  };
-
   return (
     <div className="flex flex-col w-full">
-      {/* ── 1. Hero Section (Amplemarket Hero Structure) ───────────── */}
-      <section className="am-section am-max-width-1440 am-centered-margins" style={{ width: "100%", position: "relative" }}>
-        <div className="am-container" style={{ maxWidth: "69rem", margin: "0 auto", padding: "0 1.5rem" }}>
-          <div className="am-home-hero-content" style={{ paddingTop: "7.5rem", paddingBottom: "3rem" }}>
-            <div className="am-home-hero-content-top" style={{ maxWidth: "44rem", margin: "0 auto", textAlign: "center", display: "flex", flexDirection: "column", alignItems: "center", gap: "1.75rem" }}>
-              <div className="am-home-hero-content-top-text" style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "1.25rem" }}>
-                <div className="am-home-hero-heading-wrapper" style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "1.25rem" }}>
-                  {/* Eyebrow Pill */}
-                  <div
-                    className="am-featured-link"
-                    style={{
-                      display: "inline-flex",
-                      alignItems: "center",
-                      gap: "0.625rem",
-                      padding: "0.375rem 0.875rem",
-                      borderRadius: "9999px",
-                      backgroundColor: "rgba(255, 255, 255, 0.9)",
-                      border: "1px solid rgba(17, 17, 17, 0.08)",
-                      boxShadow: "0 2px 8px rgba(17, 17, 17, 0.04)",
-                      fontSize: "0.8125rem",
-                      color: "#111",
-                    }}
-                  >
-                    <div
-                      className="am-new-label is-black"
-                      style={{
-                        backgroundColor: "#111",
-                        color: "#fff",
-                        padding: "0.125rem 0.5rem",
-                        borderRadius: "9999px",
-                        fontSize: "0.6875rem",
-                        fontWeight: 700,
-                        letterSpacing: "0.5px",
-                      }}
-                    >
-                      BNB CHAIN 2026
-                    </div>
-                    <div className="am-opacity-80" style={{ fontWeight: 500 }}>
-                      AI Agent + Consumer Apps Hackathon →
-                    </div>
-                  </div>
+      {/* ── 1. HERO SECTION (Amplemarket Reference Hero) ──────────────── */}
+      <section
+        className="am-section am-max-width-1440 am-centered-margins"
+        style={{
+          position: "relative",
+          overflow: "hidden",
+          backgroundColor: "#ffffff",
+        }}
+      >
+        {/* Bespoke ClipStream Aesthetic Ambient Glow Mesh (Emerald + Amber + Violet with Grain) */}
+        <div
+          style={{
+            position: "absolute",
+            top: "-8%",
+            left: "-10%",
+            width: "55%",
+            height: "95%",
+            background:
+              "radial-gradient(ellipse at 30% 35%, rgba(0, 208, 132, 0.24) 0%, rgba(245, 158, 11, 0.26) 28%, rgba(251, 113, 133, 0.18) 50%, rgba(139, 92, 246, 0.15) 68%, transparent 82%)",
+            filter: "blur(54px)",
+            pointerEvents: "none",
+            zIndex: 0,
+          }}
+        />
 
-                  {/* Main Display Headline */}
+        {/* Aesthetic SVG Grain Texture Overlay */}
+        <svg
+          style={{
+            position: "absolute",
+            inset: 0,
+            width: "100%",
+            height: "100%",
+            pointerEvents: "none",
+            opacity: 0.38,
+            mixBlendMode: "overlay",
+            zIndex: 0,
+          }}
+        >
+          <filter id="hero-grain">
+            <feTurbulence
+              type="fractalNoise"
+              baseFrequency="0.65"
+              numOctaves="3"
+              stitchTiles="stitch"
+            />
+            <feColorMatrix type="saturate" values="0" />
+          </filter>
+          <rect width="100%" height="100%" filter="url(#hero-grain)" />
+        </svg>
+
+        {/* Bespoke Original ClipStream Creator Rocket Vector Illustration */}
+        <HeroCreatorRocket />
+
+        <div className="am-container" style={{ position: "relative", zIndex: 1 }}>
+          <div className="am-home-hero-content am-padding-168-top" style={{ paddingTop: "7.5rem" }}>
+            <div className="am-home-hero-content-top">
+              <div className="am-home-hero-content-top-text" style={{ maxWidth: "64rem", margin: "0 auto", textAlign: "center" }}>
+                <div className="am-home-hero-heading-wrapper" style={{ maxWidth: "60rem", margin: "0 auto" }}>
+                  {/* Eyebrow Link / Badge */}
+                  <Link href="/campaigns" className="am-featured-link w-inline-block">
+                    <div className="am-new-label is-black">
+                      <div>BNB CHAIN 2026</div>
+                    </div>
+                    <div className="am-opacity-80">
+                      Kreator + AI Agent Escrow Ecosystem →
+                    </div>
+                  </Link>
+
+                  {/* Main Display Title - Wide, breathing, balanced */}
                   <h1
                     className="am-heading-56 am-text-align-center"
                     style={{
-                      fontSize: "clamp(2.5rem, 5.5vw, 3.875rem)",
-                      lineHeight: 1.12,
-                      letterSpacing: "-2px",
-                      fontWeight: 400,
-                      color: "#111",
-                      margin: 0,
+                      maxWidth: "58rem",
+                      margin: "0.75rem auto 0 auto",
+                      fontSize: "clamp(2.75rem, 5.2vw, 4.25rem)",
+                      lineHeight: 1.14,
+                      letterSpacing: "-0.04em",
+                      fontWeight: 800,
+                      fontFamily: "'Labil Grotesk Variable', sans-serif",
                     }}
                   >
-                    Klip kamu, <br className="hidden sm:inline" />
-                    <span style={{ fontWeight: 600 }}>dibayar otomatis.</span>
+                    <span>Kl</span>ip <span className="am-alternate">ka</span>mu, diba
+                    <span className="am-alternate">yar</span> oto
+                    <span className="am-alternate">ma</span>tis: Kreator + AI
                   </h1>
                 </div>
 
-                {/* Subtitle */}
+                {/* Subtitle - Wider and comfortably spaced */}
                 <p
                   className="am-paragraph-20 am-opacity-60 am-text-align-center"
                   style={{
+                    maxWidth: "46rem",
+                    margin: "1.5rem auto 0 auto",
                     fontSize: "1.1875rem",
-                    lineHeight: 1.5,
-                    color: "rgba(17, 17, 17, 0.7)",
-                    maxWidth: "38rem",
-                    margin: "0 auto",
+                    lineHeight: 1.65,
+                    color: "rgba(17, 17, 17, 0.68)",
                   }}
                 >
-                  Brand kunci budget di smart contract. AI mengecek keaslian klip kamu. Begitu views masuk, uangnya cair langsung tanpa nunggu approval admin.
+                  Platform escrow video terdesentralisasi pertama di BNB Chain. Upload klip TikTok,
+                  Shorts, atau Reels kamu — AI Agent memverifikasi views dan mentransfer USDT langsung
+                  ke wallet tanpa nunggu approval admin.
                 </p>
               </div>
 
-              {/* Action Buttons & Social Proof */}
-              <div className="am-partial-form-wrapper" style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "1.25rem", width: "100%" }}>
-                <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", gap: "0.875rem" }}>
-                  <Link
-                    href="/campaigns"
+              {/* Dual Action CTAs for Clipper & Brand */}
+              <div style={{ marginTop: "2.25rem", display: "flex", flexDirection: "column", alignItems: "center" }}>
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    gap: "0.875rem",
+                    flexWrap: "wrap",
+                  }}
+                >
+                  <button
+                    type="button"
+                    onClick={() => setShowRoleModal(true)}
                     className="am-nav-btn"
                     style={{
-                      padding: "0.875rem 1.75rem",
-                      backgroundColor: "#111",
-                      color: "#fff",
-                      fontSize: "1rem",
-                      fontWeight: 500,
-                      borderRadius: "0.5rem",
-                      textDecoration: "none",
+                      backgroundColor: "#111111",
+                      color: "#ffffff",
+                      borderRadius: "9999px",
+                      padding: "0.75rem 1.625rem",
+                      fontSize: "0.9375rem",
+                      fontWeight: 600,
                       display: "inline-flex",
                       alignItems: "center",
                       gap: "0.5rem",
-                      boxShadow: "0 4px 14px rgba(17, 17, 17, 0.15)",
+                      border: "none",
+                      cursor: "pointer",
+                      boxShadow: "0 4px 16px rgba(0, 0, 0, 0.12)",
+                      transition: "transform 0.15s ease, box-shadow 0.15s ease",
                     }}
                   >
-                    <span>Mulai Ngeklip</span>
-                    <ArrowRight size={16} />
-                  </Link>
+                    <span>Daftar sebagai Clipper</span>
+                    <ArrowRight size={15} />
+                  </button>
 
-                  <Link
-                    href="/brand/new"
+                  <button
+                    type="button"
+                    onClick={() => setShowRoleModal(true)}
                     className="am-nav-btn is-secondary"
                     style={{
-                      padding: "0.875rem 1.75rem",
-                      backgroundColor: "#fff",
-                      color: "#111",
-                      fontSize: "1rem",
-                      fontWeight: 500,
-                      borderRadius: "0.5rem",
+                      backgroundColor: "rgba(17, 17, 17, 0.04)",
+                      color: "#111111",
                       border: "1px solid rgba(17, 17, 17, 0.12)",
-                      textDecoration: "none",
+                      borderRadius: "9999px",
+                      padding: "0.75rem 1.5rem",
+                      fontSize: "0.9375rem",
+                      fontWeight: 600,
                       display: "inline-flex",
                       alignItems: "center",
                       gap: "0.5rem",
+                      cursor: "pointer",
+                      transition: "all 0.15s ease",
                     }}
                   >
-                    <Megaphone size={16} />
-                    <span>Buat Campaign</span>
-                  </Link>
+                    <span>Pasang Bounty Brand</span>
+                  </button>
                 </div>
 
-                {/* Social Proof Stripe */}
-                <div
-                  className="am-social-proof-stripe is-dark"
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: "0.75rem",
-                    fontSize: "0.8125rem",
-                    color: "rgba(17, 17, 17, 0.6)",
-                    fontWeight: 500,
-                    paddingTop: "0.25rem",
-                  }}
-                >
-                  <span className="flex items-center gap-1">
-                    <ShieldCheck size={14} className="text-[#1a7f37]" />
-                    <span>100% On-Chain Escrow</span>
-                  </span>
-                  <span>•</span>
-                  <span>AI Whisper &amp; Gemini Verifier</span>
-                  <span>•</span>
-                  <span>Rata-rata 45 Detik Cair</span>
+
+
+
+                {/* Social Proof Stripe with CertiK & OpenZeppelin Security Audit */}
+                <div className="am-social-proof-stripe is-dark" style={{ marginTop: "1.25rem" }}>
+                  <div className="am-social-proof-stars">
+                    <div className="am-social-proof-link w-inline-block">
+                      <img
+                        src="/assets/669e737879aa8335b500699a_g2-starts.svg"
+                        loading="eager"
+                        alt="Kreator reviews 5 stars"
+                        className="am-image"
+                      />
+                    </div>
+                  </div>
+                  <div className="am-vertical-divider"></div>
+                  <div className="am-social-proof-gartner-wrapper am-social-proof-link w-inline-block" style={{ gap: "0.45rem" }}>
+                    <ShieldCheck size={16} style={{ color: "#00d084" }} />
+                    <div className="am-social-proof-gartner-text" style={{ fontSize: "0.75rem", fontWeight: 600 }}>
+                      Audit Keamanan Smart Contract oleh <span style={{ color: "#111", fontWeight: 700 }}>CertiK</span> &amp; Standar OpenZeppelin
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
+          </div>
+        </div>
+      </section>
 
-            {/* Hero Interactive Product Screen (Amplemarket Video/Preview Frame) */}
-            <div
-              className="am-demo-video-border"
-              style={{
-                marginTop: "3.5rem",
-                borderRadius: "1rem",
-                border: "1px solid rgba(17, 17, 17, 0.1)",
-                backgroundColor: "#272625",
-                boxShadow: "0 20px 50px rgba(17, 17, 17, 0.12)",
-                overflow: "hidden",
-              }}
-            >
-              <div className="am-demo-video-wrapper is-home" style={{ padding: "1.5rem" }}>
-                {/* Window Header */}
+      {/* ── 2. TRUSTED BY / MIGRATED OFF 8-GRID BENTO ─────────────────── */}
+      <section className="am-section am-padding-100 am-padding-bottom-144" style={{ paddingTop: "5rem", paddingBottom: "7rem" }}>
+        <div className="am-container">
+          <div className="am-social-proof-wrapper">
+            <div className="am-logos-migrated-section">
+              <ScrollReveal>
+                <h2 className="am-heading-28" style={{ textAlign: "center", marginBottom: "2.5rem" }}>
+                  Beralih dari sistem manual lama ke ClipStream AI
+                </h2>
+              </ScrollReveal>
+
+              {/* Clean 8-Card Grid with Normal 1px Borders */}
+              <div
+                style={{
+                  display: "grid",
+                  gridTemplateColumns: "repeat(4, 1fr)",
+                  border: "1px solid rgba(0, 0, 0, 0.08)",
+                  borderRadius: "16px",
+                  overflow: "hidden",
+                  backgroundColor: "#ffffff",
+                  boxShadow: "0 4px 20px rgba(0, 0, 0, 0.02)",
+                }}
+                className="platform-tiles-grid"
+              >
+                {/* Tile 1: YouTube Shorts */}
                 <div
                   style={{
+                    padding: "2rem 1.75rem",
                     display: "flex",
-                    alignItems: "center",
+                    flexDirection: "column",
                     justifyContent: "space-between",
-                    paddingBottom: "1.25rem",
-                    borderBottom: "1px solid rgba(255, 255, 255, 0.1)",
-                    fontSize: "0.75rem",
-                    fontFamily: "monospace",
-                    flexWrap: "wrap",
-                    gap: "0.5rem",
+                    minHeight: "170px",
+                    borderRight: "1px solid rgba(0, 0, 0, 0.06)",
+                    borderBottom: "1px solid rgba(0, 0, 0, 0.06)",
+                    backgroundColor: "#ffffff",
                   }}
                 >
-                  <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-                    <span className="w-2.5 h-2.5 rounded-full bg-[#47d096] animate-pulse" />
-                    <span style={{ color: "rgba(255, 255, 255, 0.9)", fontWeight: 600 }}>
-                      AI Agent Verification Pipeline
-                    </span>
+                  <div style={{ display: "flex", alignItems: "center", gap: "0.625rem", marginBottom: "1.25rem" }}>
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
+                      <rect width="24" height="24" rx="6" fill="#FF0000" />
+                      <polygon points="10,7 16,12 10,17" fill="#ffffff" />
+                    </svg>
+                    <span style={{ fontSize: "1.0625rem", fontWeight: 700, color: "#111", letterSpacing: "-0.02em" }}>YouTube Shorts</span>
                   </div>
-                  <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
-                    <button
-                      onClick={runSimulation}
-                      disabled={simulating}
-                      style={{
-                        padding: "0.25rem 0.75rem",
-                        borderRadius: "0.375rem",
-                        backgroundColor: simulating ? "rgba(255, 255, 255, 0.1)" : "#ffd7f0",
-                        color: simulating ? "rgba(255, 255, 255, 0.6)" : "#111",
-                        fontSize: "0.6875rem",
-                        fontWeight: 700,
-                        border: "none",
-                        cursor: simulating ? "not-allowed" : "pointer",
-                        display: "inline-flex",
-                        alignItems: "center",
-                        gap: "0.375rem",
-                      }}
-                    >
-                      <Play size={10} />
-                      <span>{simulating ? "Memproses Verifikasi..." : "Simulasikan Alur"}</span>
-                    </button>
-                    <span style={{ color: "rgba(255, 255, 255, 0.4)" }}>
-                      BNB TESTNET (CHAIN ID 97)
-                    </span>
+                  <div>
+                    <div style={{ fontSize: "0.875rem", color: "rgba(17, 17, 17, 0.6)", lineHeight: 1.45, marginBottom: "0.625rem" }}>
+                      Beralih dari YouTube manual approvals
+                    </div>
+                    <div style={{ display: "inline-flex", alignItems: "center", gap: "0.25rem", fontSize: "0.8125rem", fontWeight: 600, color: "#111" }}>
+                      <span>Lihat kreator →</span>
+                    </div>
                   </div>
                 </div>
 
-                {/* 3 Pipeline Steps */}
-                <div
-                  className="grid grid-cols-1 md:grid-cols-3 gap-4"
-                  style={{ paddingTop: "1.75rem", paddingBottom: "0.75rem" }}
-                >
-                  {/* Step 1 */}
-                  <div
-                    style={{
-                      padding: "1.25rem",
-                      borderRadius: "0.75rem",
-                      backgroundColor: simStep >= 1 ? "rgba(255, 215, 240, 0.12)" : "rgba(255, 255, 255, 0.05)",
-                      border: simStep >= 1 ? "1px solid #ffd7f0" : "1px solid rgba(255, 255, 255, 0.08)",
-                      display: "flex",
-                      flexDirection: "column",
-                      gap: "0.75rem",
-                      transition: "all 0.3s ease",
-                    }}
-                  >
-                    <div
-                      style={{
-                        width: "36px",
-                        height: "36px",
-                        borderRadius: "0.5rem",
-                        backgroundColor: "#ffd7f0",
-                        color: "#111",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                      }}
-                    >
-                      <Scissors size={18} />
-                    </div>
-                    <div>
-                      <div style={{ fontSize: "0.9375rem", fontWeight: 600, color: "#fff", marginBottom: "0.25rem", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                        <span>1. Clipper Submit</span>
-                        {simStep >= 1 && <Check size={14} className="text-[#ffd7f0]" />}
-                      </div>
-                      <div style={{ fontSize: "0.8125rem", color: "rgba(255, 255, 255, 0.6)", lineHeight: 1.4 }}>
-                        Kreator submit link YouTube Shorts beserta kode verifikasi unik anti-fraud di deskripsi video.
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Step 2 */}
-                  <div
-                    style={{
-                      padding: "1.25rem",
-                      borderRadius: "0.75rem",
-                      backgroundColor: simStep >= 2 ? "rgba(255, 239, 153, 0.12)" : "rgba(255, 255, 255, 0.05)",
-                      border: simStep >= 2 ? "1px solid #ffef99" : "1px solid rgba(255, 255, 255, 0.08)",
-                      display: "flex",
-                      flexDirection: "column",
-                      gap: "0.75rem",
-                      transition: "all 0.3s ease",
-                    }}
-                  >
-                    <div
-                      style={{
-                        width: "36px",
-                        height: "36px",
-                        borderRadius: "0.5rem",
-                        backgroundColor: "#ffef99",
-                        color: "#111",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                      }}
-                    >
-                      <Cpu size={18} />
-                    </div>
-                    <div>
-                      <div style={{ fontSize: "0.9375rem", fontWeight: 600, color: "#fff", marginBottom: "0.25rem", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                        <span>2. AI Agent Verifikasi</span>
-                        {simStep >= 2 && <Check size={14} className="text-[#ffef99]" />}
-                      </div>
-                      <div style={{ fontSize: "0.8125rem", color: "rgba(255, 255, 255, 0.6)", lineHeight: 1.4 }}>
-                        Whisper ASR transkrip audio, cek semantic brand match, safety filter &amp; simpan bukti ke IPFS.
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Step 3 */}
-                  <div
-                    style={{
-                      padding: "1.25rem",
-                      borderRadius: "0.75rem",
-                      backgroundColor: simStep >= 3 ? "rgba(183, 239, 178, 0.15)" : "rgba(255, 255, 255, 0.05)",
-                      border: simStep >= 3 ? "1px solid #b7efb2" : "1px solid rgba(255, 255, 255, 0.08)",
-                      display: "flex",
-                      flexDirection: "column",
-                      gap: "0.75rem",
-                      transition: "all 0.3s ease",
-                    }}
-                  >
-                    <div
-                      style={{
-                        width: "36px",
-                        height: "36px",
-                        borderRadius: "0.5rem",
-                        backgroundColor: "#b7efb2",
-                        color: "#111",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                      }}
-                    >
-                      <Zap size={18} />
-                    </div>
-                    <div>
-                      <div style={{ fontSize: "0.9375rem", fontWeight: 600, color: "#fff", marginBottom: "0.25rem", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                        <span>3. Payout Otomatis</span>
-                        {simStep >= 3 && <Check size={14} className="text-[#b7efb2]" />}
-                      </div>
-                      <div style={{ fontSize: "0.8125rem", color: "rgba(255, 255, 255, 0.6)", lineHeight: 1.4 }}>
-                        70% USDT langsung cair di smart contract BNB Chain, 30% buffer holdback 3 hari.
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ── 2. Live Metrics Grid Section ─────────────────────────── */}
-      <section className="am-section" style={{ padding: "2.5rem 0", width: "100%" }}>
-        <div className="am-container" style={{ maxWidth: "69rem", margin: "0 auto", padding: "0 1.5rem" }}>
-          <div
-            style={{
-              backgroundColor: "#fff",
-              borderRadius: "1rem",
-              border: "1px solid rgba(17, 17, 17, 0.08)",
-              padding: "2rem",
-              boxShadow: "0 4px 16px rgba(17, 17, 17, 0.03)",
-            }}
-          >
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
-              <div>
-                <div style={{ fontSize: "0.75rem", textTransform: "uppercase", letterSpacing: "0.5px", color: "#6d6c6b", fontWeight: 600, marginBottom: "0.25rem" }}>
-                  Views Terverifikasi
-                </div>
-                <div style={{ fontSize: "clamp(1.5rem, 3vw, 2.25rem)", fontWeight: 700, color: "#111", letterSpacing: "-0.5px" }}>
-                  {stats ? formatViews(stats.totalViewsVerified) : "1,2 jt"}
-                </div>
-                <div style={{ fontSize: "0.75rem", color: "#1a7f37", marginTop: "0.25rem", fontWeight: 500 }}>
-                  100% data riil YouTube
-                </div>
-              </div>
-
-              <div>
-                <div style={{ fontSize: "0.75rem", textTransform: "uppercase", letterSpacing: "0.5px", color: "#6d6c6b", fontWeight: 600, marginBottom: "0.25rem" }}>
-                  Total Dana Keluar
-                </div>
-                <div style={{ fontSize: "clamp(1.5rem, 3vw, 2.25rem)", fontWeight: 700, color: "#111", letterSpacing: "-0.5px" }}>
-                  {stats ? `${formatUsdt(stats.totalPaidOut)} USDT` : "2.450 USDT"}
-                </div>
-                <div style={{ fontSize: "0.75rem", color: "#6d6c6b", marginTop: "0.25rem" }}>
-                  ≈ {stats ? formatIdr(stats.totalPaidOut) : "Rp 39,9 jt"} (estimasi)
-                </div>
-              </div>
-
-              <div>
-                <div style={{ fontSize: "0.75rem", textTransform: "uppercase", letterSpacing: "0.5px", color: "#6d6c6b", fontWeight: 600, marginBottom: "0.25rem" }}>
-                  Campaign Aktif
-                </div>
-                <div style={{ fontSize: "clamp(1.5rem, 3vw, 2.25rem)", fontWeight: 700, color: "#111", letterSpacing: "-0.5px" }}>
-                  {stats ? stats.totalCampaigns : "12"}
-                </div>
-                <div style={{ fontSize: "0.75rem", color: "#6d6c6b", marginTop: "0.25rem" }}>
-                  Kunci budget di smart contract
-                </div>
-              </div>
-
-              <div>
-                <div style={{ fontSize: "0.75rem", textTransform: "uppercase", letterSpacing: "0.5px", color: "#6d6c6b", fontWeight: 600, marginBottom: "0.25rem" }}>
-                  Klip Terproses
-                </div>
-                <div style={{ fontSize: "clamp(1.5rem, 3vw, 2.25rem)", fontWeight: 700, color: "#111", letterSpacing: "-0.5px" }}>
-                  {stats ? stats.totalClips : "184"}
-                </div>
-                <div style={{ fontSize: "0.75rem", color: "#1a7f37", marginTop: "0.25rem", fontWeight: 500 }}>
-                  Rata-rata 45 detik
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ── 3. Amplemarket Customer Quote / Testimonial Card ──────── */}
-      <section className="am-section" style={{ padding: "3rem 0", width: "100%" }}>
-        <div className="am-container" style={{ maxWidth: "69rem", margin: "0 auto", padding: "0 1.5rem" }}>
-          <div
-            style={{
-              backgroundColor: "#fff",
-              borderRadius: "1rem",
-              border: "1px solid rgba(17, 17, 17, 0.08)",
-              padding: "clamp(2rem, 4vw, 3.5rem)",
-              boxShadow: "0 4px 16px rgba(17, 17, 17, 0.03)",
-              display: "flex",
-              flexDirection: "column",
-              gap: "2rem",
-            }}
-          >
-            <div style={{ maxWidth: "48rem" }}>
-              <div style={{ fontSize: "0.75rem", textTransform: "uppercase", letterSpacing: "1px", color: "#6d6c6b", fontWeight: 700, marginBottom: "1rem" }}>
-                TESTIMONI KREATOR &amp; BRAND
-              </div>
-              <h3
-                style={{
-                  fontSize: "clamp(1.375rem, 3vw, 2rem)",
-                  lineHeight: 1.3,
-                  letterSpacing: "-0.5px",
-                  color: "#111",
-                  fontWeight: 400,
-                  margin: 0,
-                }}
-              >
-                &ldquo;ClipStream mengubah cara kami mempromosikan produk. Tanpa negosiasi berbelit, puluhan clipper langsung membuat video pendek dan smart contract escrow menjamin pencairan instan begitu views terverifikasi AI.&rdquo;
-              </h3>
-            </div>
-
-            {/* Doodle Squiggle Underline matching Amplemarket Reference */}
-            <div style={{ color: "#111", opacity: 0.25, width: "100%", maxWidth: "400px" }}>
-              <svg viewBox="0 0 400 16" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ width: "100%", height: "auto" }}>
-                <path d="M2 14C50 4 120 18 180 8C240 -2 320 16 398 6" stroke="currentColor" strokeWidth="3" strokeLinecap="round" />
-              </svg>
-            </div>
-
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: "1rem" }}>
-              <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
+                {/* Tile 2: TikTok */}
                 <div
                   style={{
-                    width: "48px",
-                    height: "48px",
-                    borderRadius: "50%",
-                    backgroundColor: "#ffd7f0",
+                    padding: "2rem 1.75rem",
                     display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    fontSize: "1.125rem",
-                    fontWeight: 700,
-                    color: "#7a1a3a",
+                    flexDirection: "column",
+                    justifyContent: "space-between",
+                    minHeight: "170px",
+                    borderRight: "1px solid rgba(0, 0, 0, 0.06)",
+                    borderBottom: "1px solid rgba(0, 0, 0, 0.06)",
+                    backgroundColor: "#ffffff",
                   }}
                 >
-                  RK
-                </div>
-                <div>
-                  <div style={{ fontSize: "1rem", fontWeight: 600, color: "#111" }}>
-                    Rian Kurniawan
+                  <div style={{ display: "flex", alignItems: "center", gap: "0.625rem", marginBottom: "1.25rem" }}>
+                    <svg width="26" height="26" viewBox="0 0 24 24" fill="#000000">
+                      <path d="M19.589 6.686a4.793 4.793 0 0 1-3.77-4.245V2h-3.445v13.672a2.896 2.896 0 0 1-2.902 2.896 2.897 2.897 0 0 1-2.896-2.896 2.897 2.897 0 0 1 2.896-2.896c.294 0 .576.046.842.128V9.43a6.37 6.37 0 0 0-.842-.057A6.34 6.34 0 0 0 3 15.668 6.34 6.34 0 0 0 9.368 22a6.34 6.34 0 0 0 6.368-6.332V9.08a8.212 8.212 0 0 0 4.853 1.574V7.21a4.814 4.814 0 0 1-1-.524z" />
+                    </svg>
+                    <span style={{ fontSize: "1.0625rem", fontWeight: 700, color: "#111", letterSpacing: "-0.02em" }}>TikTok</span>
                   </div>
-                  <div style={{ fontSize: "0.8125rem", color: "#6d6c6b" }}>
-                    Top Clipper &amp; Video Editor (240k+ total views)
+                  <div>
+                    <div style={{ fontSize: "0.875rem", color: "rgba(17, 17, 17, 0.6)", lineHeight: 1.45, marginBottom: "0.625rem" }}>
+                      Beralih dari shadowban &amp; bio link manual
+                    </div>
+                    <div style={{ display: "inline-flex", alignItems: "center", gap: "0.25rem", fontSize: "0.8125rem", fontWeight: 600, color: "#111" }}>
+                      <span>Lihat kreator →</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Tile 3: Instagram Reels */}
+                <div
+                  style={{
+                    padding: "2rem 1.75rem",
+                    display: "flex",
+                    flexDirection: "column",
+                    justifyContent: "space-between",
+                    minHeight: "170px",
+                    borderRight: "1px solid rgba(0, 0, 0, 0.06)",
+                    borderBottom: "1px solid rgba(0, 0, 0, 0.06)",
+                    backgroundColor: "#ffffff",
+                  }}
+                >
+                  <div style={{ display: "flex", alignItems: "center", gap: "0.625rem", marginBottom: "1.25rem" }}>
+                    <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
+                      <rect x="2" y="2" width="20" height="20" rx="5" stroke="#E1306C" strokeWidth="2.2" />
+                      <circle cx="12" cy="12" r="4.5" stroke="#E1306C" strokeWidth="2.2" />
+                      <circle cx="17.5" cy="6.5" r="1.2" fill="#E1306C" />
+                    </svg>
+                    <span style={{ fontSize: "1.0625rem", fontWeight: 700, color: "#111", letterSpacing: "-0.02em" }}>Instagram Reels</span>
+                  </div>
+                  <div>
+                    <div style={{ fontSize: "0.875rem", color: "rgba(17, 17, 17, 0.6)", lineHeight: 1.45, marginBottom: "0.625rem" }}>
+                      Beralih dari invoice agency tanpa verifikasi
+                    </div>
+                    <div style={{ display: "inline-flex", alignItems: "center", gap: "0.25rem", fontSize: "0.8125rem", fontWeight: 600, color: "#111" }}>
+                      <span>Lihat kreator →</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Tile 4: BNB Chain */}
+                <div
+                  style={{
+                    padding: "2rem 1.75rem",
+                    display: "flex",
+                    flexDirection: "column",
+                    justifyContent: "space-between",
+                    minHeight: "170px",
+                    borderRight: "1px solid rgba(0, 0, 0, 0.06)",
+                    borderBottom: "1px solid rgba(0, 0, 0, 0.06)",
+                    backgroundColor: "#ffffff",
+                  }}
+                >
+                  <div style={{ display: "flex", alignItems: "center", gap: "0.625rem", marginBottom: "1.25rem" }}>
+                    <svg width="26" height="26" viewBox="0 0 32 32" fill="#F3BA2F">
+                      <path d="M16 2l4.1 4.1-8.2 8.2L7.8 10.2 16 2zm0 28l-4.1-4.1 8.2-8.2 4.1 4.1L16 30zm-9.9-14l-4.1 4.1L2 16l4.1-4.1 4.1 4.1-4.1 4.1zm19.8 0l4.1-4.1L30 16l-4.1 4.1-4.1-4.1 4.1-4.1zM16 11.9l4.1 4.1-4.1 4.1-4.1-4.1 4.1-4.1z" />
+                    </svg>
+                    <span style={{ fontSize: "1.0625rem", fontWeight: 700, color: "#111", letterSpacing: "-0.02em" }}>BNB Chain</span>
+                  </div>
+                  <div>
+                    <div style={{ fontSize: "0.875rem", color: "rgba(17, 17, 17, 0.6)", lineHeight: 1.45, marginBottom: "0.625rem" }}>
+                      Beralih dari transfer bank berhari-hari
+                    </div>
+                    <div style={{ display: "inline-flex", alignItems: "center", gap: "0.25rem", fontSize: "0.8125rem", fontWeight: 600, color: "#111" }}>
+                      <span>Jelajahi on-chain →</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Tile 5: CertiK Verified */}
+                <div
+                  style={{
+                    padding: "2rem 1.75rem",
+                    display: "flex",
+                    flexDirection: "column",
+                    justifyContent: "space-between",
+                    minHeight: "170px",
+                    borderRight: "1px solid rgba(0, 0, 0, 0.06)",
+                    borderBottom: "1px solid rgba(0, 0, 0, 0.06)",
+                    backgroundColor: "#ffffff",
+                  }}
+                >
+                  <div style={{ display: "flex", alignItems: "center", gap: "0.625rem", marginBottom: "1.25rem" }}>
+                    <ShieldCheck size={26} style={{ color: "#00d084" }} />
+                    <span style={{ fontSize: "1.0625rem", fontWeight: 700, color: "#111", letterSpacing: "-0.02em" }}>CertiK Verified</span>
+                  </div>
+                  <div>
+                    <div style={{ fontSize: "0.875rem", color: "rgba(17, 17, 17, 0.6)", lineHeight: 1.45, marginBottom: "0.625rem" }}>
+                      Beralih dari bot escrow manual Telegram
+                    </div>
+                    <div style={{ display: "inline-flex", alignItems: "center", gap: "0.25rem", fontSize: "0.8125rem", fontWeight: 600, color: "#111" }}>
+                      <span>Audit keamanan →</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Tile 6: IPFS Storage */}
+                <div
+                  style={{
+                    padding: "2rem 1.75rem",
+                    display: "flex",
+                    flexDirection: "column",
+                    justifyContent: "space-between",
+                    minHeight: "170px",
+                    borderRight: "1px solid rgba(0, 0, 0, 0.06)",
+                    borderBottom: "1px solid rgba(0, 0, 0, 0.06)",
+                    backgroundColor: "#ffffff",
+                  }}
+                >
+                  <div style={{ display: "flex", alignItems: "center", gap: "0.625rem", marginBottom: "1.25rem" }}>
+                    <Layers size={26} style={{ color: "#06b6d4" }} />
+                    <span style={{ fontSize: "1.0625rem", fontWeight: 700, color: "#111", letterSpacing: "-0.02em" }}>IPFS Storage</span>
+                  </div>
+                  <div>
+                    <div style={{ fontSize: "0.875rem", color: "rgba(17, 17, 17, 0.6)", lineHeight: 1.45, marginBottom: "0.625rem" }}>
+                      Beralih dari spreadsheet Discord berantakan
+                    </div>
+                    <div style={{ display: "inline-flex", alignItems: "center", gap: "0.25rem", fontSize: "0.8125rem", fontWeight: 600, color: "#111" }}>
+                      <span>Protokol data →</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Tile 7: Timelock Escrow */}
+                <div
+                  style={{
+                    padding: "2rem 1.75rem",
+                    display: "flex",
+                    flexDirection: "column",
+                    justifyContent: "space-between",
+                    minHeight: "170px",
+                    borderRight: "1px solid rgba(0, 0, 0, 0.06)",
+                    borderBottom: "1px solid rgba(0, 0, 0, 0.06)",
+                    backgroundColor: "#ffffff",
+                  }}
+                >
+                  <div style={{ display: "flex", alignItems: "center", gap: "0.625rem", marginBottom: "1.25rem" }}>
+                    <Lock size={26} style={{ color: "#7c3aed" }} />
+                    <span style={{ fontSize: "1.0625rem", fontWeight: 700, color: "#111", letterSpacing: "-0.02em" }}>Timelock Escrow</span>
+                  </div>
+                  <div>
+                    <div style={{ fontSize: "0.875rem", color: "rgba(17, 17, 17, 0.6)", lineHeight: 1.45, marginBottom: "0.625rem" }}>
+                      Beralih dari pembayaran net-60 tertunda
+                    </div>
+                    <div style={{ display: "inline-flex", alignItems: "center", gap: "0.25rem", fontSize: "0.8125rem", fontWeight: 600, color: "#111" }}>
+                      <span>Aturan timelock →</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Tile 8: Whisper AI */}
+                <div
+                  style={{
+                    padding: "2rem 1.75rem",
+                    display: "flex",
+                    flexDirection: "column",
+                    justifyContent: "space-between",
+                    minHeight: "170px",
+                    backgroundColor: "#ffffff",
+                  }}
+                >
+                  <div style={{ display: "flex", alignItems: "center", gap: "0.625rem", marginBottom: "1.25rem" }}>
+                    <Bot size={26} style={{ color: "#e8400d" }} />
+                    <span style={{ fontSize: "1.0625rem", fontWeight: 700, color: "#111", letterSpacing: "-0.02em" }}>Whisper AI</span>
+                  </div>
+                  <div>
+                    <div style={{ fontSize: "0.875rem", color: "rgba(17, 17, 17, 0.6)", lineHeight: 1.45, marginBottom: "0.625rem" }}>
+                      Beralih dari verifikasi audio manual
+                    </div>
+                    <div style={{ display: "inline-flex", alignItems: "center", gap: "0.25rem", fontSize: "0.8125rem", fontWeight: 600, color: "#111" }}>
+                      <span>Lihat AI pipeline →</span>
+                    </div>
                   </div>
                 </div>
               </div>
+            </div>
 
-              <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", fontSize: "0.8125rem", color: "#1a7f37", fontWeight: 600 }}>
-                <ShieldCheck size={16} />
-                <span>Terverifikasi di BNB Chain</span>
+            {/* Testimonial 1 */}
+            <div data-testimonial-color-mode="light" className="am-testimonial-wrapper-new" style={{ marginTop: "5rem" }}>
+              <div className="am-testimonial-inner-wrapper">
+                <div className="am-testimonial-text-wrapper">
+                  <p data-testimonial-text-size="normal" className="am-heading-36 am-is-line-height-120 am-text-wrap-pretty">
+                    &ldquo;ClipStream AI seperti asisten escrow pribadi yang nggak pernah tidur. AI verifikasinya sangat cepat, langsung mengecek watermark &amp; views klip TikTok saya, dan mentransfer USDT tanpa menunggu approval brand berhari-hari.&rdquo;
+                  </p>
+                </div>
+
+                <div className="am-testiminial-info-wrapper">
+                  <div className="am-testimonial-user-wrapper">
+                    <img
+                      src="/assets/69010d9b0603ca7931b01826_testimonial-ceros-3.avif"
+                      loading="lazy"
+                      width="70"
+                      alt="Rizky Pratama"
+                      className="am-testimonial-user-image"
+                    />
+                    <div className="am-testimonial-user-text">
+                      <div className="am-paragraph-16">Rizky Pratama</div>
+                      <div className="am-paragraph-16 am-opacity-60">Top Video Clipper (5.2M Views)</div>
+                    </div>
+                  </div>
+                  <div
+                    style={{
+                      display: "inline-flex",
+                      alignItems: "center",
+                      gap: "0.45rem",
+                      padding: "0.35rem 0.75rem",
+                      borderRadius: "9999px",
+                      backgroundColor: "#fef9c3",
+                      border: "1px solid rgba(234, 179, 8, 0.3)",
+                      color: "#854d0e",
+                      fontSize: "0.75rem",
+                      fontWeight: 700,
+                    }}
+                    className="am-hide-mobile"
+                  >
+                    <CheckCircle2 size={14} style={{ color: "#ca8a04" }} />
+                    <span>BNB Chain Verified Clipper</span>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* ── 4. 3 Pillars Bento Grid (Pastel Taxonomy Cards) ─────── */}
-      <section className="am-section" style={{ padding: "4rem 0", width: "100%" }}>
-        <div className="am-container" style={{ maxWidth: "69rem", margin: "0 auto", padding: "0 1.5rem" }}>
-          {/* Section Header */}
-          <div style={{ textAlign: "center", maxWidth: "38rem", margin: "0 auto 3rem" }}>
-            <div style={{ fontSize: "0.75rem", textTransform: "uppercase", letterSpacing: "1px", color: "#6d6c6b", fontWeight: 700, marginBottom: "0.5rem" }}>
-              KEUNGGULAN UTAMA
+      {/* ── 3. DARK SECTION: DUO AI AGENT COPILOT ─────────────────────── */}
+      <section className="am-section am-is-black-bg" style={{ backgroundColor: "#272625", color: "#fff", paddingTop: "5rem", paddingBottom: "5rem" }}>
+        <div className="am-duo-section am-padding-100 am-no-padding-bottom">
+          <div className="am-container">
+            <div className="am-ai-assistant-content">
+              <div className="am-ai-assistant-content-top">
+                <div className="am-ai-assistant-content-text">
+                  <div className="am-ai-assistant-heading-wrapper">
+                    <div className="am-featured-link is-dark am-no-hover">
+                      <div className="am-new-label-wrapper">
+                        <div className="am-new-label is-dark is-bg">
+                          <div>AGENT</div>
+                        </div>
+                        <div className="am-new-label is-dark">
+                          <div>AGENT</div>
+                        </div>
+                        <div className="am-grain-button"></div>
+                      </div>
+                      <div className="am-opacity-80">AI Verifier Copilot</div>
+                    </div>
+
+                    <ScrollReveal delay={100}>
+                      <h2 className="am-heading-44 am-is-white am-text-align-center am-text-wrap-balance">
+                        Tra<span className="am-alternate">nsf</span>ormasi cara{" "}
+                        <span className="am-alternate">veri</span>fikasi klip dengan{" "}
+                        <span className="am-alternate">AI</span> Agent
+                      </h2>
+                    </ScrollReveal>
+                  </div>
+
+                  <p className="am-paragraph-16 am-opacity-60 am-text-align-center is-white am-max-width-400-same">
+                    Hemat puluhan jam setiap minggu dengan deteksi otomatis audio Whisper, tracking views
+                    lintas platform, dan pencairan smart contract timelock escrow.
+                  </p>
+                </div>
+
+                <Link href="/campaigns" className="am-nav-btn is-light is-mobile-center w-button">
+                  Jelajahi AI Agent →
+                </Link>
+              </div>
+
+              {/* Duo Product Screen with Floating Signal Cards (Amplemarket Reference Layout) */}
+              <div data-w-id="duo-product-screen" className="am-ai-assistant-interaction-wrapper" style={{ position: "relative", marginTop: "3rem" }}>
+                <img
+                  src="/assets/68752b3932dc24182dd919f0_75fdee8b7b6fff4d0482abce86648ded_am_duo_copilot-p-1600.avif"
+                  loading="lazy"
+                  alt="Duo AI Copilot product screen"
+                  className="am-home-duo-product-screen"
+                />
+
+                {/* Floating Signal Card 1: Whisper Audio Match (Minimalist White - Top Left) */}
+                <div
+                  className="am-home-duo-product-screen-signal-container is-1 hidden md:block"
+                  style={{
+                    backgroundColor: "#ffffff",
+                    border: "1px solid rgba(0, 0, 0, 0.08)",
+                    borderRadius: "12px",
+                    padding: "1rem 1.25rem",
+                    boxShadow: "0 18px 40px -6px rgba(0, 0, 0, 0.14), 0 3px 10px rgba(0, 0, 0, 0.04)",
+                    width: "260px",
+                    maxWidth: "90vw",
+                    zIndex: 10,
+                    textAlign: "left",
+                    top: "10%",
+                    left: "-3%",
+                    transform: "rotate(-5deg)",
+                    userSelect: "none",
+                  }}
+                >
+                  <div
+                    style={{
+                      width: "12px",
+                      height: "12px",
+                      borderRadius: "3px",
+                      backgroundColor: "#e8400d",
+                      marginBottom: "0.625rem",
+                    }}
+                  />
+                  <div style={{ fontSize: "0.875rem", fontWeight: 700, color: "#111111", marginBottom: "0.375rem", lineHeight: 1.3 }}>
+                    Whisper Audio Match
+                  </div>
+                  <div style={{ fontSize: "0.75rem", color: "#6b7280", lineHeight: 1.45 }}>
+                    Mendeteksi kata kunci sponsor dan validasi transkrip audio dari klip secara akurat.
+                  </div>
+                </div>
+
+                {/* Floating Signal Card 2: Gemini Vision Views (Minimalist White - Right) */}
+                <div
+                  className="am-home-duo-product-screen-signal-container is-3 hidden md:block"
+                  style={{
+                    backgroundColor: "#ffffff",
+                    border: "1px solid rgba(0, 0, 0, 0.08)",
+                    borderRadius: "12px",
+                    padding: "1rem 1.25rem",
+                    boxShadow: "0 18px 40px -6px rgba(0, 0, 0, 0.14), 0 3px 10px rgba(0, 0, 0, 0.04)",
+                    width: "270px",
+                    maxWidth: "90vw",
+                    zIndex: 10,
+                    textAlign: "left",
+                    top: "32%",
+                    right: "-3%",
+                    transform: "rotate(-6deg)",
+                    userSelect: "none",
+                  }}
+                >
+                  <div
+                    style={{
+                      width: "12px",
+                      height: "12px",
+                      borderRadius: "3px",
+                      backgroundColor: "#00d084",
+                      marginBottom: "0.625rem",
+                    }}
+                  />
+                  <div style={{ fontSize: "0.875rem", fontWeight: 700, color: "#111111", marginBottom: "0.375rem", lineHeight: 1.3 }}>
+                    Gemini Vision + API Oracle
+                  </div>
+                  <div style={{ fontSize: "0.75rem", color: "#6b7280", lineHeight: 1.45 }}>
+                    Gemini Vision memverifikasi watermark sponsor dan durasi klip, sementara API oracle memvalidasi metrik views.
+                  </div>
+                </div>
+
+                {/* Floating Signal Card 3: Smart Contract Timelock (Minimalist White - Bottom Center) */}
+                <div
+                  className="am-home-duo-product-screen-signal-container is-2 hidden md:block"
+                  style={{
+                    backgroundColor: "#ffffff",
+                    border: "1px solid rgba(0, 0, 0, 0.08)",
+                    borderRadius: "12px",
+                    padding: "1rem 1.25rem",
+                    boxShadow: "0 18px 40px -6px rgba(0, 0, 0, 0.14), 0 3px 10px rgba(0, 0, 0, 0.04)",
+                    width: "280px",
+                    maxWidth: "90vw",
+                    zIndex: 10,
+                    textAlign: "left",
+                    bottom: "-5%",
+                    left: "35%",
+                    transform: "rotate(3deg)",
+                    userSelect: "none",
+                  }}
+                >
+                  <div
+                    style={{
+                      width: "12px",
+                      height: "12px",
+                      borderRadius: "3px",
+                      backgroundColor: "#06b6d4",
+                      marginBottom: "0.625rem",
+                    }}
+                  />
+                  <div style={{ fontSize: "0.875rem", fontWeight: 700, color: "#111111", marginBottom: "0.375rem", lineHeight: 1.3 }}>
+                    Smart Contract Timelock
+                  </div>
+                  <div style={{ fontSize: "0.75rem", color: "#6b7280", lineHeight: 1.45 }}>
+                    Escrow di BNB Chain mencairkan USDT langsung ke wallet kreator begitu target tercapai.
+                  </div>
+                </div>
+              </div>
             </div>
-            <h2
-              className="am-heading-44"
-              style={{
-                fontSize: "clamp(1.875rem, 4vw, 2.5rem)",
-                lineHeight: 1.2,
-                letterSpacing: "-1px",
-                color: "#111",
-                fontWeight: 500,
-                margin: 0,
-              }}
-            >
-              Mengapa kreator &amp; brand memilih ClipStream
+          </div>
+
+          {/* 3-Row Busy Multi-Directional Marquee Ticker */}
+          <div className="am-container" style={{ marginTop: "4rem" }}>
+            <div id="duo-signals" className="am-padding-144" style={{ paddingTop: "2rem", paddingBottom: "3rem" }}>
+              <div className="am-duo-signals-wrapper">
+                <h3 className="am-heading-24 am-is-white am-opacity-60" style={{ textAlign: "center", marginBottom: "2rem" }}>
+                  Aktivitas Verifikasi &amp; Pencairan Real-Time
+                </h3>
+
+                <div
+                  style={{
+                    overflow: "hidden",
+                    position: "relative",
+                    width: "100%",
+                    maskImage: "linear-gradient(to right, transparent, black 8%, black 92%, transparent)",
+                    WebkitMaskImage: "linear-gradient(to right, transparent, black 8%, black 92%, transparent)",
+                    padding: "0.5rem 0",
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: "0.75rem",
+                  }}
+                >
+                  {/* Row 1: Scrolling Left */}
+                  <div
+                    className="animate-marquee"
+                    style={{
+                      display: "flex",
+                      gap: "0.75rem",
+                      alignItems: "center",
+                      width: "max-content",
+                    }}
+                  >
+                    {[
+                      { color: "#ff4b6e", text: "@fajar_clip lolos verifikasi sponsor TikTok (145k views)" },
+                      { color: "#00d084", text: "Escrow 450 USDT dicairkan ke wallet 0x8f...3a1c" },
+                      { color: "#f59e0b", text: "YouTube Shorts #web3 disetujui Gemini Vision Flash" },
+                      { color: "#3b82f6", text: "Brand GameFi menambah pool bounty 2,500 USDT di BNB Chain" },
+                      { color: "#a855f7", text: "Whisper AI memverifikasi audio mention sponsor otomatis dari rekaman klip" },
+                      { color: "#06b6d4", text: "@rizky_editor klaim reward 185 USDT via timelock smart contract" },
+                      { color: "#ec4899", text: "Klip video TikTok @andi_viral lolos deduplikasi 100%" },
+                      { color: "#10b981", text: "Campaign 'Web3 Edu' mencapai 2.4M views organik" },
+                      { color: "#f97316", text: "Smart contract timelock release 1,200 USDT ke 8 kreator" },
+                      { color: "#6366f1", text: "@maya_creative submit 3 klip baru untuk brand FinTech" },
+                      { color: "#14b8a6", text: "Batch verifikasi OCR 65 klip selesai dalam 14 detik" },
+                      { color: "#eab308", text: "Pool hadiah 'DeFi Summit' ditambah 5,000 USDT on-chain" },
+                      { color: "#00d084", text: "Crawler API feed terverifikasi memvalidasi 84,000 views TikTok secara berkala" },
+                      { color: "#ff4b6e", text: "@dian_shorts klaim 75 USDT reward CPM tier 1" },
+                      { color: "#3b82f6", text: "Klip IG Reels @agus_streamer terverifikasi watermark sponsor" },
+                      { color: "#a855f7", text: "Zero platform fee: 100% bounty dialokasikan ke kreator" },
+                      // Duplicate for seamless infinite loop
+                      { color: "#ff4b6e", text: "@fajar_clip lolos verifikasi sponsor TikTok (145k views)" },
+                      { color: "#00d084", text: "Escrow 450 USDT dicairkan ke wallet 0x8f...3a1c" },
+                      { color: "#f59e0b", text: "YouTube Shorts #web3 disetujui Gemini Vision Flash" },
+                      { color: "#3b82f6", text: "Brand GameFi menambah pool bounty 2,500 USDT di BNB Chain" },
+                      { color: "#a855f7", text: "Whisper AI memverifikasi audio mention sponsor otomatis dari rekaman klip" },
+                      { color: "#06b6d4", text: "@rizky_editor klaim reward 185 USDT via timelock smart contract" },
+                      { color: "#ec4899", text: "Klip video TikTok @andi_viral lolos deduplikasi 100%" },
+                      { color: "#10b981", text: "Campaign 'Web3 Edu' mencapai 2.4M views organik" },
+                      { color: "#f97316", text: "Smart contract timelock release 1,200 USDT ke 8 kreator" },
+                      { color: "#6366f1", text: "@maya_creative submit 3 klip baru untuk brand FinTech" },
+                      { color: "#14b8a6", text: "Batch verifikasi OCR 65 klip selesai dalam 14 detik" },
+                      { color: "#eab308", text: "Pool hadiah 'DeFi Summit' ditambah 5,000 USDT on-chain" },
+                      { color: "#00d084", text: "Crawler API feed terverifikasi memvalidasi 84,000 views TikTok secara berkala" },
+                      { color: "#ff4b6e", text: "@dian_shorts klaim 75 USDT reward CPM tier 1" },
+                      { color: "#3b82f6", text: "Klip IG Reels @agus_streamer terverifikasi watermark sponsor" },
+                      { color: "#a855f7", text: "Zero platform fee: 100% bounty dialokasikan ke kreator" },
+                    ].map((item, idx) => (
+                      <div
+                        key={idx}
+                        style={{
+                          backgroundColor: "rgba(255, 255, 255, 0.07)",
+                          border: "1px solid rgba(255, 255, 255, 0.12)",
+                          borderRadius: "9999px",
+                          padding: "0.45rem 1rem",
+                          display: "inline-flex",
+                          alignItems: "center",
+                          gap: "0.625rem",
+                          boxShadow: "0 2px 8px rgba(0, 0, 0, 0.2)",
+                          flexShrink: 0,
+                          userSelect: "none",
+                        }}
+                      >
+                        <div style={{ width: "9px", height: "9px", borderRadius: "2px", backgroundColor: item.color, flexShrink: 0 }} />
+                        <span style={{ fontSize: "0.8125rem", fontWeight: 500, color: "#e5e7eb", whiteSpace: "nowrap" }}>
+                          {item.text}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Row 2: Scrolling Right (Reverse) */}
+                  <div
+                    className="animate-marquee-reverse"
+                    style={{
+                      display: "flex",
+                      gap: "0.75rem",
+                      alignItems: "center",
+                      width: "max-content",
+                    }}
+                  >
+                    {[
+                      { color: "#f97316", text: "Brand Web3 Gaming mendanai pool 6,000 USDT di BNB Chain" },
+                      { color: "#00d084", text: "Smart contract timelock melepaskan 1,850 USDT otomatis" },
+                      { color: "#06b6d4", text: "@budi_clipper menerima 125 USDT dari kampanye viral" },
+                      { color: "#a855f7", text: "Verifikasi OCR views selesai dalam 11 detik tanpa delay" },
+                      { color: "#eab308", text: "Brand D2C meluncurkan kampanye klip video 10,000 USDT" },
+                      { color: "#ff4b6e", text: "Validator node menyetujui batch 40 klip video komunitas" },
+                      { color: "#10b981", text: "@mega_content tembus 620k views di YouTube Shorts" },
+                      { color: "#f59e0b", text: "Payout instan gas fee hanya 0.0003 BNB di BNB Chain" },
+                      { color: "#3b82f6", text: "AI Agent memverifikasi watermark sponsor 1080p 60fps" },
+                      { color: "#ec4899", text: "@hendra_clips cairkan reward ke MetaMask sukses" },
+                      { color: "#14b8a6", text: "Kampanye 'AI Productivity' tuntas dengan 3.1M impresi" },
+                      { color: "#8b5cf6", text: "Sistem anti-fraud memblokir 18 video manipulasi views" },
+                      { color: "#00d084", text: "Hash video disimpan di IPFS untuk bukti orisinalitas klip" },
+                      { color: "#f97316", text: "@putri_cut menerima bonus performa 90 USDT dari sponsor" },
+                      { color: "#06b6d4", text: "35 video baru terdaftar dalam 10 menit terakhir" },
+                      { color: "#a855f7", text: "Kontrak escrow diaudit CertiK & OpenZeppelin aman" },
+                      // Duplicate for seamless infinite loop
+                      { color: "#f97316", text: "Brand Web3 Gaming mendanai pool 6,000 USDT di BNB Chain" },
+                      { color: "#00d084", text: "Smart contract timelock melepaskan 1,850 USDT otomatis" },
+                      { color: "#06b6d4", text: "@budi_clipper menerima 125 USDT dari kampanye viral" },
+                      { color: "#a855f7", text: "Verifikasi OCR views selesai dalam 11 detik tanpa delay" },
+                      { color: "#eab308", text: "Brand D2C meluncurkan kampanye klip video 10,000 USDT" },
+                      { color: "#ff4b6e", text: "Validator node menyetujui batch 40 klip video komunitas" },
+                      { color: "#10b981", text: "@mega_content tembus 620k views di YouTube Shorts" },
+                      { color: "#f59e0b", text: "Payout instan gas fee hanya 0.0003 BNB di BNB Chain" },
+                      { color: "#3b82f6", text: "AI Agent memverifikasi watermark sponsor 1080p 60fps" },
+                      { color: "#ec4899", text: "@hendra_clips cairkan reward ke MetaMask sukses" },
+                      { color: "#14b8a6", text: "Kampanye 'AI Productivity' tuntas dengan 3.1M impresi" },
+                      { color: "#8b5cf6", text: "Sistem anti-fraud memblokir 18 video manipulasi views" },
+                      { color: "#00d084", text: "Hash video disimpan di IPFS untuk bukti orisinalitas klip" },
+                      { color: "#f97316", text: "@putri_cut menerima bonus performa 90 USDT dari sponsor" },
+                      { color: "#06b6d4", text: "35 video baru terdaftar dalam 10 menit terakhir" },
+                      { color: "#a855f7", text: "Kontrak escrow diaudit CertiK & OpenZeppelin aman" },
+                    ].map((item, idx) => (
+                      <div
+                        key={idx}
+                        style={{
+                          backgroundColor: "rgba(255, 255, 255, 0.07)",
+                          border: "1px solid rgba(255, 255, 255, 0.12)",
+                          borderRadius: "9999px",
+                          padding: "0.45rem 1rem",
+                          display: "inline-flex",
+                          alignItems: "center",
+                          gap: "0.625rem",
+                          boxShadow: "0 2px 8px rgba(0, 0, 0, 0.2)",
+                          flexShrink: 0,
+                          userSelect: "none",
+                        }}
+                      >
+                        <div style={{ width: "9px", height: "9px", borderRadius: "2px", backgroundColor: item.color, flexShrink: 0 }} />
+                        <span style={{ fontSize: "0.8125rem", fontWeight: 500, color: "#e5e7eb", whiteSpace: "nowrap" }}>
+                          {item.text}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Row 3: Scrolling Left (Slow) */}
+                  <div
+                    className="animate-marquee-slow"
+                    style={{
+                      display: "flex",
+                      gap: "0.75rem",
+                      alignItems: "center",
+                      width: "max-content",
+                    }}
+                  >
+                    {[
+                      { color: "#06b6d4", text: "Total reward dicairkan menembus 145,000+ USDT" },
+                      { color: "#ec4899", text: "@rendy_clips mencapai status Top Tier Clipper level 5" },
+                      { color: "#3b82f6", text: "Whisper transkripsi audio multi-bahasa (ID/EN) terverifikasi" },
+                      { color: "#00d084", text: "Kampanye 'DeFi Summer' selesai dengan ROI views 340%" },
+                      { color: "#f97316", text: "Escrow otomatis mentransfer 240 USDT ke 6 clipper aktif" },
+                      { color: "#a855f7", text: "@dina_reels mendapatkan bonus engagement 65 USDT" },
+                      { color: "#eab308", text: "1,420 klip aktif bersaing di marketplace hari ini" },
+                      { color: "#10b981", text: "Smart contract timelock BSC tervalidasi 0 incident exploit" },
+                      { color: "#ff4b6e", text: "@fauzan_cut withdraw 210 USDT langsung ke wallet Web3" },
+                      { color: "#14b8a6", text: "Brand fashion meluncurkan bounty video 3,500 USDT" },
+                      { color: "#f59e0b", text: "Algoritma Gemini Vision update model deteksi overlay logo" },
+                      { color: "#6366f1", text: "Rata-rata pencairan dana hanya 14.8 detik setelah verifikasi" },
+                      { color: "#00d084", text: "Clipper komunitas mencatat rata-rata penghasilan 450 USDT/bln" },
+                      { color: "#3b82f6", text: "Verifikasi proof-of-engagement on-chain tanpa perantara agen" },
+                      { color: "#eab308", text: "@siti_creator submit klip Shorts mencapai trending #4" },
+                      { color: "#ec4899", text: "Dana escrow tersimpan aman di smart contract non-kustodian" },
+                      // Duplicate for seamless infinite loop
+                      { color: "#06b6d4", text: "Total reward dicairkan menembus 145,000+ USDT" },
+                      { color: "#ec4899", text: "@rendy_clips mencapai status Top Tier Clipper level 5" },
+                      { color: "#3b82f6", text: "Whisper transkripsi audio multi-bahasa (ID/EN) terverifikasi" },
+                      { color: "#00d084", text: "Kampanye 'DeFi Summer' selesai dengan ROI views 340%" },
+                      { color: "#f97316", text: "Escrow otomatis mentransfer 240 USDT ke 6 clipper aktif" },
+                      { color: "#a855f7", text: "@dina_reels mendapatkan bonus engagement 65 USDT" },
+                      { color: "#eab308", text: "1,420 klip aktif bersaing di marketplace hari ini" },
+                      { color: "#10b981", text: "Smart contract timelock BSC tervalidasi 0 incident exploit" },
+                      { color: "#ff4b6e", text: "@fauzan_cut withdraw 210 USDT langsung ke wallet Web3" },
+                      { color: "#14b8a6", text: "Brand fashion meluncurkan bounty video 3,500 USDT" },
+                      { color: "#f59e0b", text: "Algoritma Gemini Vision update model deteksi overlay logo" },
+                      { color: "#6366f1", text: "Rata-rata pencairan dana hanya 14.8 detik setelah verifikasi" },
+                      { color: "#00d084", text: "Clipper komunitas mencatat rata-rata penghasilan 450 USDT/bln" },
+                      { color: "#3b82f6", text: "Verifikasi proof-of-engagement on-chain tanpa perantara agen" },
+                      { color: "#eab308", text: "@siti_creator submit klip Shorts mencapai trending #4" },
+                      { color: "#ec4899", text: "Dana escrow tersimpan aman di smart contract non-kustodian" },
+                    ].map((item, idx) => (
+                      <div
+                        key={idx}
+                        style={{
+                          backgroundColor: "rgba(255, 255, 255, 0.07)",
+                          border: "1px solid rgba(255, 255, 255, 0.12)",
+                          borderRadius: "9999px",
+                          padding: "0.45rem 1rem",
+                          display: "inline-flex",
+                          alignItems: "center",
+                          gap: "0.625rem",
+                          boxShadow: "0 2px 8px rgba(0, 0, 0, 0.2)",
+                          flexShrink: 0,
+                          userSelect: "none",
+                        }}
+                      >
+                        <div style={{ width: "9px", height: "9px", borderRadius: "2px", backgroundColor: item.color, flexShrink: 0 }} />
+                        <span style={{ fontSize: "0.8125rem", fontWeight: 500, color: "#e5e7eb", whiteSpace: "nowrap" }}>
+                          {item.text}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Testimonial 2 (Dark Deel Testimonial) */}
+          <div className="am-container">
+            <div data-testimonial-color-mode="dark" className="am-testimonial-wrapper-new" style={{ marginTop: "2rem", borderTop: "1px solid rgba(255,255,255,0.1)", paddingTop: "4rem" }}>
+              <div className="am-testimonial-inner-wrapper">
+                <div className="am-testimonial-text-wrapper">
+                  <p data-testimonial-text-size="normal" className="am-heading-36 am-is-line-height-120 am-text-wrap-pretty" style={{ color: "#fff" }}>
+                    &ldquo;Kami menjalankan 30 kampanye clipper sekaligus. Tanpa ClipStream AI, tim kami butuh 5 admin full-time untuk cek view satu per satu. Sekarang semua otomatis dan terbukti di blockchain!&rdquo;
+                  </p>
+                </div>
+
+                <div className="am-testiminial-info-wrapper">
+                  <div className="am-testimonial-user-wrapper">
+                    <img
+                      src="/assets/6908e02441e4d882747ca5be_testimonial-cabify.avif"
+                      loading="lazy"
+                      width="70"
+                      alt="Jonathan Kevin"
+                      className="am-testimonial-user-image"
+                    />
+                    <div className="am-testimonial-user-text">
+                      <div className="am-paragraph-16" style={{ color: "#fff" }}>Jonathan Kevin</div>
+                      <div className="am-paragraph-16 am-opacity-60" style={{ color: "rgba(255,255,255,0.6)" }}>Campaign Director, Web3 Media Lab</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ── 4. ALL-IN-ONE PLATFORM INTERACTIVE TABS (Amplemarket Pillars) */}
+      <section className="am-section am-padding-100 am-no-padding-sides-tablet am-no-padding-bottom am-max-width-1440 am-centered-margins" style={{ paddingTop: "6rem" }}>
+        <div className="am-container am-is-small">
+          <div className="am-pillars-content-wrapper">
+            <div className="am-pillars-content-top">
+              <ScrollReveal>
+            <h2 className="am-heading-44 am-text-align-center am-text-wrap-balance">
+              A<span className="am-alternate">ell</span>-in-<span className="am-alternate">o</span>ne platform{" "}
+              u<span className="am-alternate">nt</span>uk mak<span className="am-alternate">sim</span>alkan hasil klip
             </h2>
-            <p style={{ fontSize: "1rem", color: "#6d6c6b", marginTop: "0.75rem", lineHeight: 1.5 }}>
-              Ekosistem terdesentralisasi tanpa negosiasi manual, tanpa admin perantara, dan tanpa risiko gagal bayar.
+            <p className="am-paragraph-16 am-opacity-60 am-text-align-center" style={{ maxWidth: "420px", margin: "0 auto" }}>
+              Otomatiskan verifikasi video dan pembayaran kreator lewat smart contract dan AI.
             </p>
+          </ScrollReveal>
+            </div>
+            {/* 4 Interactive Tab Selector Bar */}
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: "0.625rem",
+                flexWrap: "wrap",
+                marginTop: "2.5rem",
+                marginBottom: "2rem",
+                position: "relative",
+                zIndex: 2,
+              }}
+            >
+              {[
+                { id: 1, title: "Multi-Modal Verification", color: "#ff4b6e", icon: CheckCircle2 },
+                { id: 2, title: "Cross-Platform Tracking", color: "#f59e0b", icon: TrendingUp },
+                { id: 3, title: "Smart Escrow Protection", color: "#00d084", icon: ShieldCheck },
+                { id: 4, title: "Intelligence & CPM Analytics", color: "#3b82f6", icon: Layers },
+              ].map((tab) => {
+                const isSelected = activePillar === tab.id;
+                const IconComponent = tab.icon;
+                return (
+                  <button
+                    key={tab.id}
+                    type="button"
+                    onClick={() => setActivePillar(tab.id)}
+                    style={{
+                      display: "inline-flex",
+                      alignItems: "center",
+                      gap: "0.5rem",
+                      padding: "0.625rem 1.125rem",
+                      borderRadius: "9999px",
+                      backgroundColor: isSelected ? "#111111" : "#ffffff",
+                      color: isSelected ? "#ffffff" : "rgba(17, 17, 17, 0.7)",
+                      border: isSelected ? "1px solid #111111" : "1px solid rgba(0, 0, 0, 0.08)",
+                      cursor: "pointer",
+                      fontSize: "0.875rem",
+                      fontWeight: isSelected ? 600 : 500,
+                      boxShadow: isSelected ? "0 4px 12px rgba(0,0,0,0.15)" : "0 2px 6px rgba(0,0,0,0.02)",
+                      transition: "all 0.2s ease",
+                    }}
+                  >
+                    <IconComponent
+                      size={15}
+                      style={{
+                        color: isSelected ? "#ffffff" : tab.color,
+                        flexShrink: 0,
+                      }}
+                    />
+                    <span>{tab.title}</span>
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* Stable Tab Body Container (Never collapses, fixes jumping bug) */}
+            <div
+              className="am-pillars-content-bottom"
+              style={{
+                position: "relative",
+                minHeight: "440px",
+                width: "100%",
+                borderRadius: "16px",
+                border: "1px solid rgba(0, 0, 0, 0.08)",
+                backgroundColor: "#ffffff",
+                boxShadow: "0 10px 30px rgba(0, 0, 0, 0.05)",
+                overflow: "hidden",
+                padding: "2.5rem",
+              }}
+            >
+              {/* Tab 1 Content: Multi-Modal Verification */}
+              {activePillar === 1 && (
+                <div
+                  style={{
+                    display: "grid",
+                    gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
+                    gap: "2.5rem",
+                    alignItems: "center",
+                  }}
+                >
+                  <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
+                    <div style={{ display: "inline-flex", alignItems: "center", gap: "0.5rem" }}>
+                      <span style={{ width: "10px", height: "10px", borderRadius: "50%", backgroundColor: "#ff4b6e" }} />
+                      <span style={{ fontSize: "0.8125rem", fontWeight: 700, textTransform: "uppercase", letterSpacing: "1px", color: "#ff4b6e" }}>
+                        MULTI-MODAL VERIFICATION
+                      </span>
+                    </div>
+                    <h3 className="am-heading-36" style={{ margin: 0, fontSize: "2rem", lineHeight: 1.25 }}>
+                      Data akurat, hasil maksimal tanpa manipulasi
+                    </h3>
+                    <p className="am-paragraph-16 am-opacity-60" style={{ margin: 0, lineHeight: 1.6 }}>
+                      Deteksi transkripsi audio lewat Whisper dan visual Gemini 1.5 Flash untuk memvalidasi watermark sponsor dan kesesuaian konten secara otomatis.
+                    </p>
+                    <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem", paddingTop: "0.5rem" }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", fontSize: "0.875rem", color: "#333" }}>
+                        <span style={{ color: "#00d084", fontWeight: 800 }}>✓</span> Audio fingerprint matching transkrip sponsor otomatis
+                      </div>
+                      <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", fontSize: "0.875rem", color: "#333" }}>
+                        <span style={{ color: "#00d084", fontWeight: 800 }}>✓</span> Deteksi watermark sponsor pada detik tertentu
+                      </div>
+                      <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", fontSize: "0.875rem", color: "#333" }}>
+                        <span style={{ color: "#00d084", fontWeight: 800 }}>✓</span> Otomatisasi approval tanpa tim review manual
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* SVG Graphic 1: Verification Mockup */}
+                  <div style={{ width: "100%", maxWidth: "460px", margin: "0 auto" }}>
+                    <svg viewBox="0 0 420 260" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ width: "100%", height: "auto", borderRadius: "12px", border: "1px solid rgba(0,0,0,0.08)", background: "#fafafa" }}>
+                      <rect x="16" y="16" width="388" height="228" rx="8" fill="#ffffff" stroke="#eaeaea" strokeWidth="1" />
+                      <rect x="16" y="16" width="388" height="34" rx="8" fill="#f8f9fa" />
+                      <circle cx="34" cy="33" r="5" fill="#ff5f56" />
+                      <circle cx="48" cy="33" r="5" fill="#ffbd2e" />
+                      <circle cx="62" cy="33" r="5" fill="#27c93f" />
+                      <text x="80" y="37" fontFamily="sans-serif" fontSize="11" fill="#666" fontWeight="600">Clip_Verification_Stream #089.mp4</text>
+                      
+                      <rect x="32" y="66" width="220" height="48" rx="6" fill="#f3f4f6" />
+                      <path d="M42 90 L46 80 L50 96 L54 75 L58 102 L62 84 L66 94 L70 70 L74 105 L78 86 L82 92 L86 78 L90 98 L94 82 L98 90 L102 76 L106 100 L110 88 L114 92 L118 80 L122 96 L126 72 L130 104 L134 84 L138 90 L142 80 L146 98 L150 82 L154 94 L158 86 L162 90 L166 76 L170 102 L174 84 L178 92 L182 82 L186 96 L190 74 L194 100 L198 86 L202 92 L206 80 L210 94 L214 84 L218 90 L222 88 L226 90 L230 84 L234 90" stroke="#00d084" strokeWidth="2" strokeLinecap="round" />
+                      <text x="42" y="128" fontFamily="sans-serif" fontSize="10.5" fill="#059669" fontWeight="700">✓ Whisper Audio Mention: Terverifikasi</text>
+
+                      <rect x="270" y="66" width="120" height="96" rx="6" fill="#f0fdf4" stroke="#86efac" strokeWidth="1" strokeDasharray="3 3" />
+                      <rect x="280" y="76" width="60" height="14" rx="3" fill="#22c55e" />
+                      <text x="285" y="87" fontFamily="sans-serif" fontSize="9" fill="#ffffff" fontWeight="700">SPONSOR</text>
+                      <text x="280" y="112" fontFamily="sans-serif" fontSize="10" fill="#15803d" fontWeight="600">Gemini 1.5</text>
+                      <text x="280" y="126" fontFamily="sans-serif" fontSize="9" fill="#166534">Watermark: OK</text>
+                      <text x="280" y="140" fontFamily="sans-serif" fontSize="9" fill="#166534">Duration: 12.4s</text>
+
+                      <rect x="32" y="180" width="356" height="42" rx="6" fill="#f8fafc" stroke="#e2e8f0" strokeWidth="1" />
+                      <circle cx="50" cy="201" r="6" fill="#22c55e" />
+                      <text x="64" y="205" fontFamily="sans-serif" fontSize="12" fill="#0f172a" fontWeight="700">Klip Lolos Validasi AI Agent</text>
+                      <rect x="270" y="190" width="106" height="22" rx="11" fill="#00d084" />
+                      <text x="285" y="205" fontFamily="sans-serif" fontSize="10" fill="#ffffff" fontWeight="700">SIAP CAIR USDT</text>
+                    </svg>
+                  </div>
+                </div>
+              )}
+
+              {/* Tab 2 Content: Cross-Platform Tracking */}
+              {activePillar === 2 && (
+                <div
+                  style={{
+                    display: "grid",
+                    gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
+                    gap: "2.5rem",
+                    alignItems: "center",
+                  }}
+                >
+                  <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
+                    <div style={{ display: "inline-flex", alignItems: "center", gap: "0.5rem" }}>
+                      <span style={{ width: "10px", height: "10px", borderRadius: "50%", backgroundColor: "#f59e0b" }} />
+                      <span style={{ fontSize: "0.8125rem", fontWeight: 700, textTransform: "uppercase", letterSpacing: "1px", color: "#f59e0b" }}>
+                        CROSS-PLATFORM TRACKING
+                      </span>
+                    </div>
+                    <h3 className="am-heading-36" style={{ margin: 0, fontSize: "2rem", lineHeight: 1.25 }}>
+                      TikTok, Shorts, dan Reels dalam Satu Dashboard
+                    </h3>
+                    <p className="am-paragraph-16 am-opacity-60" style={{ margin: 0, lineHeight: 1.6 }}>
+                      Satu dashboard cerdas untuk memantau performa views di ketiga platform video pendek terbesar dengan sinkronisasi otomatis tiap jam.
+                    </p>
+                    <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem", paddingTop: "0.5rem" }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", fontSize: "0.875rem", color: "#333" }}>
+                        <span style={{ color: "#f59e0b", fontWeight: 800 }}>✓</span> Sinkronisasi API resmi dan webhook realtime
+                      </div>
+                      <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", fontSize: "0.875rem", color: "#333" }}>
+                        <span style={{ color: "#f59e0b", fontWeight: 800 }}>✓</span> Deduplikasi view antarplatform otomatis
+                      </div>
+                      <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", fontSize: "0.875rem", color: "#333" }}>
+                        <span style={{ color: "#f59e0b", fontWeight: 800 }}>✓</span> Laporan retensi video dan engagement rate
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* SVG Graphic 2: Tracking Mockup */}
+                  <div style={{ width: "100%", maxWidth: "460px", margin: "0 auto" }}>
+                    <svg viewBox="0 0 420 260" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ width: "100%", height: "auto", borderRadius: "12px", border: "1px solid rgba(0,0,0,0.08)", background: "#fafafa" }}>
+                      <rect x="16" y="16" width="388" height="228" rx="8" fill="#ffffff" stroke="#eaeaea" strokeWidth="1" />
+                      <rect x="16" y="16" width="388" height="34" rx="8" fill="#f8f9fa" />
+                      <text x="32" y="38" fontFamily="sans-serif" fontSize="12" fill="#111" fontWeight="700">Performa Tayangan Lintas Platform (24 Jam)</text>
+                      
+                      <text x="32" y="78" fontFamily="sans-serif" fontSize="11" fill="#111" fontWeight="600">TikTok</text>
+                      <text x="300" y="78" fontFamily="sans-serif" fontSize="11" fill="#059669" fontWeight="700">840,500 Views</text>
+                      <rect x="32" y="86" width="356" height="12" rx="6" fill="#f1f5f9" />
+                      <rect x="32" y="86" width="220" height="12" rx="6" fill="#00d084" />
+
+                      <text x="32" y="126" fontFamily="sans-serif" fontSize="11" fill="#111" fontWeight="600">YouTube Shorts</text>
+                      <text x="300" y="126" fontFamily="sans-serif" fontSize="11" fill="#d97706" fontWeight="700">415,200 Views</text>
+                      <rect x="32" y="134" width="356" height="12" rx="6" fill="#f1f5f9" />
+                      <rect x="32" y="134" width="140" height="12" rx="6" fill="#f59e0b" />
+
+                      <text x="32" y="174" fontFamily="sans-serif" fontSize="11" fill="#111" fontWeight="600">Instagram Reels</text>
+                      <text x="300" y="174" fontFamily="sans-serif" fontSize="11" fill="#e11d48" fontWeight="700">164,300 Views</text>
+                      <rect x="32" y="182" width="356" height="12" rx="6" fill="#f1f5f9" />
+                      <rect x="32" y="182" width="75" height="12" rx="6" fill="#ff4b6e" />
+
+                      <line x1="32" y1="210" x2="388" y2="210" stroke="#f1f5f9" strokeWidth="1" />
+                      <text x="32" y="228" fontFamily="sans-serif" fontSize="10.5" fill="#64748b">Sinkronisasi otomatis tiap 60 menit</text>
+                      <text x="250" y="228" fontFamily="sans-serif" fontSize="11.5" fill="#0f172a" fontWeight="800">Total: 1,420,000 Views</text>
+                    </svg>
+                  </div>
+                </div>
+              )}
+
+              {/* Tab 3 Content: Smart Escrow Protection */}
+              {activePillar === 3 && (
+                <div
+                  style={{
+                    display: "grid",
+                    gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
+                    gap: "2.5rem",
+                    alignItems: "center",
+                  }}
+                >
+                  <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
+                    <div style={{ display: "inline-flex", alignItems: "center", gap: "0.5rem" }}>
+                      <span style={{ width: "10px", height: "10px", borderRadius: "50%", backgroundColor: "#00d084" }} />
+                      <span style={{ fontSize: "0.8125rem", fontWeight: 700, textTransform: "uppercase", letterSpacing: "1px", color: "#00d084" }}>
+                        SMART ESCROW PROTECTION
+                      </span>
+                    </div>
+                    <h3 className="am-heading-36" style={{ margin: 0, fontSize: "2rem", lineHeight: 1.25 }}>
+                      Uang Aman &amp; Terkunci di BNB Chain
+                    </h3>
+                    <p className="am-paragraph-16 am-opacity-60" style={{ margin: 0, lineHeight: 1.6 }}>
+                      Dana sponsor dikunci di smart contract sejak awal. Kreator dijamin menerima haknya tanpa risiko brand menolak membayar.
+                    </p>
+                    <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem", paddingTop: "0.5rem" }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", fontSize: "0.875rem", color: "#333" }}>
+                        <span style={{ color: "#00d084", fontWeight: 800 }}>✓</span> Kontrak timelock escrow non-custodial
+                      </div>
+                      <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", fontSize: "0.875rem", color: "#333" }}>
+                        <span style={{ color: "#00d084", fontWeight: 800 }}>✓</span> Rilis otomatis langsung ke alamat dompet clipper
+                      </div>
+                      <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", fontSize: "0.875rem", color: "#333" }}>
+                        <span style={{ color: "#00d084", fontWeight: 800 }}>✓</span> Perlindungan holdback 14 hari cegah penghapusan video
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* SVG Graphic 3: Escrow Vault Mockup */}
+                  <div style={{ width: "100%", maxWidth: "460px", margin: "0 auto" }}>
+                    <svg viewBox="0 0 420 260" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ width: "100%", height: "auto", borderRadius: "12px", border: "1px solid rgba(0,0,0,0.08)", background: "#fafafa" }}>
+                      <rect x="16" y="16" width="388" height="228" rx="8" fill="#ffffff" stroke="#eaeaea" strokeWidth="1" />
+                      <rect x="16" y="16" width="388" height="34" rx="8" fill="#f8f9fa" />
+                      <text x="32" y="38" fontFamily="sans-serif" fontSize="12" fill="#111" fontWeight="700">BNB Chain Escrow Smart Contract</text>
+                      <text x="290" y="38" fontFamily="monospace" fontSize="10" fill="#64748b">0x71C...B4e2</text>
+
+                      <rect x="32" y="66" width="160" height="116" rx="8" fill="#f8fafc" stroke="#e2e8f0" strokeWidth="1" />
+                      <circle cx="112" cy="110" r="26" fill="rgba(0, 208, 132, 0.12)" stroke="#00d084" strokeWidth="2" />
+                      <path d="M106 110 L110 114 L118 106" stroke="#00d084" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+                      <text x="56" y="156" fontFamily="sans-serif" fontSize="11" fill="#0f172a" fontWeight="700">DANA TERKUNCI</text>
+                      <text x="50" y="172" fontFamily="sans-serif" fontSize="12" fill="#059669" fontWeight="800">5,000.00 USDT</text>
+
+                      <rect x="206" y="66" width="182" height="116" rx="8" fill="#ffffff" stroke="#e2e8f0" strokeWidth="1" />
+                      <text x="218" y="86" fontFamily="sans-serif" fontSize="10.5" fill="#64748b" fontWeight="600">Aturan Penguncian:</text>
+                      <text x="218" y="106" fontFamily="sans-serif" fontSize="10" fill="#0f172a">✓ Target: 1M Views tercapai</text>
+                      <text x="218" y="124" fontFamily="sans-serif" fontSize="10" fill="#0f172a">✓ Anti-Fraud: Skor Sybil 0%</text>
+                      <text x="218" y="142" fontFamily="sans-serif" fontSize="10" fill="#0f172a">✓ Timelock: 14 hari rilis</text>
+                      <text x="218" y="166" fontFamily="sans-serif" fontSize="10" fill="#059669" fontWeight="700">Pencairan Otomatis Aktif</text>
+
+                      <rect x="32" y="194" width="356" height="34" rx="6" fill="#f1f5f9" />
+                      <text x="44" y="215" fontFamily="monospace" fontSize="9.5" fill="#475569">Tx: 0x9a8f4c...3e1b7d | BSC Testnet Block #391024</text>
+                    </svg>
+                  </div>
+                </div>
+              )}
+
+              {/* Tab 4 Content: Intelligence & CPM Analytics */}
+              {activePillar === 4 && (
+                <div
+                  style={{
+                    display: "grid",
+                    gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
+                    gap: "2.5rem",
+                    alignItems: "center",
+                  }}
+                >
+                  <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
+                    <div style={{ display: "inline-flex", alignItems: "center", gap: "0.5rem" }}>
+                      <span style={{ width: "10px", height: "10px", borderRadius: "50%", backgroundColor: "#3b82f6" }} />
+                      <span style={{ fontSize: "0.8125rem", fontWeight: 700, textTransform: "uppercase", letterSpacing: "1px", color: "#3b82f6" }}>
+                        INTELLIGENCE &amp; CPM ANALYTICS
+                      </span>
+                    </div>
+                    <h3 className="am-heading-36" style={{ margin: 0, fontSize: "2rem", lineHeight: 1.25 }}>
+                      Kalkulasi CPM Transparan &amp; Penghasilan Maksimal
+                    </h3>
+                    <p className="am-paragraph-16 am-opacity-60" style={{ margin: 0, lineHeight: 1.6 }}>
+                      Dapatkan nilai CPM terbaik (Rp 15.000 - Rp 35.000 / 1k views) dengan laporan analitik engagement yang bisa diaudit publik.
+                    </p>
+                    <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem", paddingTop: "0.5rem" }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", fontSize: "0.875rem", color: "#333" }}>
+                        <span style={{ color: "#3b82f6", fontWeight: 800 }}>✓</span> Kalkulator proyeksi pendapatan clipper otomatis
+                      </div>
+                      <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", fontSize: "0.875rem", color: "#333" }}>
+                        <span style={{ color: "#3b82f6", fontWeight: 800 }}>✓</span> Evaluasi kualitas audiens Indonesia (Tier 1 &amp; Tier 2)
+                      </div>
+                      <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", fontSize: "0.875rem", color: "#333" }}>
+                        <span style={{ color: "#3b82f6", fontWeight: 800 }}>✓</span> Laporan ROI transparan untuk pengiklan brand
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* SVG Graphic 4: CPM Analytics Mockup */}
+                  <div style={{ width: "100%", maxWidth: "460px", margin: "0 auto" }}>
+                    <svg viewBox="0 0 420 260" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ width: "100%", height: "auto", borderRadius: "12px", border: "1px solid rgba(0,0,0,0.08)", background: "#fafafa" }}>
+                      <rect x="16" y="16" width="388" height="228" rx="8" fill="#ffffff" stroke="#eaeaea" strokeWidth="1" />
+                      <rect x="16" y="16" width="388" height="34" rx="8" fill="#f8f9fa" />
+                      <text x="32" y="38" fontFamily="sans-serif" fontSize="12" fill="#111" fontWeight="700">Kalkulasi CPM Transparan &amp; Penghasilan</text>
+
+                      <path d="M40 170 Q 120 160, 180 120 T 320 70 L 380 56" fill="none" stroke="#3b82f6" strokeWidth="3" strokeLinecap="round" />
+                      
+                      <rect x="40" y="60" width="100" height="42" rx="6" fill="#f0f9ff" stroke="#bae6fd" strokeWidth="1" />
+                      <text x="48" y="76" fontFamily="sans-serif" fontSize="9.5" fill="#0369a1" fontWeight="600">Average CPM</text>
+                      <text x="48" y="94" fontFamily="sans-serif" fontSize="12" fill="#0c4a6e" fontWeight="800">Rp 28.500</text>
+
+                      <rect x="150" y="60" width="100" height="42" rx="6" fill="#f0fdf4" stroke="#bbf7d0" strokeWidth="1" />
+                      <text x="158" y="76" fontFamily="sans-serif" fontSize="9.5" fill="#15803d" fontWeight="600">Audience Quality</text>
+                      <text x="158" y="94" fontFamily="sans-serif" fontSize="12" fill="#14532d" fontWeight="800">94.2% Organik</text>
+
+                      <rect x="32" y="194" width="356" height="36" rx="6" fill="#f8fafc" stroke="#e2e8f0" strokeWidth="1" />
+                      <text x="44" y="216" fontFamily="sans-serif" fontSize="11" fill="#475569">Estimasi Pendapatan Total:</text>
+                      <text x="210" y="217" fontFamily="sans-serif" fontSize="12.5" fill="#0f172a" fontWeight="800">Rp 40.470.000 (2,450 USDT)</text>
+                    </svg>
+                  </div>
+                </div>
+              )}
+
+            </div>
           </div>
+        </div>
+      </section>
 
-          {/* 3 Bento Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {/* Card 1: Mint Green */}
-            <div
-              className="card-pastel-mint"
-              style={{
-                backgroundColor: "#b7efb2",
-                borderRadius: "1rem",
-                padding: "2rem",
-                display: "flex",
-                flexDirection: "column",
-                justifyContent: "space-between",
-                minHeight: "340px",
-                color: "#111",
-              }}
-            >
-              <div>
-                <div
-                  style={{
-                    width: "44px",
-                    height: "44px",
-                    borderRadius: "0.75rem",
-                    backgroundColor: "rgba(255, 255, 255, 0.7)",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    marginBottom: "1.5rem",
-                    color: "#1c3c27",
-                  }}
-                >
-                  <Lock size={22} />
+      {/* ── 5. MID-PAGE JOURNEY BANNER (3D Gradient Indigo Card) ──────── */}
+      <section className="am-section am-padding-bottom-44" style={{ paddingTop: "6rem", paddingBottom: "3rem", position: "relative", zIndex: 2, clear: "both" }}>
+        <div className="am-cta-content-wrapper am-max-width-1440 am-centered-margins">
+          <div className="am-cta-wrapper is-bold is-midnight-indigo am-padding-100 am-padding-bottom-84">
+            <div className="am-cta-heading-wrapper">
+              <div className="w-richtext">
+                <div className="w-embed">
+                  <h2 className="am-heading-84-caps am-is-primary-light am-text-align-center">
+                    Mulai Monetisasi{" "}
+                    <span className="am-text-gradient-container">
+                      <span className="am-text-gradient is-cta">Klip Video</span>
+                      <span className="am-grain-word"></span>
+                    </span>{" "}
+                    Kamu Hari Ini
+                  </h2>
                 </div>
-                <div style={{ fontSize: "0.6875rem", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.5px", color: "#1c3c27", marginBottom: "0.375rem" }}>
-                  KEAMANAN ON-CHAIN
-                </div>
-                <h3 style={{ fontSize: "1.5rem", fontWeight: 600, letterSpacing: "-0.5px", lineHeight: 1.25, marginBottom: "0.75rem" }}>
-                  Dana dikunci di kontrak
-                </h3>
-                <p style={{ fontSize: "0.9375rem", lineHeight: 1.5, color: "rgba(17, 17, 17, 0.85)" }}>
-                  Brand tidak bisa membatalkan atau menarik dana yang sudah menjadi hak kamu. Semua aturan dan budget diamankan di smart contract BNB Chain.
-                </p>
-              </div>
-              <div
-                style={{
-                  marginTop: "1.5rem",
-                  paddingTop: "1rem",
-                  borderTop: "1px solid rgba(17, 17, 17, 0.1)",
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "0.375rem",
-                  fontSize: "0.75rem",
-                  fontWeight: 600,
-                  color: "#1c3c27",
-                }}
-              >
-                <ShieldCheck size={15} />
-                <span>Bebas risiko wanprestasi</span>
               </div>
             </div>
 
-            {/* Card 2: Canary Yellow */}
-            <div
-              className="card-pastel-yellow"
-              style={{
-                backgroundColor: "#ffef99",
-                borderRadius: "1rem",
-                padding: "2rem",
-                display: "flex",
-                flexDirection: "column",
-                justifyContent: "space-between",
-                minHeight: "340px",
-                color: "#111",
-              }}
-            >
-              <div>
-                <div
-                  style={{
-                    width: "44px",
-                    height: "44px",
-                    borderRadius: "0.75rem",
-                    backgroundColor: "rgba(255, 255, 255, 0.7)",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    marginBottom: "1.5rem",
-                    color: "#5a4a00",
-                  }}
-                >
-                  <Cpu size={22} />
+            <div className="am-partial-form-wrapper" style={{ marginTop: "2rem" }}>
+              <div data-form-color-mode="midnight-indigo" data-form-align="center" className="am-partial-form-container">
+                <div className="am-form-block-wrapper w-form">
+                  <form
+                    onSubmit={(e) => {
+                      e.preventDefault();
+                      setShowRoleModal(true);
+                    }}
+                    className="am-form-wrapper"
+                  >
+                    <input
+                      className="am-form-email business-only-email-field w-input"
+                      placeholder="Masukkan alamat wallet BNB / email kamu"
+                      type="text"
+                      required
+                    />
+                    <div className="am-form-submit-wrapper">
+                      <div className="am-nav-btn-wrapper">
+                        <button
+                          type="submit"
+                          className="am-nav-btn business-only-submit-button is-full-size-mobile w-button"
+                          style={{ border: "none", cursor: "pointer" }}
+                        >
+                          Mulai Gratis
+                        </button>
+                        <div className="am-nav-btn-rocket">
+                          <span className="am-paragraph-20">🚀</span>
+                        </div>
+                      </div>
+                    </div>
+                  </form>
                 </div>
-                <div style={{ fontSize: "0.6875rem", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.5px", color: "#5a4a00", marginBottom: "0.375rem" }}>
-                  KECERDASAN BUATAN
-                </div>
-                <h3 style={{ fontSize: "1.5rem", fontWeight: 600, letterSpacing: "-0.5px", lineHeight: 1.25, marginBottom: "0.75rem" }}>
-                  Verifikasi otomatis 45 detik
-                </h3>
-                <p style={{ fontSize: "0.9375rem", lineHeight: 1.5, color: "rgba(17, 17, 17, 0.85)" }}>
-                  AI mengecek kepemilikan kode, kecocokan audio dengan sumber, brand safety, dan pola views dalam hitungan detik, bukan berhari-hari.
-                </p>
-              </div>
-              <div
-                style={{
-                  marginTop: "1.5rem",
-                  paddingTop: "1rem",
-                  borderTop: "1px solid rgba(17, 17, 17, 0.1)",
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "0.375rem",
-                  fontSize: "0.75rem",
-                  fontWeight: 600,
-                  color: "#5a4a00",
-                }}
-              >
-                <Sparkles size={15} />
-                <span>Audit transparan di IPFS</span>
-              </div>
-            </div>
-
-            {/* Card 3: Soft Violet */}
-            <div
-              className="card-pastel-violet"
-              style={{
-                backgroundColor: "#e2ddfd",
-                borderRadius: "1rem",
-                padding: "2rem",
-                display: "flex",
-                flexDirection: "column",
-                justifyContent: "space-between",
-                minHeight: "340px",
-                color: "#111",
-              }}
-            >
-              <div>
-                <div
-                  style={{
-                    width: "44px",
-                    height: "44px",
-                    borderRadius: "0.75rem",
-                    backgroundColor: "rgba(255, 255, 255, 0.7)",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    marginBottom: "1.5rem",
-                    color: "#3c1e7a",
-                  }}
-                >
-                  <Zap size={22} />
-                </div>
-                <div style={{ fontSize: "0.6875rem", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.5px", color: "#3c1e7a", marginBottom: "0.375rem" }}>
-                  FINANSIAL REAL-TIME
-                </div>
-                <h3 style={{ fontSize: "1.5rem", fontWeight: 600, letterSpacing: "-0.5px", lineHeight: 1.25, marginBottom: "0.75rem" }}>
-                  70% cair seketika
-                </h3>
-                <p style={{ fontSize: "0.9375rem", lineHeight: 1.5, color: "rgba(17, 17, 17, 0.85)" }}>
-                  Begitu klip lolos verifikasi, 70% dana langsung masuk ke saldo wallet kamu. 30% sisanya tertahan 3 hari untuk memastikan stabilitas views.
-                </p>
-              </div>
-              <div
-                style={{
-                  marginTop: "1.5rem",
-                  paddingTop: "1rem",
-                  borderTop: "1px solid rgba(17, 17, 17, 0.1)",
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "0.375rem",
-                  fontSize: "0.75rem",
-                  fontWeight: 600,
-                  color: "#3c1e7a",
-                }}
-              >
-                <TrendingUp size={15} />
-                <span>Tanpa minimum penarikan</span>
               </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* ── 5. Featured Active Campaigns ─────────────────────────── */}
-      <section className="am-section" style={{ padding: "4rem 0", width: "100%" }}>
-        <div className="am-container" style={{ maxWidth: "69rem", margin: "0 auto", padding: "0 1.5rem" }}>
-          <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", marginBottom: "2rem", flexWrap: "wrap", gap: "1rem" }}>
-            <div>
-              <div style={{ fontSize: "0.75rem", textTransform: "uppercase", letterSpacing: "1px", color: "#6d6c6b", fontWeight: 700, marginBottom: "0.25rem" }}>
-                PELUANG TERSEDIA
-              </div>
-              <h2
-                className="am-heading-36"
-                style={{
-                  fontSize: "clamp(1.75rem, 3.5vw, 2.25rem)",
-                  lineHeight: 1.2,
-                  letterSpacing: "-0.75px",
-                  color: "#111",
-                  fontWeight: 500,
-                  margin: 0,
-                }}
-              >
-                Campaign Terbaru
+      {/* ── 6. PERSONAS SECTION (5 Roles with Sketch Figures) ─────────── */}
+      {/* ── 6. PERSONAS SECTION (5 Roles with Sketch Figures & Dynamic Pastel Tint) ── */}
+      <section className="am-section" style={{ paddingTop: "5rem", paddingBottom: "5rem" }}>
+        <div className="am-container am-is-smaller">
+          <div
+            className="am-personas-wrapper am-padding-100"
+            style={{
+              backgroundColor: activePersona === 1 ? "#eefdf4" : activePersona === 2 ? "#fffbeb" : activePersona === 3 ? "#faf5ff" : activePersona === 4 ? "#f0f9ff" : activePersona === 5 ? "#fff1f2" : "#ffffff",
+              borderColor: activePersona === 1 ? "#86efac" : activePersona === 2 ? "#fde68a" : activePersona === 3 ? "#e9d5ff" : activePersona === 4 ? "#bae6fd" : activePersona === 5 ? "#fecdd3" : "rgba(0, 0, 0, 0.08)",
+              borderWidth: "1.5px",
+              borderStyle: "solid",
+              borderRadius: "24px",
+              transition: "background-color 0.35s ease, border-color 0.35s ease, box-shadow 0.35s ease",
+              boxShadow: activePersona ? "0 18px 44px -12px rgba(0, 0, 0, 0.08)" : "0 4px 20px rgba(0, 0, 0, 0.04)",
+            }}
+          >
+            <ScrollReveal>
+              <h2 className="am-heading-44 am-text-align-center am-max-width-436" style={{ margin: "0 auto" }}>
+                D<span className="am-alternate">id</span>esain untuk{" "}
+                <span className="am-word-doodle is-personas">semua peran</span> di ekosistem video
               </h2>
+            </ScrollReveal>
+
+            <div className="am-personas-content am-hide-mobile" style={{ marginTop: "3rem" }}>
+              <div className="am-personas-content-wrapper">
+                <div className="tabs-2 w-tabs">
+                  {/* Persona Tabs Menu */}
+                  <div className="am-personas-tabs-wrapper w-tab-menu" style={{ display: "flex", justifyContent: "center", gap: "0.75rem", flexWrap: "wrap" }}>
+                    <button
+                      type="button"
+                      onClick={() => setActivePersona(1)}
+                      className={`am-personas-tab is-sellers w-inline-block w-tab-link ${activePersona === 1 ? "w--current" : ""}`}
+                      style={{
+                        background: activePersona === 1 ? "#dcfce7" : "#ffffff",
+                        border: activePersona === 1 ? "1.5px solid #22c55e" : "1px solid rgba(0, 0, 0, 0.08)",
+                        borderRadius: "16px",
+                        padding: "0.875rem 1.125rem",
+                        cursor: "pointer",
+                        transition: "all 0.25s ease",
+                        boxShadow: activePersona === 1 ? "0 4px 12px rgba(34, 197, 94, 0.15)" : "none",
+                      }}
+                    >
+                      <div style={{ fontWeight: activePersona === 1 ? 700 : 500, color: activePersona === 1 ? "#15803d" : "#111111" }}>Clipper</div>
+                      <img
+                        src="/assets/66aca46a2e87f778fe899f3b_am_6_personas_sellers 2.avif"
+                        alt="Clipper"
+                        className="am-personas-hero-illustration"
+                      />
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => setActivePersona(2)}
+                      className={`am-personas-tab is-leaders w-inline-block w-tab-link ${activePersona === 2 ? "w--current" : ""}`}
+                      style={{
+                        background: activePersona === 2 ? "#fef3c7" : "#ffffff",
+                        border: activePersona === 2 ? "1.5px solid #f59e0b" : "1px solid rgba(0, 0, 0, 0.08)",
+                        borderRadius: "16px",
+                        padding: "0.875rem 1.125rem",
+                        cursor: "pointer",
+                        transition: "all 0.25s ease",
+                        boxShadow: activePersona === 2 ? "0 4px 12px rgba(245, 158, 11, 0.15)" : "none",
+                      }}
+                    >
+                      <div style={{ fontWeight: activePersona === 2 ? 700 : 500, color: activePersona === 2 ? "#b45309" : "#111111" }}>Brand / Bisnis</div>
+                      <img
+                        src="/assets/66aca8430056a00245b85bf7_am_7_personas_sales_leaders 2.avif"
+                        alt="Brand"
+                        className="am-personas-hero-illustration"
+                      />
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => setActivePersona(3)}
+                      className={`am-personas-tab is-founders w-inline-block w-tab-link ${activePersona === 3 ? "w--current" : ""}`}
+                      style={{
+                        background: activePersona === 3 ? "#f3e8ff" : "#ffffff",
+                        border: activePersona === 3 ? "1.5px solid #a855f7" : "1px solid rgba(0, 0, 0, 0.08)",
+                        borderRadius: "16px",
+                        padding: "0.875rem 1.125rem",
+                        cursor: "pointer",
+                        transition: "all 0.25s ease",
+                        boxShadow: activePersona === 3 ? "0 4px 12px rgba(168, 85, 247, 0.15)" : "none",
+                      }}
+                    >
+                      <div style={{ fontWeight: activePersona === 3 ? 700 : 500, color: activePersona === 3 ? "#7e22ce" : "#111111" }}>Agency Kreator</div>
+                      <img
+                        src="/assets/66aca84f860e0b6ca0cabcda_am_8_personas_founders_2 2.avif"
+                        alt="Agency"
+                        className="am-personas-hero-illustration"
+                      />
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => setActivePersona(4)}
+                      className={`am-personas-tab is-revops w-inline-block w-tab-link ${activePersona === 4 ? "w--current" : ""}`}
+                      style={{
+                        background: activePersona === 4 ? "#e0f2fe" : "#ffffff",
+                        border: activePersona === 4 ? "1.5px solid #38bdf8" : "1px solid rgba(0, 0, 0, 0.08)",
+                        borderRadius: "16px",
+                        padding: "0.875rem 1.125rem",
+                        cursor: "pointer",
+                        transition: "all 0.25s ease",
+                        boxShadow: activePersona === 4 ? "0 4px 12px rgba(56, 189, 248, 0.15)" : "none",
+                      }}
+                    >
+                      <div style={{ fontWeight: activePersona === 4 ? 700 : 500, color: activePersona === 4 ? "#0369a1" : "#111111" }}>Reviewer Node</div>
+                      <img
+                        src="/assets/66aca84f1064e578674a4da0_am_9_personas_revops 2.avif"
+                        alt="Reviewer Node"
+                        className="am-personas-hero-illustration"
+                      />
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => setActivePersona(5)}
+                      className={`am-personas-tab is-marketers w-inline-block w-tab-link ${activePersona === 5 ? "w--current" : ""}`}
+                      style={{
+                        background: activePersona === 5 ? "#ffe4e6" : "#ffffff",
+                        border: activePersona === 5 ? "1.5px solid #fb7185" : "1px solid rgba(0, 0, 0, 0.08)",
+                        borderRadius: "16px",
+                        padding: "0.875rem 1.125rem",
+                        cursor: "pointer",
+                        transition: "all 0.25s ease",
+                        boxShadow: activePersona === 5 ? "0 4px 12px rgba(251, 113, 133, 0.15)" : "none",
+                      }}
+                    >
+                      <div style={{ fontWeight: activePersona === 5 ? 700 : 500, color: activePersona === 5 ? "#be123c" : "#111111" }}>Web3 Protocol</div>
+                      <img
+                        src="/assets/66aca84f84f3bc82100d704e_am_10_personas_marketers 2.avif"
+                        alt="Protocol"
+                        className="am-personas-hero-illustration"
+                      />
+                    </button>
+                  </div>
+
+                  {/* Persona Content Panel */}
+                  <div className="w-tab-content" style={{ marginTop: "2rem", textAlign: "center" }}>
+                    {activePersona === 1 && (
+                      <div className="w-tab-pane w--tab-active" style={{ display: "block", maxWidth: "36rem", margin: "0 auto" }}>
+                        <h3 className="am-heading-28" style={{ marginBottom: "0.75rem" }}>
+                          Fokus Bikin Klip Menarik, Bayaran Masuk Otomatis
+                        </h3>
+                        <p className="am-paragraph-16 am-opacity-60">
+                          Pilih kampanye favorit, potong klip video terbaik, pasang watermark sponsor, dan upload ke TikTok/Shorts. Begitu views naik, hadiah langsung ditransfer smart contract ke wallet kamu.
+                        </p>
+                        <div style={{ marginTop: "1.5rem" }}>
+                          <Link href="/clipper" className="am-nav-btn is-secondary">
+                            Mulai Jadi Clipper →
+                          </Link>
+                        </div>
+                      </div>
+                    )}
+                    {activePersona === 2 && (
+                      <div className="w-tab-pane w--tab-active" style={{ display: "block", maxWidth: "36rem", margin: "0 auto" }}>
+                        <h3 className="am-heading-28" style={{ marginBottom: "0.75rem" }}>
+                          Dapatkan Jutaan Impresi Organik Tanpa Risiko
+                        </h3>
+                        <p className="am-paragraph-16 am-opacity-60">
+                          Kunci budget kampanye di escrow smart contract BNB Chain. Anda hanya membayar views asli yang telah divalidasi oleh AI Agent. Hemat 70% budget dibanding iklan berbayar.
+                        </p>
+                        <div style={{ marginTop: "1.5rem" }}>
+                          <Link href="/brand/new" className="am-nav-btn is-secondary">
+                            Buat Kampanye Pertama →
+                          </Link>
+                        </div>
+                      </div>
+                    )}
+                    {activePersona === 3 && (
+                      <div className="w-tab-pane w--tab-active" style={{ display: "block", maxWidth: "36rem", margin: "0 auto" }}>
+                        <h3 className="am-heading-28" style={{ marginBottom: "0.75rem" }}>
+                          Kelola Ratusan Clipper dalam Satu Dashboard
+                        </h3>
+                        <p className="am-paragraph-16 am-opacity-60">
+                          Otomasi pembagian komisi agency dan kreator secara real-time. Tidak ada lagi rekonsiliasi manual atau invoice bermasalah di akhir bulan.
+                        </p>
+                        <div style={{ marginTop: "1.5rem" }}>
+                          <Link href="/campaigns" className="am-nav-btn is-secondary">
+                            Pelajari Solusi Agency →
+                          </Link>
+                        </div>
+                      </div>
+                    )}
+                    {activePersona === 4 && (
+                      <div className="w-tab-pane w--tab-active" style={{ display: "block", maxWidth: "36rem", margin: "0 auto" }}>
+                        <h3 className="am-heading-28" style={{ marginBottom: "0.75rem" }}>
+                          Validasi Klip dan Dapatkan Fee Verifikasi
+                        </h3>
+                        <p className="am-paragraph-16 am-opacity-60">
+                          Bantu jaringan memvalidasi video yang ditandai mencurigakan oleh AI dan peroleh bagian reward dari protokol tata kelola BNB Chain.
+                        </p>
+                        <div style={{ marginTop: "1.5rem" }}>
+                          <Link href="/campaigns" className="am-nav-btn is-secondary">
+                            Pelajari Reviewer Node →
+                          </Link>
+                        </div>
+                      </div>
+                    )}
+                    {activePersona === 5 && (
+                      <div className="w-tab-pane w--tab-active" style={{ display: "block", maxWidth: "36rem", margin: "0 auto" }}>
+                        <h3 className="am-heading-28" style={{ marginBottom: "0.75rem" }}>
+                          Integrasi Smart Contract Escrow ke dApp Anda
+                        </h3>
+                        <p className="am-paragraph-16 am-opacity-60">
+                          Gunakan kontrak terverifikasi kami untuk mendanai bounties video komunitas Anda di BNB Chain dengan audit transparan on-chain.
+                        </p>
+                        <div style={{ marginTop: "1.5rem" }}>
+                          <a href="https://testnet.bscscan.com" target="_blank" rel="noreferrer" className="am-nav-btn is-secondary">
+                            Lihat Repositori &amp; Kontrak ↗
+                          </a>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
             </div>
-            <Link
-              href="/campaigns"
-              style={{
-                fontSize: "0.875rem",
-                fontWeight: 600,
-                color: "#111",
-                textDecoration: "none",
-                display: "inline-flex",
-                alignItems: "center",
-                gap: "0.375rem",
-              }}
-            >
-              <span>Lihat Semua Campaign</span>
-              <ArrowRight size={15} />
+          </div>
+        </div>
+      </section>
+
+      {/* ── 7. PASTEL BENTO RESULTS GRID (Customer Stories) ───────────── */}
+      <section className="am-section am-is-white-bg am-padding-100 am-no-padding-bottom" style={{ backgroundColor: "#fff", paddingTop: "5rem", paddingBottom: "5.5rem" }}>
+        <div className="am-container" style={{ maxWidth: "1200px", margin: "0 auto", paddingLeft: "1.5rem", paddingRight: "1.5rem" }}>
+          <div className="am-customer-stories-wrapper" style={{ position: "relative" }}>
+            <h2 className="am-heading-36 am-text-align-center" style={{ margin: "0 auto 3rem", maxWidth: "680px" }}>
+              Hasil nyata dari kreator &amp; brand di ekosistem
+            </h2>
+
+            <div className="bento-results-grid">
+              {/* Row 1, Col 1: Stat Card (Yellow) */}
+              <div className="am-customer-stories-cards-result w-inline-block" style={{ minHeight: "220px" }}>
+                <div className="am-card-inner" style={{ minHeight: "220px" }}>
+                  <div className="am-card-front is-yellow" style={{ display: "flex", flexDirection: "column", justifyContent: "space-between", padding: "1.5rem", borderRadius: "14px", border: "1px solid rgba(0, 0, 0, 0.08)", minHeight: "220px" }}>
+                    <div>
+                      <span className="am-customer-stories-cards-number" style={{ fontSize: "2.5rem", fontWeight: 800, color: "#111111", display: "block" }}>78%+</span>
+                      <span style={{ fontSize: "0.9375rem", color: "#374151", fontWeight: 500 }}>retensi views</span>
+                    </div>
+                    <div style={{ display: "inline-flex", alignItems: "center", gap: "0.375rem", padding: "0.25rem 0.625rem", borderRadius: "9999px", backgroundColor: "rgba(0,0,0,0.06)", fontSize: "0.75rem", fontWeight: 700, color: "#111", alignSelf: "flex-start" }}>
+                      <Video size={13} color="#ff0050" />
+                      <span>TikTok &amp; Shorts</span>
+                    </div>
+                  </div>
+                  <div className="am-card-back" style={{ borderRadius: "14px" }}>
+                    <div className="am-nav-btn is-white is-no-hover">
+                      <div>Rata-rata klip</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Row 1, Col 2: Stat Card (Mint Green) */}
+              <div className="am-customer-stories-cards-result w-inline-block" style={{ minHeight: "220px" }}>
+                <div className="am-card-inner" style={{ minHeight: "220px" }}>
+                  <div className="am-card-front is-green" style={{ display: "flex", flexDirection: "column", justifyContent: "space-between", padding: "1.5rem", borderRadius: "14px", border: "1px solid rgba(0, 0, 0, 0.08)", minHeight: "220px" }}>
+                    <div>
+                      <span className="am-customer-stories-cards-number" style={{ fontSize: "2.5rem", fontWeight: 800, color: "#111111", display: "block" }}>$145k+</span>
+                      <span style={{ fontSize: "0.9375rem", color: "#374151", fontWeight: 500 }}>reward dicairkan</span>
+                    </div>
+                    <div style={{ display: "inline-flex", alignItems: "center", gap: "0.375rem", padding: "0.25rem 0.625rem", borderRadius: "9999px", backgroundColor: "rgba(0,0,0,0.06)", fontSize: "0.75rem", fontWeight: 700, color: "#111", alignSelf: "flex-start" }}>
+                      <Coins size={13} color="#f0b90b" />
+                      <span>BNB Chain Escrow</span>
+                    </div>
+                  </div>
+                  <div className="am-card-back" style={{ borderRadius: "14px" }}>
+                    <div className="am-nav-btn is-white is-no-hover">
+                      <div>100% On-Time</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Row 1, Col 3-4: Testimonial Card 1 (Storylake - spans 2 columns) */}
+              <div className="am-customer-stories-cards-testimonial bento-span-2" style={{ minHeight: "220px", display: "flex", flexDirection: "column", justifyContent: "space-between", padding: "1.75rem", borderRadius: "14px", border: "1px solid rgba(0, 0, 0, 0.08)", backgroundColor: "#ffffff", boxShadow: "0 4px 16px rgba(0,0,0,0.03)" }}>
+                <p className="am-paragraph-20 am-text-wrap-pretty" style={{ fontSize: "1.0625rem", lineHeight: 1.6, color: "#1f2937", margin: 0 }}>
+                  &ldquo;ClipStream AI membantu kami meluncurkan kampanye klip video viral dengan 2 juta views dalam 10 hari tanpa ada kekhawatiran view palsu.&rdquo;
+                </p>
+                <div className="am-customer-stories-testimonial-details" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: "1.25rem" }}>
+                  <div className="am-case-study-person-details" style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
+                    <img src="/assets/66a8c170f46451aec8c15273_testimonial-storylake.webp" alt="Arya Wijaya" className="am-customer-stories-testimonial-img" style={{ width: "42px", height: "42px", borderRadius: "10px", objectFit: "cover" }} />
+                    <div className="am-paragraph-14">
+                      <div style={{ fontWeight: 700, color: "#111111" }}>Arya Wijaya</div>
+                      <div className="am-opacity-60" style={{ fontSize: "0.8125rem", color: "#6b7280" }}>Head of Community, Web3 Gaming Guild</div>
+                    </div>
+                  </div>
+                  <div style={{ display: "inline-flex", alignItems: "center", gap: "0.375rem", padding: "0.35rem 0.75rem", borderRadius: "9999px", backgroundColor: "#f3f4f6", fontSize: "0.75rem", fontWeight: 700, color: "#111" }}>
+                    <Sparkles size={13} color="#8b5cf6" />
+                    <span>Web3 Partner</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Row 2, Col 1-2: Testimonial Card 2 (HPE - spans 2 columns) */}
+              <div className="am-customer-stories-cards-testimonial bento-span-2" style={{ minHeight: "220px", display: "flex", flexDirection: "column", justifyContent: "space-between", padding: "1.75rem", borderRadius: "14px", border: "1px solid rgba(0, 0, 0, 0.08)", backgroundColor: "#ffffff", boxShadow: "0 4px 16px rgba(0,0,0,0.03)" }}>
+                <p className="am-paragraph-20 am-text-wrap-pretty" style={{ fontSize: "1.0625rem", lineHeight: 1.6, color: "#1f2937", margin: 0 }}>
+                  &ldquo;Kemampuan memverifikasi sponsor di video secara otomatis lewat Whisper AI telah menghemat puluhan jam kerja admin tiap minggu.&rdquo;
+                </p>
+                <div className="am-customer-stories-testimonial-details" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: "1.25rem" }}>
+                  <div className="am-case-study-person-details" style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
+                    <img src="/assets/68d3ca98c47913fa25c4ded3_am-testimonial-hpe.avif" alt="Dimas Setiawan" className="am-customer-stories-testimonial-img" style={{ width: "42px", height: "42px", borderRadius: "10px", objectFit: "cover" }} />
+                    <div className="am-paragraph-14">
+                      <div style={{ fontWeight: 700, color: "#111111" }}>Dimas Setiawan</div>
+                      <div className="am-opacity-60" style={{ fontSize: "0.8125rem", color: "#6b7280" }}>Operations Head, FinTech Media</div>
+                    </div>
+                  </div>
+                  <div style={{ display: "inline-flex", alignItems: "center", gap: "0.375rem", padding: "0.35rem 0.75rem", borderRadius: "9999px", backgroundColor: "#f3f4f6", fontSize: "0.75rem", fontWeight: 700, color: "#111" }}>
+                    <ShieldCheck size={13} color="#00d084" />
+                    <span>Verified Brand</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Row 2, Col 3: Stat Card (Warm Amber) */}
+              <div className="am-customer-stories-cards-result w-inline-block" style={{ minHeight: "220px" }}>
+                <div className="am-card-inner" style={{ minHeight: "220px" }}>
+                  <div className="am-card-front is-yellow" style={{ display: "flex", flexDirection: "column", justifyContent: "space-between", padding: "1.5rem", borderRadius: "14px", border: "1px solid rgba(0, 0, 0, 0.08)", minHeight: "220px" }}>
+                    <div>
+                      <span className="am-customer-stories-cards-number" style={{ fontSize: "2.5rem", fontWeight: 800, color: "#111111", display: "block" }}>&lt; 15s</span>
+                      <span style={{ fontSize: "0.9375rem", color: "#374151", fontWeight: 500 }}>verifikasi AI</span>
+                    </div>
+                    <div style={{ display: "inline-flex", alignItems: "center", gap: "0.375rem", padding: "0.25rem 0.625rem", borderRadius: "9999px", backgroundColor: "rgba(0,0,0,0.06)", fontSize: "0.75rem", fontWeight: 700, color: "#111", alignSelf: "flex-start" }}>
+                      <Zap size={13} color="#06b6d4" />
+                      <span>Gemini Vision</span>
+                    </div>
+                  </div>
+                  <div className="am-card-back" style={{ borderRadius: "14px" }}>
+                    <div className="am-nav-btn is-white is-no-hover">
+                      <div>Cepat &amp; Aman</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Row 2, Col 4: Stat Card (Soft Pink) */}
+              <div className="am-customer-stories-cards-result w-inline-block" style={{ minHeight: "220px" }}>
+                <div className="am-card-inner" style={{ minHeight: "220px" }}>
+                  <div className="am-card-front is-pink" style={{ display: "flex", flexDirection: "column", justifyContent: "space-between", padding: "1.5rem", borderRadius: "14px", border: "1px solid rgba(0, 0, 0, 0.08)", minHeight: "220px" }}>
+                    <div>
+                      <span className="am-customer-stories-cards-number" style={{ fontSize: "2.5rem", fontWeight: 800, color: "#111111", display: "block" }}>0%</span>
+                      <span style={{ fontSize: "0.9375rem", color: "#374151", fontWeight: 500 }}>potongan admin</span>
+                    </div>
+                    <div style={{ display: "inline-flex", alignItems: "center", gap: "0.375rem", padding: "0.25rem 0.625rem", borderRadius: "9999px", backgroundColor: "rgba(0,0,0,0.06)", fontSize: "0.75rem", fontWeight: 700, color: "#111", alignSelf: "flex-start" }}>
+                      <Lock size={13} color="#e8400d" />
+                      <span>Timelock Escrow</span>
+                    </div>
+                  </div>
+                  <div className="am-card-back" style={{ borderRadius: "14px" }}>
+                    <div className="am-nav-btn is-white is-no-hover">
+                      <div>P2P Escrow</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ── 8. LIVE ACTIVE CAMPAIGNS MARKETPLACE (Backend Wired) ──────── */}
+      <section className="am-section am-padding-100" style={{ paddingTop: "5rem", paddingBottom: "5rem", backgroundColor: "#f6f5f3" }}>
+        <div className="am-container">
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "2.5rem" }}>
+            <div>
+              <div className="am-eyebrow" style={{ fontSize: "0.75rem", fontWeight: 700, letterSpacing: "1px", color: "#e8400d", textTransform: "uppercase", marginBottom: "0.5rem" }}>
+                PASAR KAMPANYE AKTIF
+              </div>
+              <h2 className="am-heading-36">Bounty Video Siap Diambil</h2>
+            </div>
+            <Link href="/campaigns" className="am-nav-btn is-secondary am-hide-mobile">
+              Lihat Semua Kampanye →
             </Link>
           </div>
 
-          {loading ? (
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {[1, 2, 3].map((n) => (
-                <div key={n} className="h-80 skeleton rounded-xl" />
-              ))}
-            </div>
-          ) : campaigns.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {campaigns.map((camp) => (
-                <CampaignCard key={camp.id} campaign={camp} />
-              ))}
-            </div>
-          ) : (
-            <div
-              style={{
-                backgroundColor: "#fff",
-                borderRadius: "1rem",
-                border: "1px solid rgba(17, 17, 17, 0.08)",
-                padding: "3.5rem 1.5rem",
-                textAlign: "center",
-              }}
-            >
-              <h3 style={{ fontSize: "1.25rem", fontWeight: 600, color: "#111", marginBottom: "0.5rem" }}>
-                Belum ada campaign aktif
-              </h3>
-              <p style={{ fontSize: "0.9375rem", color: "#6d6c6b", maxWidth: "28rem", margin: "0 auto 1.5rem" }}>
-                Jadilah brand pertama yang membuat campaign dan rekrut puluhan clipper berbakat.
-              </p>
-              <Link
-                href="/brand/new"
-                className="am-nav-btn"
-                style={{
-                  backgroundColor: "#111",
-                  color: "#fff",
-                  padding: "0.75rem 1.5rem",
-                  borderRadius: "0.5rem",
-                  textDecoration: "none",
-                  display: "inline-flex",
-                  alignItems: "center",
-                  gap: "0.5rem",
-                  fontSize: "0.875rem",
-                }}
-              >
-                <Megaphone size={15} />
-                <span>Buat Campaign Pertama</span>
-              </Link>
-            </div>
-          )}
+          {(() => {
+            const displayCampaigns = campaigns.length > 0 ? campaigns : defaultLandingDemoCampaigns;
+            return loading ? (
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))", gap: "1.5rem" }}>
+                {[1, 2, 3].map((n) => (
+                  <div key={n} style={{ height: "200px", backgroundColor: "rgba(0,0,0,0.05)", borderRadius: "12px" }} />
+                ))}
+              </div>
+            ) : (
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))", gap: "1.5rem" }}>
+                {displayCampaigns.map((c) => {
+                  const budgetRemaining = Number(c.remainingBudget);
+                  const budgetPool = Number(c.totalBudget);
+                  const progress = budgetPool > 0 ? Math.min(100, Math.round(((budgetPool - budgetRemaining) / budgetPool) * 100)) : 0;
+
+                  return (
+                    <div
+                      key={c.id}
+                      style={{
+                        backgroundColor: "#fff",
+                        borderRadius: "12px",
+                        padding: "1.5rem",
+                        border: "1px solid rgba(17,17,17,0.08)",
+                        boxShadow: "0 4px 15px rgba(0,0,0,0.03)",
+                        display: "flex",
+                        flexDirection: "column",
+                        justifyContent: "space-between",
+                      }}
+                    >
+                      <div>
+                        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "0.75rem" }}>
+                          <span
+                            style={{
+                              fontSize: "0.6875rem",
+                              fontWeight: 700,
+                              padding: "0.25rem 0.5rem",
+                              borderRadius: "9999px",
+                              backgroundColor: "#b7efb2",
+                              color: "#1a4d17",
+                            }}
+                          >
+                            AKTIF
+                          </span>
+                          <span style={{ fontSize: "0.75rem", color: "rgba(17,17,17,0.5)" }}>
+                            TikTok / Shorts
+                          </span>
+                        </div>
+
+                        <h3 style={{ fontSize: "1.125rem", fontWeight: 700, color: "#111", marginBottom: "0.375rem" }}>
+                          {c.title}
+                        </h3>
+                        <p style={{ fontSize: "0.8125rem", color: "rgba(17,17,17,0.6)", lineHeight: 1.4, marginBottom: "1rem" }}>
+                          {c.description || "Kampanye pembuatan klip video dengan sistem verifikasi otomatis."}
+                        </p>
+
+                        <div style={{ display: "flex", justifyContent: "space-between", padding: "0.75rem", backgroundColor: "#f6f5f3", borderRadius: "8px", marginBottom: "1rem" }}>
+                          <div>
+                            <div style={{ fontSize: "0.6875rem", color: "rgba(17,17,17,0.5)" }}>RATE CPM</div>
+                            <div style={{ fontSize: "0.9375rem", fontWeight: 700, color: "#e8400d" }}>
+                              {formatIdr(c.cpmRate)}
+                            </div>
+                          </div>
+                          <div style={{ textAlign: "right" }}>
+                            <div style={{ fontSize: "0.6875rem", color: "rgba(17,17,17,0.5)" }}>SISA POOL</div>
+                            <div style={{ fontSize: "0.9375rem", fontWeight: 700, color: "#111" }}>
+                              {formatUsdt(c.remainingBudget)} USDT
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Progress bar */}
+                        <div style={{ width: "100%", height: "6px", backgroundColor: "#ecebea", borderRadius: "9999px", overflow: "hidden", marginBottom: "1.25rem" }}>
+                          <div style={{ width: `${progress}%`, height: "100%", backgroundColor: "#111" }} />
+                        </div>
+                      </div>
+
+                      <Link
+                        href={`/campaigns/${c.id}`}
+                        className="am-nav-btn is-secondary"
+                        style={{ textAlign: "center", display: "block", textDecoration: "none" }}
+                      >
+                        Ikuti Kampanye Ini →
+                      </Link>
+                    </div>
+                  );
+                })}
+              </div>
+            );
+          })()}
         </div>
       </section>
 
-      {/* ── 6. Dark Architecture & Security Section ──────────────── */}
-      <section
-        className="am-section am-is-black-bg"
-        style={{
-          backgroundColor: "#272625",
-          color: "#fff",
-          padding: "5rem 0",
-          width: "100%",
-          margin: "2rem 0",
-        }}
-      >
-        <div className="am-container" style={{ maxWidth: "69rem", margin: "0 auto", padding: "0 1.5rem" }}>
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-            {/* Left Description */}
-            <div style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}>
-              <div
-                style={{
-                  display: "inline-flex",
-                  alignItems: "center",
-                  gap: "0.5rem",
-                  padding: "0.375rem 0.875rem",
-                  borderRadius: "9999px",
-                  backgroundColor: "rgba(255, 255, 255, 0.1)",
-                  fontSize: "0.75rem",
-                  color: "#b7efb2",
-                  fontWeight: 600,
-                  width: "fit-content",
-                }}
-              >
-                <ShieldCheck size={15} />
-                <span>TEKNOLOGI WEB3 TANPA RIBET</span>
-              </div>
-
-              <h2
-                style={{
-                  fontSize: "clamp(2rem, 4vw, 2.75rem)",
-                  lineHeight: 1.15,
-                  letterSpacing: "-1px",
-                  color: "#fff",
-                  fontWeight: 500,
-                  margin: 0,
-                }}
-              >
-                Jaminan Finansial Yang Tidak Bisa Dibatalkan Sepihak.
-              </h2>
-
-              <p style={{ fontSize: "1rem", lineHeight: 1.6, color: "rgba(255, 255, 255, 0.7)" }}>
-                Di platform konvensional, kreator sering mengalami pembatalan pembayaran sepihak dari brand. Di ClipStream AI, escrow dikunci on-chain pada smart contract BNB Chain. Agent AI bertindak sebagai verifikator independen dengan bukti terenkripsi IPFS.
-              </p>
-
-              <div style={{ display: "flex", flexDirection: "column", gap: "0.875rem", fontSize: "0.875rem", color: "rgba(255, 255, 255, 0.9)" }}>
-                <div style={{ display: "flex", alignItems: "center", gap: "0.625rem" }}>
-                  <CheckCircle2 size={18} className="text-[#b7efb2] shrink-0" />
-                  <span>Kalkulasi transparan: views × tarif CPM = payout</span>
-                </div>
-                <div style={{ display: "flex", alignItems: "center", gap: "0.625rem" }}>
-                  <CheckCircle2 size={18} className="text-[#b7efb2] shrink-0" />
-                  <span>Clipper tidak perlu bayar gas fee — ditanggung protokol via EIP-712 / Relayer</span>
-                </div>
-                <div style={{ display: "flex", alignItems: "center", gap: "0.625rem" }}>
-                  <CheckCircle2 size={18} className="text-[#b7efb2] shrink-0" />
-                  <span>Klaim holdback 30% permissionless langsung ke wallet BSC</span>
-                </div>
-              </div>
-
-              <div style={{ paddingTop: "0.75rem" }}>
-                <a
-                  href="https://testnet.bscscan.com"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="am-nav-btn is-secondary"
-                  style={{
-                    padding: "0.75rem 1.25rem",
-                    backgroundColor: "#fff",
-                    color: "#111",
-                    fontSize: "0.875rem",
-                    fontWeight: 500,
-                    borderRadius: "0.5rem",
-                    textDecoration: "none",
-                    display: "inline-flex",
-                    alignItems: "center",
-                    gap: "0.5rem",
-                  }}
-                >
-                  <span>Lihat Smart Contract di BscScan</span>
-                  <ExternalLink size={14} />
-                </a>
-              </div>
+      {/* ── 9. LEVEL-UP RESOURCE CARDS ────────────────────────────────── */}
+      <section className="am-section am-is-white-bg am-padding-144" style={{ backgroundColor: "#fff", paddingTop: "5rem", paddingBottom: "6rem" }}>
+        <div className="am-container">
+          <div className="am-blog-section-wrapper">
+            <div className="am-blog-section-content-top">
+              <h3 className="am-heading-36 am-text-wrap-balance">Tingkatkan skill &amp; penghasilan klip kamu</h3>
+              <Link href="/blog" className="am-nav-btn is-secondary w-button">
+                Lihat Semua Artikel
+              </Link>
             </div>
 
-            {/* Right: State Machine / Architecture Card */}
-            <div
-              style={{
-                backgroundColor: "rgba(255, 255, 255, 0.05)",
-                border: "1px solid rgba(255, 255, 255, 0.1)",
-                borderRadius: "1rem",
-                padding: "2rem",
-                display: "flex",
-                flexDirection: "column",
-                gap: "1.25rem",
-              }}
-            >
-              <div style={{ fontSize: "0.75rem", textTransform: "uppercase", letterSpacing: "1px", color: "rgba(255, 255, 255, 0.4)", fontFamily: "monospace" }}>
-                AUDIT TRAIL &amp; STATE MACHINE
-              </div>
+            <div className="w-dyn-list" style={{ marginTop: "2.5rem" }}>
+              <div role="list" className="am-blog-section-articles w-dyn-items" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))", gap: "1.5rem" }}>
+                {/* Article 1 */}
+                <div role="listitem" className="am-blog-section-item w-dyn-item">
+                  <Link href="/blog/panduan-memulai-clipper-bnb-chain" style={{ textDecoration: "none", display: "block" }}>
+                    <div className="am-blog-index-item-wrapper" style={{ border: "1px solid rgba(17,17,17,0.08)", borderRadius: "12px", overflow: "hidden", transition: "box-shadow 0.2s" }}>
+                      <div className="am-blog-index-item-thumbnail" style={{ height: "170px", backgroundColor: "#111" }}>
+                        <img
+                          src="/assets/blog-cover-clipper.jpg"
+                          alt="Panduan Clipper BNB Chain"
+                          className="am-image is-cover"
+                          style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                        />
+                      </div>
+                      <div style={{ padding: "1.25rem" }}>
+                        <div className="am-blog-index-item-content-tags am-opacity-60" style={{ display: "flex", gap: "0.5rem", fontSize: "0.75rem", marginBottom: "0.5rem" }}>
+                          <div>Panduan</div>
+                          <div>·</div>
+                          <div>23 Sep 2026</div>
+                        </div>
+                        <h4 className="am-paragraph-16" style={{ fontWeight: 600, color: "#111" }}>
+                          Panduan Lengkap Memulai Menjadi Clipper Video Berbayar di BNB Chain
+                        </h4>
+                      </div>
+                    </div>
+                  </Link>
+                </div>
 
-              <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem", fontFamily: "monospace", fontSize: "0.8125rem" }}>
-                <div style={{ padding: "0.875rem 1rem", backgroundColor: "rgba(255, 255, 255, 0.04)", borderRadius: "0.5rem", border: "1px solid rgba(255, 255, 255, 0.08)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                  <span style={{ color: "rgba(255, 255, 255, 0.7)" }}>1. Escrow Lock</span>
-                  <span style={{ color: "#b7efb2", fontWeight: 600 }}>CampaignEscrow.sol</span>
+                {/* Article 2 */}
+                <div role="listitem" className="am-blog-section-item w-dyn-item">
+                  <Link href="/blog/timelock-escrow-pembayaran-tanpa-admin" style={{ textDecoration: "none", display: "block" }}>
+                    <div className="am-blog-index-item-wrapper" style={{ border: "1px solid rgba(17,17,17,0.08)", borderRadius: "12px", overflow: "hidden", transition: "box-shadow 0.2s" }}>
+                      <div className="am-blog-index-item-thumbnail" style={{ height: "170px", backgroundColor: "#111" }}>
+                        <img
+                          src="/assets/blog-cover-escrow.jpg"
+                          alt="Timelock Escrow Smart Contract"
+                          className="am-image is-cover"
+                          style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                        />
+                      </div>
+                      <div style={{ padding: "1.25rem" }}>
+                        <div className="am-blog-index-item-content-tags am-opacity-60" style={{ display: "flex", gap: "0.5rem", fontSize: "0.75rem", marginBottom: "0.5rem" }}>
+                          <div>Smart Contract</div>
+                          <div>·</div>
+                          <div>21 Sep 2026</div>
+                        </div>
+                        <h4 className="am-paragraph-16" style={{ fontWeight: 600, color: "#111" }}>
+                          Bagaimana Timelock Escrow Menjamin Pembayaran Tanpa Biaya Admin
+                        </h4>
+                      </div>
+                    </div>
+                  </Link>
                 </div>
-                <div style={{ padding: "0.875rem 1rem", backgroundColor: "rgba(255, 255, 255, 0.04)", borderRadius: "0.5rem", border: "1px solid rgba(255, 255, 255, 0.08)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                  <span style={{ color: "rgba(255, 255, 255, 0.7)" }}>2. AI Verifier Agent</span>
-                  <span style={{ color: "#ffef99", fontWeight: 600 }}>Whisper + Gemini 2.5</span>
-                </div>
-                <div style={{ padding: "0.875rem 1rem", backgroundColor: "rgba(255, 255, 255, 0.04)", borderRadius: "0.5rem", border: "1px solid rgba(255, 255, 255, 0.08)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                  <span style={{ color: "rgba(255, 255, 255, 0.7)" }}>3. Proof Attestation</span>
-                  <span style={{ color: "#99fff9", fontWeight: 600 }}>IPFS CID + Keccak256</span>
-                </div>
-                <div style={{ padding: "0.875rem 1rem", backgroundColor: "rgba(255, 255, 255, 0.04)", borderRadius: "0.5rem", border: "1px solid rgba(255, 255, 255, 0.08)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                  <span style={{ color: "rgba(255, 255, 255, 0.7)" }}>4. Instant Settlement</span>
-                  <span style={{ color: "#b7efb2", fontWeight: 600 }}>USDT Transfer (70/30)</span>
+
+                {/* Article 3 */}
+                <div role="listitem" className="am-blog-section-item w-dyn-item">
+                  <Link href="/blog/whisper-ai-gemini-vision-validasi-watermark" style={{ textDecoration: "none", display: "block" }}>
+                    <div className="am-blog-index-item-wrapper" style={{ border: "1px solid rgba(17,17,17,0.08)", borderRadius: "12px", overflow: "hidden", transition: "box-shadow 0.2s" }}>
+                      <div className="am-blog-index-item-thumbnail" style={{ height: "170px", backgroundColor: "#111" }}>
+                        <img
+                          src="/assets/blog-cover-ai.jpg"
+                          alt="Whisper AI dan Gemini Vision"
+                          className="am-image is-cover"
+                          style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                        />
+                      </div>
+                      <div style={{ padding: "1.25rem" }}>
+                        <div className="am-blog-index-item-content-tags am-opacity-60" style={{ display: "flex", gap: "0.5rem", fontSize: "0.75rem", marginBottom: "0.5rem" }}>
+                          <div>AI Verifier</div>
+                          <div>·</div>
+                          <div>18 Sep 2026</div>
+                        </div>
+                        <h4 className="am-paragraph-16" style={{ fontWeight: 600, color: "#111" }}>
+                          Cara Whisper AI &amp; Gemini Vision Memvalidasi Watermark Sponsor dan Konten Klip
+                        </h4>
+                      </div>
+                    </div>
+                  </Link>
                 </div>
               </div>
             </div>
@@ -968,173 +2010,203 @@ function HomePageContent() {
         </div>
       </section>
 
-      {/* ── 7. FAQ Section ───────────────────────────────────────── */}
-      <section className="am-section" style={{ padding: "4rem 0", width: "100%" }}>
-        <div className="am-container" style={{ maxWidth: "55rem", margin: "0 auto", padding: "0 1.5rem" }}>
-          <div style={{ textAlign: "center", marginBottom: "3rem" }}>
-            <div style={{ fontSize: "0.75rem", textTransform: "uppercase", letterSpacing: "1px", color: "#6d6c6b", fontWeight: 700, marginBottom: "0.5rem" }}>
-              PERTANYAAN UMUM
+
+      {/* ── 10. WALL OF LOVE TESTIMONIALS (Amplemarket Black Marquee) ── */}
+      <section className="am-section am-padding-100 am-is-black-bg" style={{ backgroundColor: "#111", color: "#fff", paddingTop: "6rem", paddingBottom: "6rem" }}>
+        <div className="am-container am-is-small">
+          <div className="am-wall-of-love-section">
+            <div className="am-customers-wall-of-love-heading-wrapper" style={{ textAlign: "center", marginBottom: "3rem" }}>
+              <h2 className="am-heading-44 am-is-white am-text-align-center am-max-width-348 am-text-wrap-balance" style={{ margin: "0 auto" }}>
+                Pengakuan dari para clipper &amp; brand kami!
+              </h2>
             </div>
-            <h2
-              className="am-heading-36"
-              style={{
-                fontSize: "clamp(1.75rem, 3.5vw, 2.25rem)",
-                lineHeight: 1.2,
-                letterSpacing: "-0.75px",
-                color: "#111",
-                fontWeight: 500,
-                margin: 0,
-              }}
-            >
+
+            <div className="am-customers-wall-of-love-grid" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: "1.25rem" }}>
+              {/* Testimonial Card 1 */}
+              <div className="am-customers-wall-of-love-card" style={{ backgroundColor: "#1e1d1c", padding: "1.5rem", borderRadius: "12px", border: "1px solid rgba(255,255,255,0.08)" }}>
+                <div className="am-customer-stories-testimonial-details" style={{ marginBottom: "1rem" }}>
+                  <div className="am-paragraph-14 am-is-white">
+                    <div style={{ fontWeight: 600 }}>Budi Santoso</div>
+                    <div className="am-opacity-60" style={{ fontSize: "0.75rem" }}>Clipper TikTok • 850k Views</div>
+                  </div>
+                </div>
+                <p className="am-paragraph-16 am-is-white am-opacity-80">
+                  &ldquo;Dulu sering banget ditipu sama brand yang kabur setelah video FYP. Di ClipStream AI, uangnya udah dikunci di smart contract. Begitu tembus target, USDT langsung masuk dompet!&rdquo;
+                </p>
+              </div>
+
+              {/* Testimonial Card 2 */}
+              <div className="am-customers-wall-of-love-card" style={{ backgroundColor: "#1e1d1c", padding: "1.5rem", borderRadius: "12px", border: "1px solid rgba(255,255,255,0.08)" }}>
+                <div className="am-customer-stories-testimonial-details" style={{ marginBottom: "1rem" }}>
+                  <div className="am-paragraph-14 am-is-white">
+                    <div style={{ fontWeight: 600 }}>Rian Pratama</div>
+                    <div className="am-opacity-60" style={{ fontSize: "0.75rem" }}>Content Creator • YouTube Shorts</div>
+                  </div>
+                </div>
+                <p className="am-paragraph-16 am-is-white am-opacity-80">
+                  &ldquo;Verifikasinya beneran otomatis. Saya submit URL Shorts malam hari, paginya cek wallet udah ada transferan 180 USDT. Nggak perlu chat admin sama sekali.&rdquo;
+                </p>
+              </div>
+
+              {/* Testimonial Card 3 */}
+              <div className="am-customers-wall-of-love-card" style={{ backgroundColor: "#1e1d1c", padding: "1.5rem", borderRadius: "12px", border: "1px solid rgba(255,255,255,0.08)" }}>
+                <div className="am-customer-stories-testimonial-details" style={{ marginBottom: "1rem" }}>
+                  <div className="am-paragraph-14 am-is-white">
+                    <div style={{ fontWeight: 600 }}>Jessica Hartono</div>
+                    <div className="am-opacity-60" style={{ fontSize: "0.75rem" }}>Marketing Lead, Brand D2C</div>
+                  </div>
+                </div>
+                <p className="am-paragraph-16 am-is-white am-opacity-80">
+                  &ldquo;Kami pasang bounty 2.000 USDT untuk promo produk baru. Dapat 50+ video dari clipper dengan total 1,8 juta views dalam 1 minggu. CPM jauh lebih murah dari Meta Ads!&rdquo;
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ── 11. FAQ ACCORDION SECTION ─────────────────────────────────── */}
+      <section className="am-section am-padding-100" style={{ paddingTop: "5rem", paddingBottom: "5rem", backgroundColor: "#fff" }}>
+        <div className="am-container am-is-smaller">
+          <div style={{ maxWidth: "42rem", margin: "0 auto" }}>
+            <h2 className="am-heading-36 am-text-align-center" style={{ marginBottom: "2.5rem" }}>
               Pertanyaan yang Sering Diajukan
             </h2>
-          </div>
 
-          <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
-            {[
-              {
-                q: "Bagaimana cara kerja smart contract escrow ClipStream?",
-                a: "Saat brand membuat campaign, mereka menyetor budget USDT langsung ke smart contract CampaignEscrow di BNB Chain. Dana tersebut terkunci secara kriptografis dan hanya bisa dicairkan ke clipper yang klipnya telah diverifikasi sah oleh AI agent.",
-              },
-              {
-                q: "Berapa lama waktu yang dibutuhkan AI untuk memverifikasi klip?",
-                a: "Rata-rata proses verifikasi memakan waktu 30 hingga 45 detik. AI agent mendownload audio, mentranskripsinya via Whisper ASR, mencocokkan semantic pesan brand via Gemini AI, dan memverifikasi views langsung dari YouTube API.",
-              },
-              {
-                q: "Mengapa ada pembagian 70% cair langsung dan 30% holdback?",
-                a: "70% payout cair seketika untuk memberikan reward langsung kepada clipper. 30% sisanya ditahan selama 3 hari untuk memastikan stabilitas views dan mencegah fraud seperti penghapusan video setelah pembayaran.",
-              },
-              {
-                q: "Apakah clipper perlu memiliki BNB untuk gas fee?",
-                a: "Tidak. Seluruh interaksi pencairan awal ditangani tanpa gas fee untuk clipper (gas fee disponsori oleh protokol). Clipper cukup login dengan Google/Privy dan menghubungkan wallet EVM.",
-              },
-            ].map((faq, index) => (
-              <div
-                key={index}
-                style={{
-                  backgroundColor: "#fff",
-                  borderRadius: "0.75rem",
-                  border: "1px solid rgba(17, 17, 17, 0.08)",
-                  overflow: "hidden",
-                  transition: "all 0.2s ease",
-                }}
-              >
-                <button
-                  onClick={() => toggleFaq(index)}
+            <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
+              {[
+                {
+                  q: "Bagaimana cara kerja smart contract escrow ClipStream AI?",
+                  a: "Brand mengunci dana kampanye di smart contract BNB Chain. Saat clipper mengunggah video, AI Agent memvalidasi views dan watermark. Begitu target tercapai, smart contract otomatis mentransfer USDT ke dompet clipper tanpa perantara.",
+                },
+                {
+                  q: "Berapa lama waktu yang dibutuhkan untuk pencairan hadiah?",
+                  a: "Pencairan terjadi instan dalam hitungan detik setelah AI Agent mengonfirmasi metrik views dan watermark di video Anda.",
+                },
+                {
+                  q: "Apakah saya harus punya crypto atau BNB terlebih dahulu untuk jadi clipper?",
+                  a: "Tidak! Anda cukup login dengan email atau Google lewat Privy. Kami otomatis membuatkan embedded wallet aman untuk Anda di BNB Chain.",
+                },
+                {
+                  q: "Platform video apa saja yang didukung saat ini?",
+                  a: "Saat ini ClipStream AI mendukung klip dari TikTok, YouTube Shorts, dan Instagram Reels.",
+                },
+              ].map((faq, i) => (
+                <div
+                  key={i}
                   style={{
-                    width: "100%",
-                    padding: "1.25rem 1.5rem",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "space-between",
-                    gap: "1rem",
-                    background: "none",
-                    border: "none",
-                    textAlign: "left",
-                    cursor: "pointer",
+                    border: "1px solid rgba(17,17,17,0.08)",
+                    borderRadius: "10px",
+                    overflow: "hidden",
                   }}
                 >
-                  <span style={{ fontSize: "1rem", fontWeight: 600, color: "#111" }}>
-                    {faq.q}
-                  </span>
-                  <ChevronDown
-                    size={18}
+                  <button
+                    type="button"
+                    onClick={() => toggleFaq(i)}
                     style={{
-                      transform: openFaq === index ? "rotate(180deg)" : "none",
-                      transition: "transform 0.2s ease",
-                      color: "#6d6c6b",
-                      flexShrink: 0,
-                    }}
-                  />
-                </button>
-                {openFaq === index && (
-                  <div
-                    style={{
-                      padding: "0 1.5rem 1.25rem 1.5rem",
-                      fontSize: "0.9375rem",
-                      lineHeight: 1.6,
-                      color: "rgba(17, 17, 17, 0.7)",
+                      width: "100%",
+                      padding: "1.25rem",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "space-between",
+                      background: "none",
+                      border: "none",
+                      textAlign: "left",
+                      cursor: "pointer",
+                      fontWeight: 600,
+                      fontSize: "1rem",
+                      color: "#111",
                     }}
                   >
-                    {faq.a}
-                  </div>
-                )}
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ── 8. High-Impact CTA Banner ────────────────────────────── */}
-      <section className="am-section" style={{ padding: "4rem 0 6rem", width: "100%" }}>
-        <div className="am-container" style={{ maxWidth: "69rem", margin: "0 auto", padding: "0 1.5rem" }}>
-          <div
-            style={{
-              backgroundColor: "#111",
-              borderRadius: "1.5rem",
-              padding: "clamp(3rem, 6vw, 5rem) 2rem",
-              textAlign: "center",
-              color: "#fff",
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-              gap: "1.5rem",
-            }}
-          >
-            <h2
-              style={{
-                fontSize: "clamp(2rem, 5vw, 3.25rem)",
-                lineHeight: 1.15,
-                letterSpacing: "-1.5px",
-                fontWeight: 500,
-                color: "#fff",
-                maxWidth: "38rem",
-                margin: 0,
-              }}
-            >
-              Mulai Monetisasi Klip Video Kamu Hari Ini
-            </h2>
-            <p
-              style={{
-                fontSize: "1.125rem",
-                color: "rgba(255, 255, 255, 0.7)",
-                maxWidth: "32rem",
-                margin: "0 auto",
-                lineHeight: 1.5,
-              }}
-            >
-              Pilih campaign aktif, buat klip kreatif, dan terima pembayaran USDT otomatis di setiap views yang kamu hasilkan.
-            </p>
-            <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", gap: "1rem", marginTop: "0.5rem" }}>
-              <Link
-                href="/campaigns"
-                className="am-nav-btn"
-                style={{
-                  padding: "0.875rem 2rem",
-                  backgroundColor: "#fff",
-                  color: "#111",
-                  fontSize: "1rem",
-                  fontWeight: 600,
-                  borderRadius: "0.5rem",
-                  textDecoration: "none",
-                  display: "inline-flex",
-                  alignItems: "center",
-                  gap: "0.5rem",
-                }}
-              >
-                <span>Jelajahi Campaign</span>
-                <ArrowRight size={16} />
-              </Link>
+                    <span>{faq.q}</span>
+                    <ChevronDown
+                      size={18}
+                      style={{
+                        transform: openFaq === i ? "rotate(180deg)" : "none",
+                        transition: "transform 0.2s ease",
+                      }}
+                    />
+                  </button>
+                  {openFaq === i && (
+                    <div
+                      style={{
+                        padding: "0 1.25rem 1.25rem",
+                        color: "rgba(17,17,17,0.65)",
+                        fontSize: "0.875rem",
+                        lineHeight: 1.6,
+                      }}
+                    >
+                      {faq.a}
+                    </div>
+                  )}
+                </div>
+              ))}
             </div>
           </div>
         </div>
       </section>
 
-      {/* Role Selection Modal for new onboarded users */}
-      <RoleSelectModal
-        isOpen={showRoleModal}
-        onClose={() => setShowRoleModal(false)}
-      />
+      {/* ── 12. GLOWING PRE-FOOTER BANNER (Amplemarket Footer CTA) ────── */}
+      <section className="am-section am-is-black-bg" style={{ backgroundColor: "#111", color: "#fff", paddingTop: "5rem", paddingBottom: "5rem" }}>
+        <div className="am-container">
+          <div className="am-footer-cta">
+            <div className="am-footer-cta-wrapper am-padding-100">
+              <div className="am-footer-rich-text w-richtext">
+                <div className="w-embed">
+                  <h2 className="am-heading-56-caps am-is-white am-text-align-center">
+                    Raih Penghasilan Otomatis dari Setiap{" "}
+                    <span className="am-text-gradient-container">
+                      <span className="am-text-gradient is-footer">Klip Video</span>
+                      <span className="am-grain-word"></span>
+                    </span>
+                  </h2>
+                </div>
+              </div>
+
+              <div className="am-partial-form-wrapper" style={{ marginTop: "2rem" }}>
+                <div data-form-color-mode="dark" data-form-align="center" className="am-partial-form-container">
+                  <div className="am-form-block-wrapper w-form">
+                    <form
+                      onSubmit={(e) => {
+                        e.preventDefault();
+                        setShowRoleModal(true);
+                      }}
+                      className="am-form-wrapper"
+                    >
+                      <input
+                        className="am-form-email business-only-email-field w-input"
+                        placeholder="Mulai monetisasi klip video kamu sekarang"
+                        type="text"
+                        required
+                      />
+                      <div className="am-form-submit-wrapper">
+                        <div className="am-nav-btn-wrapper">
+                          <button
+                            type="submit"
+                            className="am-nav-btn business-only-submit-button is-full-size-mobile w-button"
+                            style={{
+                              backgroundColor: "#fff",
+                              color: "#111",
+                              fontWeight: 700,
+                              border: "none",
+                              cursor: "pointer",
+                            }}
+                          >
+                            Daftar Sekarang
+                          </button>
+                        </div>
+                      </div>
+                    </form>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Role Selection Modal */}
+      <RoleSelectModal isOpen={showRoleModal} onClose={() => setShowRoleModal(false)} />
     </div>
   );
 }
@@ -1143,8 +2215,8 @@ export default function HomePage() {
   return (
     <Suspense
       fallback={
-        <div className="am-container py-24 text-center">
-          <div className="h-96 skeleton rounded-2xl" />
+        <div className="flex items-center justify-center min-h-[60vh]">
+          <div className="w-8 h-8 rounded-full border-2 border-[#e8400d] border-t-transparent animate-spin" />
         </div>
       }
     >

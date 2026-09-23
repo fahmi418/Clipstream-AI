@@ -8,6 +8,7 @@ import { clipRoutes } from './routes/clips.routes.js';
 import { clipperRoutes } from './routes/clippers.routes.js';
 import { statsRoutes } from './routes/stats.routes.js';
 import { healthRoutes } from './routes/health.routes.js';
+import { adminRoutes } from './routes/admin.routes.js';
 
 export async function buildServer(): Promise<FastifyInstance> {
   const fastify = Fastify({
@@ -31,6 +32,7 @@ export async function buildServer(): Promise<FastifyInstance> {
   await fastify.register(clipRoutes);
   await fastify.register(clipperRoutes);
   await fastify.register(statsRoutes);
+  await fastify.register(adminRoutes);
 
   return fastify;
 }

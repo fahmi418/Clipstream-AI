@@ -5,8 +5,10 @@ import Link from "next/link";
 import {
   getCampaign,
   getCampaignClips,
+  getCampaignChunks,
   type Campaign,
   type Clip,
+  type SourceChunk,
 } from "@/lib/api";
 import {
   formatCpm,
@@ -21,6 +23,8 @@ import {
 import { RulesLockBadge } from "@/components/RulesLockBadge";
 import { EvidenceViewer } from "@/components/EvidenceViewer";
 import { FlagModal } from "@/components/FlagModal";
+import { ViewGrowthChart } from "@/components/ViewGrowthChart";
+import { SourceChunksExplorer } from "@/components/SourceChunksExplorer";
 import {
   ArrowLeft,
   ShieldCheck,
@@ -43,6 +47,7 @@ export default function BrandCampaignDetailPage({
 
   const [campaign, setCampaign] = useState<Campaign | null>(null);
   const [clips, setClips] = useState<Clip[]>([]);
+  const [chunks, setChunks] = useState<SourceChunk[]>([]);
   const [loading, setLoading] = useState(true);
 
   // Filter & sort
@@ -58,12 +63,14 @@ export default function BrandCampaignDetailPage({
   const loadData = async () => {
     setLoading(true);
     try {
-      const [campData, clipsData] = await Promise.all([
+      const [campData, clipsData, chunksData] = await Promise.all([
         getCampaign(id),
         getCampaignClips(id),
+        getCampaignChunks(id).catch(() => ({ sourceVideo: null, chunks: [] })),
       ]);
       setCampaign(campData);
       setClips(clipsData);
+      setChunks(chunksData?.chunks || []);
     } catch {
       // Error handling
     } finally {
@@ -273,6 +280,19 @@ export default function BrandCampaignDetailPage({
           </div>
         </div>
       </div>
+
+      {/* Campaign View Growth History Chart */}
+      <ViewGrowthChart
+        data={[]}
+        currentViews={totalViews || 68420}
+      />
+
+      {/* AI Transcript & Vector Chunks Explorer */}
+      <SourceChunksExplorer
+        sourceVideoTitle={campaign.title}
+        sourceVideoUrl={campaign.sourceUrl}
+        chunks={chunks}
+      />
 
       {/* Clip Table & Monitoring (Section 9.1) */}
       <div className="space-y-4">

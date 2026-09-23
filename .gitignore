@@ -79,6 +79,9 @@ temp/
 
 # ── Reference & Specification Documents ────────────────────────────────
 reference/
+reference_video/
+*reference_video*/
+*video_reference*/
 APP-FLOW-ClipStream-AI.md
 DESIGN.md
 PRD-ClipStream-AI.md
@@ -88,4 +91,5 @@ SCHEMA-ClipStream-AI.md
 *PRD*.md
 *TRD*.md
 *SCHEMA*.md
+
 
