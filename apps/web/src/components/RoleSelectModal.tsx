@@ -1,46 +1,54 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { Scissors, Megaphone, ShieldAlert, X, ArrowRight, CheckCircle2, Zap } from "lucide-react";
+import {
+  Scissors,
+  Megaphone,
+  ShieldAlert,
+  X,
+  ArrowRight,
+  ShieldCheck,
+  Sparkles,
+  LogIn,
+  UserPlus,
+} from "lucide-react";
 
 interface RoleSelectModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSelectRole?: (role: "clipper" | "brand" | "admin") => void;
+  onSelectRole?: (role: string) => void;
 }
 
-export function RoleSelectModal({ isOpen, onClose, onSelectRole }: RoleSelectModalProps) {
+export function RoleSelectModal({ isOpen, onClose }: RoleSelectModalProps) {
   const router = useRouter();
 
   if (!isOpen) return null;
 
-  const handleChooseRole = (role: "clipper" | "brand" | "admin", route: string) => {
-    if (typeof window !== "undefined") {
-      localStorage.setItem("clipstream_user_role", role);
-    }
-    if (onSelectRole) onSelectRole(role);
+  const navigateTo = (path: string) => {
     onClose();
-    router.push(route);
+    router.push(path);
   };
 
   return (
     <div
       className="fixed inset-0 z-[9999] flex items-center justify-center p-4"
-      style={{ backgroundColor: "rgba(0,0,0,0.45)", backdropFilter: "blur(12px)" }}
+      style={{ backgroundColor: "rgba(0,0,0,0.6)", backdropFilter: "blur(14px)" }}
       onClick={onClose}
     >
-      {/* Modal Shell — clean white */}
+      {/* Modal Shell */}
       <div
         onClick={(e) => e.stopPropagation()}
         style={{
-          background: "#ffffff",
-          border: "1px solid rgba(17,17,17,0.08)",
+          background: "#121620",
+          border: "1px solid rgba(255,255,255,0.12)",
           borderRadius: "24px",
-          maxWidth: "660px",
+          maxWidth: "720px",
           width: "100%",
-          overflow: "hidden",
-          boxShadow: "0 32px 72px -12px rgba(0,0,0,0.18), 0 0 0 1px rgba(17,17,17,0.04)",
+          maxHeight: "92vh",
+          overflowY: "auto",
+          boxShadow: "0 32px 80px -12px rgba(0,0,0,0.7), 0 0 0 1px rgba(255,255,255,0.05)",
           position: "relative",
+          color: "#ffffff",
         }}
       >
         {/* Subtle top gradient accent strip */}
@@ -64,55 +72,54 @@ export function RoleSelectModal({ isOpen, onClose, onSelectRole }: RoleSelectMod
             position: "absolute",
             top: "18px",
             right: "18px",
-            width: "32px",
-            height: "32px",
+            width: "34px",
+            height: "34px",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
             borderRadius: "50%",
-            background: "rgba(17,17,17,0.05)",
-            border: "1px solid rgba(17,17,17,0.08)",
-            color: "rgba(17,17,17,0.45)",
+            background: "rgba(255,255,255,0.06)",
+            border: "1px solid rgba(255,255,255,0.1)",
+            color: "rgba(255,255,255,0.6)",
             cursor: "pointer",
             transition: "all 0.15s",
           }}
           onMouseEnter={(e) => {
-            e.currentTarget.style.background = "rgba(17,17,17,0.09)";
-            e.currentTarget.style.color = "#111";
+            e.currentTarget.style.background = "rgba(255,255,255,0.15)";
+            e.currentTarget.style.color = "#fff";
           }}
           onMouseLeave={(e) => {
-            e.currentTarget.style.background = "rgba(17,17,17,0.05)";
-            e.currentTarget.style.color = "rgba(17,17,17,0.45)";
+            e.currentTarget.style.background = "rgba(255,255,255,0.06)";
+            e.currentTarget.style.color = "rgba(255,255,255,0.6)";
           }}
         >
-          <X size={15} />
+          <X size={16} />
         </button>
 
         {/* Content */}
-        <div style={{ padding: "2.25rem 2rem 1.75rem" }}>
+        <div style={{ padding: "clamp(1.5rem, 4vw, 2.5rem) clamp(1.25rem, 3vw, 2rem) 1.5rem" }}>
           {/* Header */}
-          <div style={{ textAlign: "center", marginBottom: "1.75rem" }}>
-            {/* Eyebrow */}
+          <div style={{ textAlign: "center", marginBottom: "2rem" }}>
             <div
               style={{
                 display: "inline-flex",
                 alignItems: "center",
-                gap: "5px",
-                padding: "4px 12px",
+                gap: "6px",
+                padding: "4px 14px",
                 borderRadius: "9999px",
-                background: "#fff5f2",
-                border: "1px solid rgba(232,64,13,0.15)",
+                background: "rgba(232,64,13,0.12)",
+                border: "1px solid rgba(232,64,13,0.3)",
                 marginBottom: "0.875rem",
               }}
             >
-              <Zap size={11} style={{ color: "#e8400d" }} />
+              <Sparkles size={13} style={{ color: "#f97316" }} />
               <span
                 style={{
                   fontSize: "0.6875rem",
                   fontWeight: 700,
-                  letterSpacing: "1.2px",
+                  letterSpacing: "1px",
                   textTransform: "uppercase",
-                  color: "#e8400d",
+                  color: "#f97316",
                 }}
               >
                 Pilih Akses Portal
@@ -121,18 +128,17 @@ export function RoleSelectModal({ isOpen, onClose, onSelectRole }: RoleSelectMod
 
             <h3
               style={{
-                fontSize: "clamp(1.5rem, 4vw, 2rem)",
-                fontWeight: 700,
-                color: "#111111",
+                fontSize: "clamp(1.4rem, 3.5vw, 1.875rem)",
+                fontWeight: 800,
                 letterSpacing: "-0.03em",
                 lineHeight: 1.2,
                 margin: "0 0 0.5rem",
               }}
             >
-              Selamat Datang di ClipStream AI
+              Mulai Menggunakan Clipstream AI
             </h3>
-            <p style={{ fontSize: "0.875rem", color: "rgba(17,17,17,0.5)", margin: 0, lineHeight: 1.5 }}>
-              Pilih peranmu untuk masuk ke dashboard yang sesuai
+            <p style={{ fontSize: "0.875rem", color: "rgba(255,255,255,0.6)", margin: 0, lineHeight: 1.5 }}>
+              Pilih peran Anda untuk mendaftar akun baru atau masuk ke portal yang sesuai
             </p>
           </div>
 
@@ -140,238 +146,290 @@ export function RoleSelectModal({ isOpen, onClose, onSelectRole }: RoleSelectMod
           <div
             style={{
               display: "grid",
-              gridTemplateColumns: "repeat(3, 1fr)",
-              gap: "0.75rem",
-              marginBottom: "1.125rem",
+              gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))",
+              gap: "1rem",
+              marginBottom: "1.5rem",
             }}
-            className="role-modal-grid"
           >
-            <RoleCard
-              onClick={() => handleChooseRole("clipper", "/clipper")}
-              accentColor="#059669"
-              hoverBorder="#059669"
-              hoverBg="#f0fdf4"
-              iconBg="#ecfdf5"
-              badgeBg="#ecfdf5"
-              badgeColor="#059669"
-              icon={<Scissors size={19} />}
-              badge="Creator"
-              title="Saya Clipper"
-              desc="Potong video, submit ke Shorts/TikTok, dan cairkan USDT otomatis per 1.000 views."
-              ctaLabel="Dashboard Clipper"
-            />
-            <RoleCard
-              onClick={() => handleChooseRole("brand", "/brand/campaigns")}
-              accentColor="#d97706"
-              hoverBorder="#f59e0b"
-              hoverBg="#fffbeb"
-              iconBg="#fffbeb"
-              badgeBg="#fffbeb"
-              badgeColor="#d97706"
-              icon={<Megaphone size={19} />}
-              badge="Sponsor"
-              title="Brand / Kreator"
-              desc="Kunci budget escrow di BNB Chain dan raih jutaan views viral dari ratusan clipper."
-              ctaLabel="Dashboard Brand"
-            />
-            <RoleCard
-              onClick={() => handleChooseRole("admin", "/admin")}
-              accentColor="#7c3aed"
-              hoverBorder="#8b5cf6"
-              hoverBg="#faf5ff"
-              iconBg="#f5f3ff"
-              badgeBg="#f5f3ff"
-              badgeColor="#7c3aed"
-              icon={<ShieldAlert size={19} />}
-              badge="Protocol"
-              title="Superadmin"
-              desc="Monitor escrow vault, pipeline AI Whisper & Gemini, serta resolusi sengketa DAO."
-              ctaLabel="Portal Admin"
-            />
+            {/* Clipper Card */}
+            <div
+              style={{
+                background: "rgba(255,255,255,0.04)",
+                border: "1px solid rgba(16,185,129,0.25)",
+                borderRadius: "18px",
+                padding: "1.25rem",
+                display: "flex",
+                flexDirection: "column",
+                justifyContent: "space-between",
+                gap: "1rem",
+                transition: "all 0.2s",
+              }}
+            >
+              <div>
+                <div
+                  style={{
+                    width: "40px",
+                    height: "40px",
+                    borderRadius: "12px",
+                    background: "rgba(16,185,129,0.15)",
+                    border: "1px solid rgba(16,185,129,0.3)",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    color: "#34d399",
+                    marginBottom: "0.875rem",
+                  }}
+                >
+                  <Scissors size={20} />
+                </div>
+                <div style={{ fontSize: "1rem", fontWeight: 700, color: "#fff", marginBottom: "0.25rem" }}>
+                  Clipper / Kreator
+                </div>
+                <p style={{ fontSize: "0.75rem", color: "rgba(255,255,255,0.55)", lineHeight: 1.45, margin: 0 }}>
+                  Potong video, raih views YouTube Shorts & TikTok, dan cairkan reward USDC otomatis.
+                </p>
+              </div>
+
+              <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
+                <button
+                  type="button"
+                  onClick={() => navigateTo("/register?role=CLIPPER")}
+                  style={{
+                    padding: "0.625rem",
+                    borderRadius: "10px",
+                    background: "linear-gradient(135deg, #059669 0%, #10b981 100%)",
+                    color: "#fff",
+                    fontSize: "0.75rem",
+                    fontWeight: 700,
+                    border: "none",
+                    cursor: "pointer",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    gap: "0.35rem",
+                    boxShadow: "0 4px 12px rgba(16,185,129,0.25)",
+                  }}
+                >
+                  <UserPlus size={14} />
+                  <span>Daftar Clipper</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => navigateTo("/login?role=CLIPPER")}
+                  style={{
+                    padding: "0.5rem",
+                    borderRadius: "10px",
+                    background: "rgba(255,255,255,0.06)",
+                    border: "1px solid rgba(255,255,255,0.1)",
+                    color: "rgba(255,255,255,0.8)",
+                    fontSize: "0.75rem",
+                    fontWeight: 600,
+                    cursor: "pointer",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    gap: "0.35rem",
+                  }}
+                >
+                  <LogIn size={13} />
+                  <span>Masuk Akun</span>
+                </button>
+              </div>
+            </div>
+
+            {/* Brand Card */}
+            <div
+              style={{
+                background: "rgba(255,255,255,0.04)",
+                border: "1px solid rgba(232,64,13,0.25)",
+                borderRadius: "18px",
+                padding: "1.25rem",
+                display: "flex",
+                flexDirection: "column",
+                justifyContent: "space-between",
+                gap: "1rem",
+                transition: "all 0.2s",
+              }}
+            >
+              <div>
+                <div
+                  style={{
+                    width: "40px",
+                    height: "40px",
+                    borderRadius: "12px",
+                    background: "rgba(232,64,13,0.15)",
+                    border: "1px solid rgba(232,64,13,0.3)",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    color: "#f97316",
+                    marginBottom: "0.875rem",
+                  }}
+                >
+                  <Megaphone size={20} />
+                </div>
+                <div style={{ fontSize: "1rem", fontWeight: 700, color: "#fff", marginBottom: "0.25rem" }}>
+                  Brand / Sponsor
+                </div>
+                <p style={{ fontSize: "0.75rem", color: "rgba(255,255,255,0.55)", lineHeight: 1.45, margin: 0 }}>
+                  Pasang kampanye marketing video dengan verifikasi AI anti-bot dan escrow smart contract.
+                </p>
+              </div>
+
+              <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
+                <button
+                  type="button"
+                  onClick={() => navigateTo("/register?role=BRAND")}
+                  style={{
+                    padding: "0.625rem",
+                    borderRadius: "10px",
+                    background: "linear-gradient(135deg, #e8400d 0%, #ea580c 100%)",
+                    color: "#fff",
+                    fontSize: "0.75rem",
+                    fontWeight: 700,
+                    border: "none",
+                    cursor: "pointer",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    gap: "0.35rem",
+                    boxShadow: "0 4px 12px rgba(232,64,13,0.25)",
+                  }}
+                >
+                  <UserPlus size={14} />
+                  <span>Daftar Brand</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => navigateTo("/login?role=BRAND")}
+                  style={{
+                    padding: "0.5rem",
+                    borderRadius: "10px",
+                    background: "rgba(255,255,255,0.06)",
+                    border: "1px solid rgba(255,255,255,0.1)",
+                    color: "rgba(255,255,255,0.8)",
+                    fontSize: "0.75rem",
+                    fontWeight: 600,
+                    cursor: "pointer",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    gap: "0.35rem",
+                  }}
+                >
+                  <LogIn size={13} />
+                  <span>Masuk Akun</span>
+                </button>
+              </div>
+            </div>
+
+            {/* Admin Card */}
+            <div
+              style={{
+                background: "rgba(255,255,255,0.04)",
+                border: "1px solid rgba(139,92,246,0.25)",
+                borderRadius: "18px",
+                padding: "1.25rem",
+                display: "flex",
+                flexDirection: "column",
+                justifyContent: "space-between",
+                gap: "1rem",
+                transition: "all 0.2s",
+              }}
+            >
+              <div>
+                <div
+                  style={{
+                    width: "40px",
+                    height: "40px",
+                    borderRadius: "12px",
+                    background: "rgba(139,92,246,0.15)",
+                    border: "1px solid rgba(139,92,246,0.3)",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    color: "#a78bfa",
+                    marginBottom: "0.875rem",
+                  }}
+                >
+                  <ShieldAlert size={20} />
+                </div>
+                <div style={{ fontSize: "1rem", fontWeight: 700, color: "#fff", marginBottom: "0.25rem" }}>
+                  Superadmin
+                </div>
+                <p style={{ fontSize: "0.75rem", color: "rgba(255,255,255,0.55)", lineHeight: 1.45, margin: 0 }}>
+                  Kelola sengketa banding, monitor worker AI queue, dan audit escrow vault.
+                </p>
+              </div>
+
+              <div>
+                <button
+                  type="button"
+                  onClick={() => navigateTo("/login?role=ADMIN")}
+                  style={{
+                    width: "100%",
+                    padding: "0.625rem",
+                    borderRadius: "10px",
+                    background: "linear-gradient(135deg, #7c3aed 0%, #8b5cf6 100%)",
+                    color: "#fff",
+                    fontSize: "0.75rem",
+                    fontWeight: 700,
+                    border: "none",
+                    cursor: "pointer",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    gap: "0.35rem",
+                    boxShadow: "0 4px 12px rgba(139,92,246,0.25)",
+                  }}
+                >
+                  <LogIn size={14} />
+                  <span>Portal Admin</span>
+                </button>
+              </div>
+            </div>
           </div>
 
-          {/* Demo Mode Footer Bar */}
+          {/* Footer Info Bar */}
           <div
             style={{
               display: "flex",
               alignItems: "center",
               justifyContent: "space-between",
-              padding: "0.75rem 1rem",
-              borderRadius: "12px",
-              background: "#f6f5f3",
-              border: "1px solid rgba(17,17,17,0.06)",
+              padding: "0.875rem 1.125rem",
+              borderRadius: "14px",
+              background: "rgba(255,255,255,0.03)",
+              border: "1px solid rgba(255,255,255,0.07)",
             }}
           >
-            <div style={{ display: "flex", alignItems: "center", gap: "7px" }}>
-              <CheckCircle2 size={14} style={{ color: "#059669", flexShrink: 0 }} />
-              <span style={{ fontSize: "0.75rem", color: "rgba(17,17,17,0.5)", lineHeight: 1.4 }}>
-                Mode Demo Aktif — bebas berganti peran tanpa kata sandi terpisah.
+            <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+              <ShieldCheck size={16} style={{ color: "#10b981", flexShrink: 0 }} />
+              <span style={{ fontSize: "0.75rem", color: "rgba(255,255,255,0.6)", lineHeight: 1.4 }}>
+                Autentikasi terenkripsi non-custodial & verifikasi AI on-chain
               </span>
             </div>
             <button
               type="button"
-              onClick={() => handleChooseRole("clipper", "/campaigns")}
+              onClick={() => navigateTo("/campaigns")}
               style={{
                 fontSize: "0.75rem",
                 fontWeight: 600,
-                color: "#111",
+                color: "#f97316",
                 background: "none",
                 border: "none",
                 cursor: "pointer",
                 whiteSpace: "nowrap",
-                marginLeft: "12px",
-                opacity: 0.7,
-                transition: "opacity 0.15s",
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "4px",
               }}
-              onMouseEnter={(e) => (e.currentTarget.style.opacity = "1")}
-              onMouseLeave={(e) => (e.currentTarget.style.opacity = "0.7")}
             >
-              Lihat Marketplace →
+              <span>Jelajahi Kampanye</span>
+              <ArrowRight size={13} />
             </button>
           </div>
         </div>
       </div>
-
-      <style>{`
-        @media (max-width: 560px) {
-          .role-modal-grid { grid-template-columns: 1fr !important; }
-        }
-      `}</style>
     </div>
-  );
-}
-
-/* ── Sub-component ─────────────────────────────────────────────── */
-interface RoleCardProps {
-  onClick: () => void;
-  accentColor: string;
-  hoverBorder: string;
-  hoverBg: string;
-  iconBg: string;
-  badgeBg: string;
-  badgeColor: string;
-  icon: React.ReactNode;
-  badge: string;
-  title: string;
-  desc: string;
-  ctaLabel: string;
-}
-
-function RoleCard({
-  onClick,
-  accentColor,
-  hoverBorder,
-  hoverBg,
-  iconBg,
-  badgeBg,
-  badgeColor,
-  icon,
-  badge,
-  title,
-  desc,
-  ctaLabel,
-}: RoleCardProps) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      style={{
-        padding: "1.125rem 1rem",
-        textAlign: "left",
-        borderRadius: "14px",
-        border: "1px solid rgba(17,17,17,0.08)",
-        background: "#fafafa",
-        cursor: "pointer",
-        display: "flex",
-        flexDirection: "column",
-        justifyContent: "space-between",
-        transition: "all 0.18s ease",
-        minHeight: "186px",
-      }}
-      onMouseEnter={(e) => {
-        const el = e.currentTarget;
-        el.style.border = `1px solid ${hoverBorder}`;
-        el.style.background = hoverBg;
-        el.style.transform = "translateY(-2px)";
-        el.style.boxShadow = "0 8px 24px rgba(0,0,0,0.07)";
-      }}
-      onMouseLeave={(e) => {
-        const el = e.currentTarget;
-        el.style.border = "1px solid rgba(17,17,17,0.08)";
-        el.style.background = "#fafafa";
-        el.style.transform = "translateY(0)";
-        el.style.boxShadow = "none";
-      }}
-    >
-      <div>
-        {/* Icon */}
-        <div
-          style={{
-            width: "38px",
-            height: "38px",
-            borderRadius: "10px",
-            background: iconBg,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            color: accentColor,
-            marginBottom: "0.75rem",
-          }}
-        >
-          {icon}
-        </div>
-
-        {/* Badge */}
-        <div
-          style={{
-            display: "inline-block",
-            fontSize: "0.625rem",
-            fontWeight: 700,
-            letterSpacing: "0.8px",
-            textTransform: "uppercase",
-            padding: "2px 8px",
-            borderRadius: "9999px",
-            background: badgeBg,
-            color: badgeColor,
-            marginBottom: "0.4rem",
-          }}
-        >
-          {badge}
-        </div>
-
-        {/* Title */}
-        <h4
-          style={{
-            fontSize: "0.9375rem",
-            fontWeight: 700,
-            color: "#111111",
-            margin: "0 0 0.35rem",
-            letterSpacing: "-0.02em",
-          }}
-        >
-          {title}
-        </h4>
-
-        {/* Desc */}
-        <p style={{ fontSize: "0.75rem", color: "rgba(17,17,17,0.5)", margin: 0, lineHeight: 1.55 }}>
-          {desc}
-        </p>
-      </div>
-
-      {/* CTA Row */}
-      <div
-        style={{
-          marginTop: "0.875rem",
-          paddingTop: "0.75rem",
-          borderTop: "1px solid rgba(17,17,17,0.07)",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-        }}
-      >
-        <span style={{ fontSize: "0.75rem", fontWeight: 600, color: accentColor }}>{ctaLabel}</span>
-        <ArrowRight size={13} style={{ color: accentColor }} />
-      </div>
-    </button>
   );
 }

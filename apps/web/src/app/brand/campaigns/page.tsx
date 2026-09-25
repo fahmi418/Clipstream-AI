@@ -469,7 +469,7 @@ export default function BrandCampaignsPage() {
                   }}
                 >
                   {/* Left Column: Info & Status */}
-                  <div style={{ flex: "1 1 380px" }}>
+                  <div style={{ flex: "1 1 260px", minWidth: 0 }}>
                     <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "0.35rem" }}>
                       <span
                         style={{

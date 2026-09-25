@@ -5,6 +5,7 @@ import * as schema from './schema.js';
 import type {
   IDatabaseRepository,
   UserEntity,
+  UserRole,
   CampaignEntity,
   SourceVideoEntity,
   SourceChunkEntity,
@@ -60,29 +61,80 @@ export class DrizzleDatabaseRepository implements IDatabaseRepository {
     return records[0] ? this.mapUser(records[0]) : null;
   }
 
-  async upsertUser(
-    userData: Omit<UserEntity, 'id' | 'createdAt' | 'updatedAt'>
+  async getUserByEmail(email: string): Promise<UserEntity | null> {
+    const records = await this.db
+      .select()
+      .from(schema.users)
+      .where(eq(sql`LOWER(${schema.users.email})`, email.toLowerCase().trim()))
+      .limit(1);
+    return records[0] ? this.mapUser(records[0]) : null;
+  }
+
+  async createUser(
+    userData: Partial<UserEntity> & { role: 'CLIPPER' | 'BRAND' | 'ADMIN' }
   ): Promise<UserEntity> {
     const records = await this.db
       .insert(schema.users)
       .values({
-        privyDid: userData.privyDid,
-        walletAddress: userData.walletAddress,
-        displayName: userData.displayName,
-        email: userData.email,
-      })
-      .onConflictDoUpdate({
-        target: schema.users.privyDid,
-        set: {
-          walletAddress: userData.walletAddress,
-          displayName: userData.displayName,
-          email: userData.email,
-          updatedAt: new Date(),
-        },
+        privyDid: userData.privyDid || null,
+        walletAddress: userData.walletAddress || null,
+        displayName: userData.displayName || null,
+        email: userData.email ? userData.email.toLowerCase().trim() : null,
+        passwordHash: userData.passwordHash || null,
+        role: userData.role || 'CLIPPER',
+        avatarUrl: userData.avatarUrl || null,
+        bio: userData.bio || null,
       })
       .returning();
 
     return this.mapUser(records[0]);
+  }
+
+  async updateUser(id: string, updates: Partial<UserEntity>): Promise<UserEntity> {
+    const records = await this.db
+      .update(schema.users)
+      .set({
+        ...updates,
+        updatedAt: new Date(),
+      })
+      .where(eq(schema.users.id, id))
+      .returning();
+
+    if (!records[0]) {
+      throw new Error(`User with id ${id} not found`);
+    }
+    return this.mapUser(records[0]);
+  }
+
+  async upsertUser(
+    userData: Partial<UserEntity> & { role?: 'CLIPPER' | 'BRAND' | 'ADMIN' }
+  ): Promise<UserEntity> {
+    if (userData.privyDid) {
+      const existing = await this.getUserByPrivyDid(userData.privyDid);
+      if (existing) {
+        return this.updateUser(existing.id, {
+          walletAddress: userData.walletAddress ?? existing.walletAddress,
+          displayName: userData.displayName ?? existing.displayName,
+          email: userData.email ?? existing.email,
+          role: userData.role ?? existing.role,
+        });
+      }
+    }
+    if (userData.walletAddress) {
+      const existingWallet = await this.getUserByWallet(userData.walletAddress);
+      if (existingWallet) {
+        return this.updateUser(existingWallet.id, {
+          displayName: userData.displayName ?? existingWallet.displayName,
+          email: userData.email ?? existingWallet.email,
+          role: userData.role ?? existingWallet.role,
+        });
+      }
+    }
+
+    return this.createUser({
+      ...userData,
+      role: userData.role || 'CLIPPER',
+    });
   }
 
   // Source Videos & Chunks
@@ -747,6 +799,10 @@ export class DrizzleDatabaseRepository implements IDatabaseRepository {
       walletAddress: record.walletAddress,
       displayName: record.displayName,
       email: record.email,
+      passwordHash: record.passwordHash,
+      role: (record.role as UserRole) || 'CLIPPER',
+      avatarUrl: record.avatarUrl,
+      bio: record.bio,
       createdAt: record.createdAt,
       updatedAt: record.updatedAt,
     };

@@ -19,6 +19,7 @@ import {
 } from "@/lib/format";
 import { VerificationTimeline } from "@/components/VerificationTimeline";
 import { AppealModal } from "@/components/AppealModal";
+import { AuthGate } from "@/components/AuthGate";
 import {
   Scissors,
   Copy,
@@ -36,6 +37,7 @@ import {
   Info,
   Layers,
   ChevronDown,
+  Wallet,
 } from "lucide-react";
 
 function ClipperSubmitContent() {
@@ -93,8 +95,8 @@ function ClipperSubmitContent() {
 
   const handleSubmitClip = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!authenticated) {
-      login();
+    if (!user && !authenticated) {
+      setError("Silakan masuk terlebih dahulu.");
       return;
     }
 
@@ -129,14 +131,19 @@ function ClipperSubmitContent() {
   };
 
   return (
-    <div
-      style={{
-        maxWidth: "52rem",
-        margin: "0 auto",
-        padding: "6.5rem 1.5rem 4rem",
-        width: "100%",
-      }}
+    <AuthGate
+      requiredRole="clipper"
+      title="Masuk untuk Submit Klip"
+      description="Silakan masuk dengan akun Clipper kamu untuk mensubmit klip video dan menerima reward langsung ke dompet digital kamu."
     >
+      <div
+        style={{
+          maxWidth: "52rem",
+          margin: "0 auto",
+          padding: "6.5rem 1.5rem 4rem",
+          width: "100%",
+        }}
+      >
       <div style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}>
         {/* Navigation Breadcrumb */}
         <div>
@@ -1266,6 +1273,7 @@ function ClipperSubmitContent() {
         )}
       </div>
     </div>
+    </AuthGate>
   );
 }
 

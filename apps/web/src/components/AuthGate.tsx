@@ -1,15 +1,15 @@
 "use client";
 
-import { ReactNode, useState, useEffect } from "react";
+import { ReactNode } from "react";
 import Link from "next/link";
-import { usePrivy } from "@privy-io/react-auth";
+import { usePathname } from "next/navigation";
 import { useAuth } from "@/lib/auth-context";
-import { RoleSelectModal } from "@/components/RoleSelectModal";
-import { ShieldAlert, Lock, Sparkles, Home, LogIn, AlertTriangle } from "lucide-react";
+import { Lock, Sparkles, Home, LogIn, AlertTriangle, UserPlus, ArrowRight } from "lucide-react";
+import type { UserRole } from "@/lib/api";
 
 interface AuthGateProps {
   children: ReactNode;
-  requiredRole?: "clipper" | "brand" | "admin";
+  requiredRole?: "clipper" | "brand" | "admin" | UserRole;
   title?: string;
   description?: string;
 }
@@ -20,312 +20,349 @@ export function AuthGate({
   title = "Akses Khusus Pengguna Terdaftar",
   description = "Silakan masuk dengan akun atau hubungkan wallet kamu untuk mengakses dashboard performa, analitik earnings, dan pencairan escrow on-chain.",
 }: AuthGateProps) {
-  const { authenticated } = usePrivy();
-  const { user } = useAuth();
-  const [currentRole, setCurrentRole] = useState<string | null>(null);
-  const [showRoleModal, setShowRoleModal] = useState(false);
-  const [isReady, setIsReady] = useState(false);
+  const pathname = usePathname();
+  const { user, isAuthenticated, isLoading } = useAuth();
 
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      const stored = localStorage.getItem("clipstream_user_role");
-      if (stored) {
-        setCurrentRole(stored);
-      }
-      setIsReady(true);
-    }
-  }, []);
-
-  // ── Authorization logic ────────────────────────────────────
-  // 1. Must be logged in (any role set in localStorage OR privy auth)
-  const isLoggedIn = Boolean(authenticated || user || currentRole);
-
-  // 2. If a requiredRole is set, stored role must match (admins can access everything)
-  const roleMatches =
-    !requiredRole ||
-    currentRole === requiredRole ||
-    currentRole === "admin";
-
-  if (!isReady) {
+  if (isLoading) {
     return (
-      <div style={{ minHeight: "70vh", display: "flex", alignItems: "center", justifyContent: "center" }}>
-        <div style={{ width: "32px", height: "32px", border: "3px solid #e5e7eb", borderTopColor: "#111", borderRadius: "50%", animation: "spin 0.8s linear infinite" }} />
+      <div className="min-h-[70vh] flex items-center justify-center bg-[#f6f5f3]">
+        <div className="w-8 h-8 border-3 border-black/10 border-t-[#e8400d] rounded-full animate-spin" />
       </div>
     );
   }
 
-  // ── Wrong role: logged in but accessing the wrong portal ────
-  if (isLoggedIn && !roleMatches) {
-    const roleLabel = currentRole === "clipper" ? "Clipper" : currentRole === "brand" ? "Brand" : "Superadmin";
-    const roleDashboard = currentRole === "clipper" ? "/clipper" : currentRole === "brand" ? "/brand/campaigns" : "/admin";
-    const requiredLabel = requiredRole === "brand" ? "Portal Brand" : requiredRole === "admin" ? "Portal Superadmin" : "Dashboard Clipper";
+  // Normalize role
+  const normalizedRequiredRole: UserRole | undefined =
+    requiredRole === "clipper"
+      ? "CLIPPER"
+      : requiredRole === "brand"
+      ? "BRAND"
+      : requiredRole === "admin"
+      ? "ADMIN"
+      : (requiredRole as UserRole | undefined);
+
+  // 1. Not logged in
+  if (!isAuthenticated || !user) {
+    const registerHref = normalizedRequiredRole
+      ? `/register?role=${normalizedRequiredRole}`
+      : "/register";
+    const loginHref = `/login?redirect=${encodeURIComponent(pathname)}`;
+
     return (
       <div
         style={{
-          minHeight: "80vh",
+          minHeight: "calc(100vh - 80px)",
+          backgroundColor: "#f6f5f3",
+          paddingTop: "7rem",
+          paddingBottom: "4.5rem",
+          paddingLeft: "1rem",
+          paddingRight: "1rem",
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          padding: "4rem 1.5rem",
-          background: "#f6f5f3",
+          boxSizing: "border-box",
+          fontFamily: "var(--font-inter), sans-serif",
         }}
       >
         <div
           style={{
-            maxWidth: "28rem",
             width: "100%",
-            background: "#fff",
-            borderRadius: "20px",
-            border: "1px solid rgba(17,17,17,0.08)",
-            boxShadow: "0 8px 32px rgba(0,0,0,0.06)",
-            padding: "2.5rem 2rem",
+            maxWidth: "460px",
+            backgroundColor: "#ffffff",
+            borderRadius: "24px",
+            border: "1px solid rgba(0, 0, 0, 0.08)",
+            boxShadow: "0 20px 50px -10px rgba(0, 0, 0, 0.07)",
+            padding: "clamp(1.75rem, 4vw, 2.5rem)",
             textAlign: "center",
+            boxSizing: "border-box",
+            position: "relative",
+          }}
+        >
+          {/* Subtle top accent */}
+          <div
+            style={{
+              position: "absolute",
+              top: 0,
+              left: "2rem",
+              right: "2rem",
+              height: "3px",
+              background: "linear-gradient(90deg, #e8400d 0%, #f59e0b 50%, #10b981 100%)",
+              borderRadius: "9999px",
+            }}
+          />
+
+          {/* Lock icon */}
+          <div
+            style={{
+              width: "52px",
+              height: "52px",
+              borderRadius: "16px",
+              backgroundColor: "rgba(232, 64, 13, 0.08)",
+              border: "1px solid rgba(232, 64, 13, 0.2)",
+              color: "#e8400d",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              margin: "0 auto 1rem auto",
+            }}
+          >
+            <Lock size={24} />
+          </div>
+
+          <div
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: "5px",
+              padding: "4px 12px",
+              borderRadius: "9999px",
+              backgroundColor: "#f5f4f0",
+              border: "1px solid rgba(0, 0, 0, 0.06)",
+              color: "#666666",
+              fontSize: "0.6875rem",
+              fontWeight: 700,
+              textTransform: "uppercase",
+              letterSpacing: "0.8px",
+              marginBottom: "0.75rem",
+            }}
+          >
+            <Sparkles size={11} color="#e8400d" />
+            <span>
+              {normalizedRequiredRole === "ADMIN"
+                ? "Portal Superadmin & DAO"
+                : normalizedRequiredRole === "BRAND"
+                ? "Portal Manajemen Brand"
+                : "Dashboard Clipper"}
+            </span>
+          </div>
+
+          <h2
+            style={{
+              fontSize: "1.375rem",
+              fontWeight: 700,
+              color: "#111111",
+              letterSpacing: "-0.025em",
+              lineHeight: 1.25,
+              margin: "0 0 0.5rem 0",
+            }}
+          >
+            {title}
+          </h2>
+
+          <p
+            style={{
+              fontSize: "0.875rem",
+              color: "#666666",
+              lineHeight: 1.45,
+              margin: "0 0 1.5rem 0",
+            }}
+          >
+            {description}
+          </p>
+
+          <div style={{ display: "flex", flexDirection: "column", gap: "0.625rem" }}>
+            <Link
+              href={loginHref}
+              style={{
+                width: "100%",
+                height: "44px",
+                borderRadius: "12px",
+                backgroundColor: "#111111",
+                color: "#ffffff",
+                fontSize: "0.875rem",
+                fontWeight: 600,
+                textDecoration: "none",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: "8px",
+                boxSizing: "border-box",
+                transition: "opacity 0.15s ease",
+              }}
+            >
+              <LogIn size={15} />
+              <span>Masuk ke Akun</span>
+              <ArrowRight size={14} />
+            </Link>
+
+            <Link
+              href={registerHref}
+              style={{
+                width: "100%",
+                height: "44px",
+                borderRadius: "12px",
+                backgroundColor: "#f8f7f5",
+                border: "1px solid rgba(0, 0, 0, 0.1)",
+                color: "#111111",
+                fontSize: "0.875rem",
+                fontWeight: 600,
+                textDecoration: "none",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: "8px",
+                boxSizing: "border-box",
+                transition: "background-color 0.15s ease",
+              }}
+            >
+              <UserPlus size={15} />
+              <span>Daftar Akun Baru</span>
+            </Link>
+
+            <Link
+              href="/"
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: "6px",
+                fontSize: "0.75rem",
+                color: "#888888",
+                textDecoration: "none",
+                marginTop: "0.5rem",
+              }}
+            >
+              <Home size={13} />
+              <span>Kembali ke Halaman Utama</span>
+            </Link>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // 2. Role mismatch (admins can access everything)
+  const roleMatches =
+    !normalizedRequiredRole ||
+    user.role === normalizedRequiredRole ||
+    user.role === "ADMIN";
+
+  if (!roleMatches) {
+    const userDashboard =
+      user.role === "BRAND" ? "/brand/campaigns" : "/clipper";
+    const requiredLabel =
+      normalizedRequiredRole === "BRAND"
+        ? "Brand / Sponsor"
+        : normalizedRequiredRole === "ADMIN"
+        ? "Superadmin"
+        : "Clipper";
+
+    return (
+      <div
+        style={{
+          minHeight: "calc(100vh - 80px)",
+          backgroundColor: "#f6f5f3",
+          paddingTop: "7rem",
+          paddingBottom: "4.5rem",
+          paddingLeft: "1rem",
+          paddingRight: "1rem",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          boxSizing: "border-box",
+          fontFamily: "var(--font-inter), sans-serif",
+        }}
+      >
+        <div
+          style={{
+            width: "100%",
+            maxWidth: "460px",
+            backgroundColor: "#ffffff",
+            borderRadius: "24px",
+            border: "1px solid rgba(0, 0, 0, 0.08)",
+            boxShadow: "0 20px 50px -10px rgba(0, 0, 0, 0.07)",
+            padding: "clamp(1.75rem, 4vw, 2.5rem)",
+            textAlign: "center",
+            boxSizing: "border-box",
           }}
         >
           <div
             style={{
               width: "52px",
               height: "52px",
-              borderRadius: "14px",
-              background: "#fef9c3",
+              borderRadius: "16px",
+              backgroundColor: "#fef3c7",
+              border: "1px solid #fde68a",
+              color: "#b45309",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
-              margin: "0 auto 1.25rem",
+              margin: "0 auto 1rem auto",
             }}
           >
-            <AlertTriangle size={24} style={{ color: "#ca8a04" }} />
+            <AlertTriangle size={24} />
           </div>
 
           <h2
             style={{
-              fontSize: "1.25rem",
+              fontSize: "1.375rem",
               fontWeight: 700,
-              color: "#111",
-              margin: "0 0 0.5rem",
-              letterSpacing: "-0.02em",
+              color: "#111111",
+              letterSpacing: "-0.025em",
+              lineHeight: 1.25,
+              margin: "0 0 0.5rem 0",
             }}
           >
-            Akses Ditolak
+            Peran Tidak Sesuai
           </h2>
           <p
             style={{
               fontSize: "0.875rem",
-              color: "rgba(17,17,17,0.5)",
-              lineHeight: 1.55,
-              margin: "0 0 0.5rem",
+              color: "#666666",
+              lineHeight: 1.45,
+              margin: "0 0 1.5rem 0",
             }}
           >
-            Kamu sedang login sebagai <strong>{roleLabel}</strong>, tapi halaman ini hanya bisa diakses oleh <strong>{requiredLabel}</strong>.
-          </p>
-          <p style={{ fontSize: "0.8125rem", color: "rgba(17,17,17,0.4)", margin: "0 0 2rem" }}>
-            Ganti peran atau kembali ke dashboard kamu.
+            Anda saat ini masuk sebagai <strong style={{ color: "#111" }}>{user.role}</strong>. Halaman ini khusus untuk peran <strong style={{ color: "#e8400d" }}>{requiredLabel}</strong>.
           </p>
 
-          <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+          <div style={{ display: "flex", flexDirection: "column", gap: "0.625rem" }}>
             <Link
-              href={roleDashboard}
+              href={userDashboard}
               style={{
-                display: "inline-flex",
-                alignItems: "center",
-                justifyContent: "center",
-                gap: "7px",
-                padding: "11px 20px",
-                borderRadius: "10px",
-                background: "#111",
-                color: "#fff",
+                width: "100%",
+                height: "44px",
+                borderRadius: "12px",
+                backgroundColor: "#111111",
+                color: "#ffffff",
+                fontSize: "0.875rem",
                 fontWeight: 600,
-                fontSize: "0.875rem",
                 textDecoration: "none",
-              }}
-            >
-              Ke Dashboard {roleLabel}
-            </Link>
-            <button
-              type="button"
-              onClick={() => setShowRoleModal(true)}
-              style={{
-                display: "inline-flex",
-                alignItems: "center",
-                justifyContent: "center",
-                gap: "7px",
-                padding: "10px 20px",
-                borderRadius: "10px",
-                border: "1px solid rgba(17,17,17,0.1)",
-                background: "#fff",
-                color: "#111",
-                fontWeight: 500,
-                fontSize: "0.875rem",
-                cursor: "pointer",
-              }}
-            >
-              Ganti Peran
-            </button>
-          </div>
-        </div>
-
-        <RoleSelectModal
-          isOpen={showRoleModal}
-          onClose={() => setShowRoleModal(false)}
-          onSelectRole={(role) => { setCurrentRole(role); setShowRoleModal(false); }}
-        />
-      </div>
-    );
-  }
-
-  if (!isLoggedIn) {
-    return (
-      <>
-        <div
-          style={{
-            minHeight: "80vh",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            padding: "4rem 1.5rem",
-            backgroundColor: "#ffffff",
-          }}
-        >
-          <div
-            style={{
-              maxWidth: "32rem",
-              width: "100%",
-              backgroundColor: "#ffffff",
-              borderRadius: "24px",
-              border: "1px solid rgba(17,17,17,0.08)",
-              boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.08)",
-              padding: "2.5rem 2rem",
-              textAlign: "center",
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-            }}
-          >
-            {/* Lock Badge */}
-            <div
-              style={{
-                width: "60px",
-                height: "60px",
-                borderRadius: "50%",
-                backgroundColor: "#fff0ec",
-                color: "#e8400d",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
-                marginBottom: "1.25rem",
-                boxShadow: "0 4px 14px rgba(232, 64, 13, 0.15)",
+                gap: "8px",
+                boxSizing: "border-box",
               }}
             >
-              <Lock size={26} />
-            </div>
+              <span>Buka Dashboard Anda ({user.role})</span>
+              <ArrowRight size={14} />
+            </Link>
 
-            <div
+            <Link
+              href={`/login?role=${normalizedRequiredRole}`}
               style={{
-                display: "inline-flex",
-                alignItems: "center",
-                gap: "0.35rem",
-                padding: "0.25rem 0.625rem",
-                borderRadius: "9999px",
-                backgroundColor: "rgba(17,17,17,0.04)",
-                fontSize: "0.75rem",
+                width: "100%",
+                height: "44px",
+                borderRadius: "12px",
+                backgroundColor: "#f8f7f5",
+                border: "1px solid rgba(0, 0, 0, 0.1)",
+                color: "#666666",
+                fontSize: "0.8125rem",
                 fontWeight: 600,
-                color: "rgba(17,17,17,0.7)",
-                marginBottom: "0.75rem",
+                textDecoration: "none",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: "6px",
+                boxSizing: "border-box",
               }}
             >
-              <Sparkles size={13} style={{ color: "#e8400d" }} />
-              <span>
-                {requiredRole === "admin"
-                  ? "Portal Superadmin & DAO"
-                  : requiredRole === "brand"
-                  ? "Portal Manajemen Brand"
-                  : "Dashboard Clipper Terverifikasi"}
-              </span>
-            </div>
-
-            <h2
-              style={{
-                fontSize: "1.5rem",
-                fontWeight: 700,
-                color: "#111111",
-                marginBottom: "0.5rem",
-                letterSpacing: "-0.02em",
-              }}
-            >
-              {title}
-            </h2>
-
-            <p
-              style={{
-                fontSize: "0.875rem",
-                color: "rgba(17,17,17,0.65)",
-                lineHeight: 1.55,
-                marginBottom: "2rem",
-                maxWidth: "26rem",
-              }}
-            >
-              {description}
-            </p>
-
-            {/* Actions */}
-            <div style={{ width: "100%", display: "flex", flexDirection: "column", gap: "0.75rem" }}>
-              <button
-                type="button"
-                onClick={() => setShowRoleModal(true)}
-                className="am-nav-btn"
-                style={{
-                  width: "100%",
-                  height: "44px",
-                  backgroundColor: "#111111",
-                  color: "#ffffff",
-                  fontSize: "0.875rem",
-                  fontWeight: 600,
-                  borderRadius: "9999px",
-                  display: "inline-flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  gap: "0.5rem",
-                  border: "none",
-                  cursor: "pointer",
-                  boxShadow: "0 4px 15px rgba(0,0,0,0.1)",
-                }}
-              >
-                <LogIn size={16} />
-                <span>Masuk / Pilih Peran Akun</span>
-              </button>
-
-              <Link
-                href="/"
-                className="am-nav-btn is-secondary"
-                style={{
-                  width: "100%",
-                  height: "44px",
-                  fontSize: "0.875rem",
-                  fontWeight: 500,
-                  borderRadius: "9999px",
-                  display: "inline-flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  gap: "0.5rem",
-                  textDecoration: "none",
-                }}
-              >
-                <Home size={15} />
-                <span>Kembali ke Halaman Utama</span>
-              </Link>
-            </div>
+              <span>Ganti Akun ke {requiredLabel}</span>
+            </Link>
           </div>
         </div>
-
-        <RoleSelectModal
-          isOpen={showRoleModal}
-          onClose={() => setShowRoleModal(false)}
-          onSelectRole={(role) => {
-            setCurrentRole(role);
-            setShowRoleModal(false);
-          }}
-        />
-      </>
+      </div>
     );
   }
 

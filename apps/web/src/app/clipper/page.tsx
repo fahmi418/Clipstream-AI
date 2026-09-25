@@ -37,6 +37,7 @@ import {
   FileCheck2,
 } from "lucide-react";
 import { HoldbackSchedule, type HoldbackItem } from "@/components/HoldbackSchedule";
+import { ClipperWalletModal } from "@/components/ClipperWalletModal";
 
 export default function ClipperDashboardPage() {
   const { user } = useAuth();
@@ -46,6 +47,7 @@ export default function ClipperDashboardPage() {
   const [loading, setLoading] = useState(false);
   const [selectedClip, setSelectedClip] = useState<Clip | null>(null);
   const [activeTab, setActiveTab] = useState<"ALL" | "APPROVED" | "PENDING">("ALL");
+  const [walletModalOpen, setWalletModalOpen] = useState(false);
 
   // Aggregated dynamic balances
   const [availableUsdt, setAvailableUsdt] = useState(16.43);
@@ -228,7 +230,28 @@ export default function ClipperDashboardPage() {
               </p>
             </div>
 
-            <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", flexWrap: "wrap" }}>
+              <Link
+                href="/clipper/wallet"
+                style={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: "0.5rem",
+                  padding: "0.625rem 1.125rem",
+                  borderRadius: "9999px",
+                  fontSize: "0.8125rem",
+                  fontWeight: 600,
+                  backgroundColor: "#ecfdf5",
+                  border: "1px solid rgba(5, 150, 105, 0.3)",
+                  color: "#059669",
+                  textDecoration: "none",
+                  transition: "all 0.15s ease",
+                }}
+              >
+                <Wallet size={15} />
+                <span>Dompet &amp; Tarik Saldo</span>
+              </Link>
+
               <Link
                 href="/campaigns"
                 style={{
@@ -269,6 +292,69 @@ export default function ClipperDashboardPage() {
               </Link>
             </div>
           </div>
+        </div>
+
+        {/* KISS Wallet Educational Banner */}
+        <div
+          style={{
+            backgroundColor: "#f0fdf4",
+            border: "1px solid #bbf7d0",
+            borderRadius: "16px",
+            padding: "1rem 1.25rem",
+            marginBottom: "1.5rem",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            flexWrap: "wrap",
+            gap: "1rem",
+          }}
+        >
+          <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
+            <div
+              style={{
+                width: "36px",
+                height: "36px",
+                borderRadius: "50%",
+                backgroundColor: "#dcfce7",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                flexShrink: 0,
+              }}
+            >
+              <Sparkles size={18} color="#16a34a" />
+            </div>
+            <div>
+              <div style={{ fontSize: "0.875rem", fontWeight: 700, color: "#166534" }}>
+                Dompet Otomatis Aktif (K.I.S.S. — Keep It Simple)
+              </div>
+              <div style={{ fontSize: "0.8125rem", color: "#15803d", marginTop: "2px" }}>
+                Gak perlu ribet bikin wallet kripto/private key. Saldo USDT otomatis dihitung &amp; bisa dicairkan langsung ke <strong>DANA, GoPay, OVO, ShopeePay, atau Bank Lokal (BCA/Mandiri/BRI/BNI)</strong>.
+              </div>
+            </div>
+          </div>
+
+          <Link
+            href="/clipper/wallet"
+            style={{
+              padding: "0.5rem 1rem",
+              borderRadius: "9999px",
+              backgroundColor: "#16a34a",
+              color: "#ffffff",
+              fontSize: "0.8125rem",
+              fontWeight: 600,
+              border: "none",
+              textDecoration: "none",
+              display: "inline-flex",
+              alignItems: "center",
+              gap: "0.35rem",
+              boxShadow: "0 2px 6px rgba(22, 163, 74, 0.25)",
+              whiteSpace: "nowrap",
+            }}
+          >
+            <Wallet size={14} />
+            <span>Buka Halaman Dompet</span>
+          </Link>
         </div>
 
         {/* Claim Success Banner */}
@@ -330,21 +416,29 @@ export default function ClipperDashboardPage() {
               </div>
             </div>
 
-            <div
-              style={{
-                marginTop: "1rem",
-                paddingTop: "0.75rem",
-                borderTop: "1px solid rgba(17,17,17,0.06)",
-                display: "flex",
-                alignItems: "center",
-                gap: "0.35rem",
-                fontSize: "0.75rem",
-                color: "#059669",
-                fontWeight: 600,
-              }}
-            >
-              <CheckCircle2 size={14} />
-              <span>Sudah masuk ke akun kamu</span>
+            <div style={{ marginTop: "1rem", paddingTop: "0.75rem", borderTop: "1px solid rgba(17,17,17,0.06)" }}>
+              <Link
+                href="/clipper/wallet"
+                style={{
+                  width: "100%",
+                  padding: "0.5rem",
+                  borderRadius: "10px",
+                  backgroundColor: "#059669",
+                  color: "#ffffff",
+                  fontSize: "0.8125rem",
+                  fontWeight: 600,
+                  textDecoration: "none",
+                  display: "inline-flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  gap: "0.35rem",
+                  boxSizing: "border-box",
+                  transition: "opacity 0.15s ease",
+                }}
+              >
+                <span>Tarik ke DANA / Bank</span>
+                <ArrowRight size={14} />
+              </Link>
             </div>
           </div>
 
@@ -589,7 +683,7 @@ export default function ClipperDashboardPage() {
                 className="hover:border-neutral-400"
               >
                 {/* Left: Thumbnail & Details */}
-                <div style={{ display: "flex", alignItems: "center", gap: "1.25rem", flex: "1 1 360px" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: "1.25rem", flex: "1 1 260px", minWidth: 0 }}>
                   <div
                     style={{
                       width: "80px",
@@ -607,8 +701,8 @@ export default function ClipperDashboardPage() {
                     <Play size={18} fill="#ffffff" color="#ffffff" style={{ marginLeft: "2px" }} />
                   </div>
 
-                  <div>
-                    <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "0.25rem" }}>
+                  <div style={{ minWidth: 0, flex: 1 }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "0.25rem", flexWrap: "wrap" }}>
                       <span
                         style={{
                           fontSize: "0.6875rem",
@@ -642,11 +736,12 @@ export default function ClipperDashboardPage() {
                         display: "inline-flex",
                         alignItems: "center",
                         gap: "0.25rem",
+                        maxWidth: "100%",
                       }}
                       className="hover:underline"
                     >
-                      <span>{clip.url}</span>
-                      <ExternalLink size={12} color="rgba(17,17,17,0.5)" />
+                      <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", maxWidth: "min(320px, 60vw)" }}>{clip.url}</span>
+                      <ExternalLink size={12} color="rgba(17,17,17,0.5)" style={{ flexShrink: 0 }} />
                     </a>
 
                     <div style={{ fontSize: "0.75rem", color: "rgba(17,17,17,0.5)", marginTop: "2px" }}>
@@ -656,8 +751,8 @@ export default function ClipperDashboardPage() {
                 </div>
 
                 {/* Right: Payout & Actions */}
-                <div style={{ display: "flex", alignItems: "center", gap: "1.5rem" }}>
-                  <div style={{ textAlign: "right" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: "1rem", flexWrap: "wrap", justifyContent: "space-between" }}>
+                  <div>
                     <div style={{ fontSize: "1.125rem", fontWeight: 700, color: "#111" }}>
                       +{formatUsdt(clip.releasedAmount)} USDT
                     </div>
@@ -715,9 +810,11 @@ export default function ClipperDashboardPage() {
             style={{
               backgroundColor: "#ffffff",
               borderRadius: "24px",
-              padding: "2rem",
+              padding: "clamp(1.25rem, 4vw, 2rem)",
               maxWidth: "32rem",
               width: "100%",
+              maxHeight: "90vh",
+              overflowY: "auto",
               boxShadow: "0 25px 60px -15px rgba(0,0,0,0.25)",
               border: "1px solid rgba(17,17,17,0.08)",
             }}
@@ -817,6 +914,15 @@ export default function ClipperDashboardPage() {
           </div>
         </div>
       )}
+
+      {/* Clipper K.I.S.S. Wallet Modal */}
+      <ClipperWalletModal
+        isOpen={walletModalOpen}
+        onClose={() => setWalletModalOpen(false)}
+        user={user}
+        availableBalanceUsdc={availableUsdt}
+        onWithdrawSuccess={(newBal) => setAvailableUsdt(newBal)}
+      />
       </div>
     </AuthGate>
   );

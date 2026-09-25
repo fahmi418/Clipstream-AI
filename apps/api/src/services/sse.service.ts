@@ -14,6 +14,9 @@ export type VerificationEvent =
     }
   | {
       type: 'payout';
+      grossPayout?: string;
+      platformFee?: string;
+      platformFeeBps?: number;
       releasedAmount: string;
       holdbackAmount: string;
       holdbackUnlockAt: string;

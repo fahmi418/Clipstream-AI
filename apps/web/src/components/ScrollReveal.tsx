@@ -1,22 +1,27 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
 
-/**
- * ScrollReveal — lightweight scroll animation with IntersectionObserver.
- * No external library. ~0.5KB. Adds class "revealed" when element enters viewport.
- * Uses pure CSS transitions defined in globals.css.
- */
+if (typeof window !== "undefined") {
+  gsap.registerPlugin(ScrollTrigger);
+}
+
 export function ScrollReveal({
   children,
   className = "",
   delay = 0,
+  duration = 0.75,
   direction = "up",
+  distance = 32,
 }: {
   children: React.ReactNode;
   className?: string;
-  delay?: number; // ms
-  direction?: "up" | "left" | "right" | "none";
+  delay?: number; // ms or seconds
+  duration?: number;
+  direction?: "up" | "down" | "left" | "right" | "scale" | "none";
+  distance?: number;
 }) {
   const ref = useRef<HTMLDivElement>(null);
 
@@ -24,31 +29,51 @@ export function ScrollReveal({
     const el = ref.current;
     if (!el) return;
 
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setTimeout(() => {
-            el.classList.add("sr-revealed");
-          }, delay);
-          observer.unobserve(el);
+    // Convert delay to seconds if provided in ms
+    const delaySec = delay > 10 ? delay / 1000 : delay;
+
+    let x = 0;
+    let y = 0;
+    let scale = 1;
+
+    if (direction === "up") y = distance;
+    if (direction === "down") y = -distance;
+    if (direction === "left") x = distance;
+    if (direction === "right") x = -distance;
+    if (direction === "scale") scale = 0.94;
+
+    const ctx = gsap.context(() => {
+      gsap.fromTo(
+        el,
+        {
+          opacity: 0,
+          x,
+          y,
+          scale,
+        },
+        {
+          opacity: 1,
+          x: 0,
+          y: 0,
+          scale: 1,
+          duration,
+          delay: delaySec,
+          ease: "power3.out",
+          scrollTrigger: {
+            trigger: el,
+            start: "top 88%",
+            toggleActions: "play none none none",
+            once: true,
+          },
         }
-      },
-      { threshold: 0.1, rootMargin: "0px 0px -40px 0px" }
-    );
+      );
+    }, ref);
 
-    observer.observe(el);
-    return () => observer.disconnect();
-  }, [delay]);
-
-  const dirClass = {
-    up: "sr-from-up",
-    left: "sr-from-left",
-    right: "sr-from-right",
-    none: "sr-from-none",
-  }[direction];
+    return () => ctx.revert();
+  }, [delay, duration, direction, distance]);
 
   return (
-    <div ref={ref} className={`sr-base ${dirClass} ${className}`}>
+    <div ref={ref} className={className} style={{ willChange: "transform, opacity" }}>
       {children}
     </div>
   );

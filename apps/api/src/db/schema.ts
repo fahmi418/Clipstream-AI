@@ -55,13 +55,23 @@ export const appealStatusEnum = pgEnum('appeal_status', [
   'REJECTED',
 ]);
 
+export const userRoleEnum = pgEnum('user_role', [
+  'CLIPPER',
+  'BRAND',
+  'ADMIN',
+]);
+
 // Tables
 export const users = pgTable('users', {
   id: uuid('id').primaryKey().defaultRandom(),
-  privyDid: text('privy_did').notNull().unique(),
-  walletAddress: text('wallet_address').notNull().unique(),
+  privyDid: text('privy_did').unique(),
+  walletAddress: text('wallet_address').unique(),
   displayName: text('display_name'),
-  email: text('email'),
+  email: text('email').unique(),
+  passwordHash: text('password_hash'),
+  role: text('role').notNull().default('CLIPPER'),
+  avatarUrl: text('avatar_url'),
+  bio: text('bio'),
   createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
 });

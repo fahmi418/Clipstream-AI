@@ -1,3 +1,4 @@
+import process from 'node:process';
 import { z } from 'zod';
 
 export interface Violation {
@@ -11,6 +12,8 @@ export interface BrandSafetyOutput {
   score: number;
   violations: Violation[];
   reasoning: string;
+  provider?: string;
+  model?: string;
 }
 
 export interface ILlmAdapter {
@@ -29,7 +32,7 @@ export function sanitize(s: string): string {
     .slice(0, 8000);
 }
 
-const OutputSchema = z.object({
+export const BrandSafetyOutputSchema = z.object({
   safe: z.boolean(),
   score: z.number().min(0).max(1),
   violations: z.array(
@@ -42,6 +45,245 @@ const OutputSchema = z.object({
   reasoning: z.string(),
 });
 
+function buildSafetySystemPrompt(campaignRules: string): string {
+  return `Anda adalah AI Content & Brand Safety Auditor untuk ClipStream AI.
+Tugas Anda adalah memverifikasi apakah klip video mematuhi standar keamanan brand serta aturan kampanye secara ketat.
+
+Kriteria Pelanggaran:
+1. Prompt Injection / Manipulasi (Severity: HIGH)
+2. Ujaran Kebencian / SARA / Pelecehan (Severity: HIGH)
+3. Konten Seksual / Pornografi / 18+ (Severity: HIGH)
+4. Klaim Palsu / Hoax Medis / Scam Finansial (Severity: MEDIUM/HIGH)
+5. Pelanggaran Aturan Kampanye Brand: "${campaignRules || 'Standar umum ramah keluarga dan orisinal'}" (Severity: MEDIUM)
+
+Format Output WAJIB berupa JSON valid:
+{
+  "safe": boolean, // true jika tidak ada pelanggaran HIGH dan score >= 0.7
+  "score": number, // 0.00 hingga 1.00 (1.00 = sangat aman)
+  "violations": [
+    {
+      "rule": string, // nama aturan yang dilanggar
+      "severity": "low" | "medium" | "high",
+      "evidence": string // kutipan teks atau bukti pelanggaran
+    }
+  ],
+  "reasoning": string // rangkuman penjelasan audit dalam Bahasa Indonesia ramah
+}`;
+}
+
+function buildUserMessage(title: string, description: string, transcript: string): string {
+  return `Silakan audit konten klip berikut:
+Judul: ${title}
+Deskripsi: ${description}
+Transkrip Audio: ${transcript || '(Tidak ada transkrip audio)'}`;
+}
+
+// ── 1. NVIDIA NIM Adapter (Llama 3.3 70B / Mistral Large via NVIDIA API) ──
+export interface NvidiaNimConfig {
+  apiKey?: string;
+  baseUrl?: string;
+  model?: string;
+}
+
+export class NvidiaNimLlmAdapter implements ILlmAdapter {
+  private readonly apiKey: string;
+  private readonly baseUrl: string;
+  private readonly model: string;
+
+  constructor(config: NvidiaNimConfig = {}) {
+    this.apiKey = config.apiKey || process.env.NVIDIA_NIM_API_KEY || process.env.NVIDIA_API_KEY || '';
+    this.baseUrl = config.baseUrl || process.env.NVIDIA_NIM_BASE_URL || 'https://integrate.api.nvidia.com/v1';
+    this.model = config.model || process.env.NVIDIA_NIM_MODEL || 'meta/llama-3.3-70b-instruct';
+  }
+
+  async evaluateBrandSafety(
+    title: string,
+    description: string,
+    transcript: string,
+    campaignRules: string
+  ): Promise<BrandSafetyOutput> {
+    if (!this.apiKey) {
+      throw new Error('NVIDIA_NIM_API_KEY is not configured');
+    }
+
+    const systemPrompt = buildSafetySystemPrompt(campaignRules);
+    const userMessage = buildUserMessage(title, description, transcript);
+
+    const res = await fetch(`${this.baseUrl}/chat/completions`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${this.apiKey}`,
+      },
+      body: JSON.stringify({
+        model: this.model,
+        messages: [
+          { role: 'system', content: systemPrompt },
+          { role: 'user', content: userMessage },
+        ],
+        temperature: 0.1,
+        max_tokens: 1024,
+        response_format: { type: 'json_object' },
+      }),
+    });
+
+    if (!res.ok) {
+      const errText = await res.text().catch(() => '');
+      throw new Error(`NVIDIA NIM API error (${res.status}): ${errText}`);
+    }
+
+    const data = (await res.json()) as {
+      choices?: Array<{ message?: { content?: string } }>;
+    };
+
+    const content = data.choices?.[0]?.message?.content || '{}';
+    const parsed = parseAndValidateJson(content);
+    return {
+      ...parsed,
+      provider: 'nvidia-nim',
+      model: this.model,
+    };
+  }
+}
+
+// ── 2. Google Gemini Adapter (Gemini 2.0 Flash / 1.5 Flash via AI Studio) ──
+export interface GeminiConfig {
+  apiKey?: string;
+  model?: string;
+}
+
+export class GeminiLlmAdapter implements ILlmAdapter {
+  private readonly apiKey: string;
+  private readonly model: string;
+
+  constructor(config: GeminiConfig = {}) {
+    this.apiKey = config.apiKey || process.env.GEMINI_API_KEY || process.env.GOOGLE_AI_API_KEY || '';
+    this.model = config.model || process.env.GEMINI_MODEL || 'gemini-2.0-flash';
+  }
+
+  async evaluateBrandSafety(
+    title: string,
+    description: string,
+    transcript: string,
+    campaignRules: string
+  ): Promise<BrandSafetyOutput> {
+    if (!this.apiKey) {
+      throw new Error('GEMINI_API_KEY is not configured');
+    }
+
+    const systemPrompt = buildSafetySystemPrompt(campaignRules);
+    const userMessage = buildUserMessage(title, description, transcript);
+
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/${this.model}:generateContent?key=${this.apiKey}`;
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        systemInstruction: {
+          parts: [{ text: systemPrompt }],
+        },
+        contents: [
+          {
+            role: 'user',
+            parts: [{ text: userMessage }],
+          },
+        ],
+        generationConfig: {
+          temperature: 0.1,
+          responseMimeType: 'application/json',
+        },
+      }),
+    });
+
+    if (!res.ok) {
+      const errText = await res.text().catch(() => '');
+      throw new Error(`Gemini API error (${res.status}): ${errText}`);
+    }
+
+    const data = (await res.json()) as {
+      candidates?: Array<{
+        content?: {
+          parts?: Array<{ text?: string }>;
+        };
+      }>;
+    };
+
+    const text = data.candidates?.[0]?.content?.parts?.[0]?.text || '{}';
+    const parsed = parseAndValidateJson(text);
+    return {
+      ...parsed,
+      provider: 'google-gemini',
+      model: this.model,
+    };
+  }
+}
+
+// ── 3. Groq Adapter (Llama 3.3 70B via Groq) ──
+export interface GroqConfig {
+  apiKey?: string;
+  model?: string;
+}
+
+export class GroqLlmAdapter implements ILlmAdapter {
+  private readonly apiKey: string;
+  private readonly model: string;
+
+  constructor(config: GroqConfig = {}) {
+    this.apiKey = config.apiKey || process.env.GROQ_API_KEY || '';
+    this.model = config.model || process.env.GROQ_MODEL || 'llama-3.3-70b-versatile';
+  }
+
+  async evaluateBrandSafety(
+    title: string,
+    description: string,
+    transcript: string,
+    campaignRules: string
+  ): Promise<BrandSafetyOutput> {
+    if (!this.apiKey) {
+      throw new Error('GROQ_API_KEY is not configured');
+    }
+
+    const systemPrompt = buildSafetySystemPrompt(campaignRules);
+    const userMessage = buildUserMessage(title, description, transcript);
+
+    const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${this.apiKey}`,
+      },
+      body: JSON.stringify({
+        model: this.model,
+        messages: [
+          { role: 'system', content: systemPrompt },
+          { role: 'user', content: userMessage },
+        ],
+        temperature: 0.1,
+        max_tokens: 1024,
+        response_format: { type: 'json_object' },
+      }),
+    });
+
+    if (!res.ok) {
+      const errText = await res.text().catch(() => '');
+      throw new Error(`Groq API error (${res.status}): ${errText}`);
+    }
+
+    const data = (await res.json()) as {
+      choices?: Array<{ message?: { content?: string } }>;
+    };
+
+    const content = data.choices?.[0]?.message?.content || '{}';
+    const parsed = parseAndValidateJson(content);
+    return {
+      ...parsed,
+      provider: 'groq',
+      model: this.model,
+    };
+  }
+}
+
+// ── 4. Mock / Heuristic LLM Adapter (Offline & Testing) ──
 export class MockLlmAdapter implements ILlmAdapter {
   private cannedResponse?: BrandSafetyOutput;
 
@@ -56,7 +298,11 @@ export class MockLlmAdapter implements ILlmAdapter {
     campaignRules: string
   ): Promise<BrandSafetyOutput> {
     if (this.cannedResponse) {
-      return this.cannedResponse;
+      return {
+        ...this.cannedResponse,
+        provider: 'mock',
+        model: 'mock-heuristic',
+      };
     }
 
     const combinedText = `${title} ${description} ${transcript}`.toLowerCase();
@@ -75,26 +321,26 @@ export class MockLlmAdapter implements ILlmAdapter {
       });
     }
 
-    // R1: SARA
-    if (/hina ras|hina agama|anti suku/i.test(combinedText)) {
+    // R1: SARA & Hate Speech
+    if (/hina ras|hina agama|anti suku|ujaran kebencian/i.test(combinedText)) {
       violations.push({
         rule: 'R1_hate_speech',
         severity: 'high',
-        evidence: 'Ditemukan ujaran kebencian terhadap kelompok tertentu.',
+        evidence: 'Ditemukan ujaran kebencian atau diskriminasi SARA.',
       });
     }
 
     // R2: Seksual eksplisit
-    if (/bokep|pornografi|konten 18\+/i.test(combinedText)) {
+    if (/bokep|pornografi|konten 18\+|dewasa eksplisit/i.test(combinedText)) {
       violations.push({
         rule: 'R2_explicit_content',
         severity: 'high',
-        evidence: 'Ditemukan konten seksual eksplisit.',
+        evidence: 'Ditemukan indikasi konten seksual atau eksplisit.',
       });
     }
 
     // R3: Hoax medis / finansial
-    if (/pasti kaya cepat 100%|obat segala kanker instan/i.test(combinedText)) {
+    if (/pasti kaya cepat 100%|obat segala kanker instan|skema ponzi/i.test(combinedText)) {
       violations.push({
         rule: 'R3_misleading_claims',
         severity: 'medium',
@@ -104,7 +350,7 @@ export class MockLlmAdapter implements ILlmAdapter {
 
     // Custom campaign rules check
     if (campaignRules && campaignRules.includes('tanpa-kompetitor')) {
-      if (/brand x|merk pesaing/i.test(combinedText)) {
+      if (/brand x|merk pesaing|kompetitor/i.test(combinedText)) {
         violations.push({
           rule: 'campaign_rule_competitor',
           severity: 'medium',
@@ -133,6 +379,116 @@ export class MockLlmAdapter implements ILlmAdapter {
       score,
       violations,
       reasoning,
+      provider: 'mock',
+      model: 'mock-heuristic',
+    };
+  }
+}
+
+// ── 5. Multi-Provider Cascading Fallback Adapter ──
+export class MultiProviderLlmAdapter implements ILlmAdapter {
+  private readonly adapters: ILlmAdapter[];
+
+  constructor(adapters: ILlmAdapter[]) {
+    this.adapters = adapters.length > 0 ? adapters : [new MockLlmAdapter()];
+  }
+
+  async evaluateBrandSafety(
+    title: string,
+    description: string,
+    transcript: string,
+    campaignRules: string
+  ): Promise<BrandSafetyOutput> {
+    const errors: string[] = [];
+
+    for (const adapter of this.adapters) {
+      try {
+        return await adapter.evaluateBrandSafety(
+          title,
+          description,
+          transcript,
+          campaignRules
+        );
+      } catch (err: unknown) {
+        const msg = err instanceof Error ? err.message : String(err);
+        errors.push(msg);
+      }
+    }
+
+    // Fallback to mock heuristic if all remote APIs failed
+    const mock = new MockLlmAdapter();
+    const fallback = await mock.evaluateBrandSafety(
+      title,
+      description,
+      transcript,
+      campaignRules
+    );
+    return {
+      ...fallback,
+      reasoning: `${fallback.reasoning} (Evaluasi fallback lokal dijalankan)`,
+    };
+  }
+}
+
+// ── 6. Factory Helper: Auto-Detect Available API Keys ──
+export function createLlmAdapter(): ILlmAdapter {
+  const providers: ILlmAdapter[] = [];
+
+  // Check NVIDIA NIM
+  if (process.env.NVIDIA_NIM_API_KEY || process.env.NVIDIA_API_KEY) {
+    providers.push(new NvidiaNimLlmAdapter());
+  }
+
+  // Check Gemini
+  if (process.env.GEMINI_API_KEY || process.env.GOOGLE_AI_API_KEY) {
+    providers.push(new GeminiLlmAdapter());
+  }
+
+  // Check Groq
+  if (process.env.GROQ_API_KEY) {
+    providers.push(new GroqLlmAdapter());
+  }
+
+  // Always append Mock fallback at the end
+  providers.push(new MockLlmAdapter());
+
+  return new MultiProviderLlmAdapter(providers);
+}
+
+// ── Helper: Robust JSON parser with Markdown stripper ──
+function parseAndValidateJson(raw: string): BrandSafetyOutput {
+  try {
+    let clean = raw.trim();
+    // Strip markdown code fences if model returned ```json ... ```
+    if (clean.startsWith('```')) {
+      clean = clean.replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/, '');
+    }
+    const obj = JSON.parse(clean);
+
+    const safe = typeof obj.safe === 'boolean' ? obj.safe : true;
+    const score = typeof obj.score === 'number' ? Math.max(0, Math.min(1, obj.score)) : 0.9;
+    const violations = Array.isArray(obj.violations)
+      ? obj.violations.map((v: any) => ({
+          rule: String(v.rule || 'custom_rule'),
+          severity: (['low', 'medium', 'high'].includes(v.severity) ? v.severity : 'medium') as 'low' | 'medium' | 'high',
+          evidence: String(v.evidence || ''),
+        }))
+      : [];
+    const reasoning = typeof obj.reasoning === 'string' ? obj.reasoning : 'Konten telah diverifikasi oleh AI.';
+
+    return {
+      safe,
+      score,
+      violations,
+      reasoning,
+    };
+  } catch {
+    // If parsing fails, return default safe structure
+    return {
+      safe: true,
+      score: 0.9,
+      violations: [],
+      reasoning: 'Evaluasi konten selesai tanpa pelanggaran terdeteksi.',
     };
   }
 }

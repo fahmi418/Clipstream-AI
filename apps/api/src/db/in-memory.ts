@@ -46,31 +46,77 @@ export class InMemoryDatabaseRepository implements IDatabaseRepository {
   async getUserByWallet(address: string): Promise<UserEntity | null> {
     const normalized = address.toLowerCase();
     for (const u of this.users.values()) {
-      if (u.walletAddress.toLowerCase() === normalized) return u;
+      if (u.walletAddress && u.walletAddress.toLowerCase() === normalized) return u;
     }
     return null;
   }
 
-  async upsertUser(
-    userData: Omit<UserEntity, 'id' | 'createdAt' | 'updatedAt'>
-  ): Promise<UserEntity> {
-    const existing = await this.getUserByPrivyDid(userData.privyDid);
-    if (existing) {
-      existing.walletAddress = userData.walletAddress;
-      if (userData.displayName) existing.displayName = userData.displayName;
-      if (userData.email) existing.email = userData.email;
-      existing.updatedAt = new Date();
-      return existing;
+  async getUserByEmail(email: string): Promise<UserEntity | null> {
+    const normalized = email.toLowerCase().trim();
+    for (const u of this.users.values()) {
+      if (u.email && u.email.toLowerCase().trim() === normalized) return u;
     }
+    return null;
+  }
 
+  async createUser(
+    userData: Partial<UserEntity> & { role: 'CLIPPER' | 'BRAND' | 'ADMIN' }
+  ): Promise<UserEntity> {
     const newUser: UserEntity = {
-      id: randomUUID(),
-      ...userData,
+      id: userData.id || randomUUID(),
+      privyDid: userData.privyDid || null,
+      walletAddress: userData.walletAddress || null,
+      displayName: userData.displayName || null,
+      email: userData.email ? userData.email.toLowerCase().trim() : null,
+      passwordHash: userData.passwordHash || null,
+      role: userData.role || 'CLIPPER',
+      avatarUrl: userData.avatarUrl || null,
+      bio: userData.bio || null,
       createdAt: new Date(),
       updatedAt: new Date(),
     };
     this.users.set(newUser.id, newUser);
     return newUser;
+  }
+
+  async updateUser(id: string, updates: Partial<UserEntity>): Promise<UserEntity> {
+    const existing = this.users.get(id);
+    if (!existing) {
+      throw new Error(`User with id ${id} not found`);
+    }
+    Object.assign(existing, updates, { updatedAt: new Date() });
+    return existing;
+  }
+
+  async upsertUser(
+    userData: Partial<UserEntity> & { role?: 'CLIPPER' | 'BRAND' | 'ADMIN' }
+  ): Promise<UserEntity> {
+    if (userData.privyDid) {
+      const existing = await this.getUserByPrivyDid(userData.privyDid);
+      if (existing) {
+        if (userData.walletAddress) existing.walletAddress = userData.walletAddress;
+        if (userData.displayName) existing.displayName = userData.displayName;
+        if (userData.email) existing.email = userData.email;
+        if (userData.role) existing.role = userData.role;
+        existing.updatedAt = new Date();
+        return existing;
+      }
+    }
+    if (userData.walletAddress) {
+      const existingWallet = await this.getUserByWallet(userData.walletAddress);
+      if (existingWallet) {
+        if (userData.displayName) existingWallet.displayName = userData.displayName;
+        if (userData.email) existingWallet.email = userData.email;
+        if (userData.role) existingWallet.role = userData.role;
+        existingWallet.updatedAt = new Date();
+        return existingWallet;
+      }
+    }
+
+    return this.createUser({
+      ...userData,
+      role: userData.role || 'CLIPPER',
+    });
   }
 
   // Source Videos & Chunks

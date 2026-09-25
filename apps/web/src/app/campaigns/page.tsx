@@ -3,7 +3,8 @@
 import { useState, useEffect } from "react";
 import { listCampaigns, type Campaign, type CampaignStatus } from "@/lib/api";
 import { CampaignCard } from "@/components/CampaignCard";
-import { Search, SlidersHorizontal, Megaphone, RotateCcw, Sparkles, Filter, CheckCircle2 } from "lucide-react";
+import { useAuth } from "@/lib/auth-context";
+import { Search, SlidersHorizontal, Megaphone, RotateCcw, Sparkles, Filter, CheckCircle2, Scissors, Wallet } from "lucide-react";
 import Link from "next/link";
 
 // Curated live mock campaigns for instant zero-lag preview if API returns empty
@@ -95,6 +96,7 @@ const defaultCuratedCampaigns: Campaign[] = [
 ];
 
 export default function CampaignsPage() {
+  const { user } = useAuth();
   const [campaigns, setCampaigns] = useState<Campaign[]>(defaultCuratedCampaigns);
   const [loading, setLoading] = useState(false);
   const [statusFilter, setStatusFilter] = useState<CampaignStatus | "ALL">("ACTIVE");
@@ -209,26 +211,91 @@ export default function CampaignsPage() {
               </p>
             </div>
 
-            <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
-              <Link
-                href="/brand/new"
-                style={{
-                  display: "inline-flex",
-                  alignItems: "center",
-                  gap: "0.5rem",
-                  padding: "0.625rem 1.25rem",
-                  borderRadius: "9999px",
-                  fontSize: "0.875rem",
-                  fontWeight: 600,
-                  backgroundColor: "#111111",
-                  color: "#ffffff",
-                  textDecoration: "none",
-                  boxShadow: "0 4px 12px rgba(0,0,0,0.12)",
-                }}
-              >
-                <Megaphone size={16} />
-                <span>Buat Campaign Baru</span>
-              </Link>
+            <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", flexWrap: "wrap" }}>
+              {user?.role === "CLIPPER" ? (
+                <>
+                  <Link
+                    href="/clipper/wallet"
+                    style={{
+                      display: "inline-flex",
+                      alignItems: "center",
+                      gap: "0.5rem",
+                      padding: "0.625rem 1.125rem",
+                      borderRadius: "9999px",
+                      fontSize: "0.8125rem",
+                      fontWeight: 600,
+                      backgroundColor: "#ecfdf5",
+                      border: "1px solid rgba(5, 150, 105, 0.3)",
+                      color: "#059669",
+                      textDecoration: "none",
+                      transition: "all 0.15s ease",
+                    }}
+                  >
+                    <Wallet size={15} />
+                    <span>Dompet Saya</span>
+                  </Link>
+
+                  <Link
+                    href="/clipper/submit"
+                    style={{
+                      display: "inline-flex",
+                      alignItems: "center",
+                      gap: "0.5rem",
+                      padding: "0.625rem 1.25rem",
+                      borderRadius: "9999px",
+                      fontSize: "0.875rem",
+                      fontWeight: 600,
+                      backgroundColor: "#111111",
+                      color: "#ffffff",
+                      textDecoration: "none",
+                      boxShadow: "0 4px 12px rgba(0,0,0,0.12)",
+                    }}
+                  >
+                    <Scissors size={16} />
+                    <span>Submit Klip</span>
+                  </Link>
+                </>
+              ) : user?.role === "BRAND" || user?.role === "ADMIN" ? (
+                <Link
+                  href="/brand/new"
+                  style={{
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: "0.5rem",
+                    padding: "0.625rem 1.25rem",
+                    borderRadius: "9999px",
+                    fontSize: "0.875rem",
+                    fontWeight: 600,
+                    backgroundColor: "#111111",
+                    color: "#ffffff",
+                    textDecoration: "none",
+                    boxShadow: "0 4px 12px rgba(0,0,0,0.12)",
+                  }}
+                >
+                  <Megaphone size={16} />
+                  <span>Buat Campaign Baru</span>
+                </Link>
+              ) : (
+                <Link
+                  href="/register?role=BRAND"
+                  style={{
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: "0.4rem",
+                    padding: "0.625rem 1.125rem",
+                    borderRadius: "9999px",
+                    fontSize: "0.8125rem",
+                    fontWeight: 600,
+                    backgroundColor: "#ffffff",
+                    border: "1px solid rgba(17,17,17,0.15)",
+                    color: "#111111",
+                    textDecoration: "none",
+                  }}
+                >
+                  <Megaphone size={14} />
+                  <span>Pasang Kampanye Brand →</span>
+                </Link>
+              )}
             </div>
           </div>
         </div>
@@ -345,7 +412,7 @@ export default function CampaignsPage() {
           <div
             style={{
               display: "grid",
-              gridTemplateColumns: "repeat(auto-fill, minmax(320px, 1fr))",
+              gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))",
               gap: "1.5rem",
             }}
           >
@@ -365,7 +432,7 @@ export default function CampaignsPage() {
           <div
             style={{
               display: "grid",
-              gridTemplateColumns: "repeat(auto-fill, minmax(320px, 1fr))",
+              gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))",
               gap: "1.5rem",
             }}
           >

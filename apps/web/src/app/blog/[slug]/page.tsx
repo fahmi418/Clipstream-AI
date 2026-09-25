@@ -150,14 +150,14 @@ export default async function BlogDetailPage({ params }: Props) {
             background: "#fff",
             borderRadius: "16px",
             border: "1px solid rgba(17,17,17,0.07)",
-            padding: "2rem 2.25rem",
+            padding: "clamp(1.25rem, 4vw, 2.25rem)",
             marginBottom: "3rem",
           }}
         >
           <div
             className="blog-content"
             dangerouslySetInnerHTML={{ __html: article.content }}
-            style={{ fontSize: "0.9375rem", lineHeight: 1.75, color: "#1a1a1a" }}
+            style={{ fontSize: "0.9375rem", lineHeight: 1.75, color: "#1a1a1a", wordBreak: "break-word", overflowWrap: "break-word" }}
           />
         </div>
 

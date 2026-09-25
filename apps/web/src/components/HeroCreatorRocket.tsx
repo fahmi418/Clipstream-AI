@@ -6,21 +6,22 @@ export function HeroCreatorRocket({ className = "" }: { className?: string }) {
       className={`hidden lg:block ${className}`}
       style={{
         position: "absolute",
-        top: "3rem",
-        right: "-1.5rem",
-        width: "450px",
-        maxWidth: "34vw",
+        top: "clamp(5rem, 14vh, 9rem)",
+        right: "clamp(1rem, 3vw, 4rem)",
+        width: "420px",
+        maxWidth: "28vw",
         pointerEvents: "none",
         zIndex: 1,
         userSelect: "none",
       }}
     >
-      <svg
-        viewBox="0 0 480 430"
-        fill="none"
-        xmlns="http://www.w3.org/2000/svg"
-        style={{ width: "100%", height: "auto", overflow: "hidden" }}
-      >
+      <div className="gsap-hero-rocket-inner" style={{ width: "100%", height: "100%" }}>
+        <svg
+          viewBox="0 0 480 430"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+          style={{ width: "100%", height: "auto", overflow: "visible" }}
+        >
         <defs>
           <filter id="card-soft-shadow" x="-10%" y="-10%" width="130%" height="130%">
             <feDropShadow dx="0" dy="8" stdDeviation="12" floodColor="#000000" floodOpacity="0.08" />
@@ -356,6 +357,7 @@ export function HeroCreatorRocket({ className = "" }: { className?: string }) {
           <path d="M 145 165 L 145 177 M 139 171 L 151 171" />
         </g>
       </svg>
+      </div>
     </div>
   );
 }

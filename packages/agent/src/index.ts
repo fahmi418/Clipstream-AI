@@ -2,6 +2,7 @@ export * from './adapters/youtube.js';
 export * from './adapters/whisper.js';
 export * from './adapters/embedding.js';
 export * from './adapters/llm.js';
+export * from './adapters/ai-auditor.js';
 export * from './signer.js';
 export * from './pipeline.js';
 export * from './stages/01-ownership.js';

@@ -1,8 +1,10 @@
 "use client";
 
-import { useEffect, useState, Suspense } from "react";
+import { useEffect, useState, useRef, Suspense } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
 import {
   ShieldCheck,
   Zap,
@@ -21,12 +23,19 @@ import {
   Eye,
   CheckCircle2,
   Bot,
+  Scissors,
+  Megaphone,
+  Users,
 } from "lucide-react";
 import { fetchStats, listCampaigns, type Stats, type Campaign } from "@/lib/api";
 import { formatUsdt, formatIdr, formatViews } from "@/lib/format";
 import { RoleSelectModal } from "@/components/RoleSelectModal";
 import { HeroCreatorRocket } from "@/components/HeroCreatorRocket";
 import { ScrollReveal } from "@/components/ScrollReveal";
+
+if (typeof window !== "undefined") {
+  gsap.registerPlugin(ScrollTrigger);
+}
 
 const defaultLandingDemoCampaigns: Campaign[] = [
   {
@@ -106,6 +115,11 @@ function HomePageContent() {
   const [activePersona, setActivePersona] = useState<number>(1);
   const [openFaq, setOpenFaq] = useState<number | null>(null);
 
+  // GSAP Container & Transition Refs
+  const mainContainerRef = useRef<HTMLDivElement>(null);
+  const tabContentRef = useRef<HTMLDivElement>(null);
+  const personaContentRef = useRef<HTMLDivElement>(null);
+
   useEffect(() => {
     if (searchParams.get("new") === "1") {
       setShowRoleModal(true);
@@ -120,15 +134,369 @@ function HomePageContent() {
       if (statsData) setStats(statsData);
       if (campaignsData && Array.isArray(campaignsData)) setCampaigns(campaignsData);
       setLoading(false);
+      // Refresh ScrollTrigger after async layout load
+      setTimeout(() => {
+        ScrollTrigger.refresh();
+      }, 100);
     });
   }, []);
+
+  // GSAP Master Timelines and ScrollTrigger Animations
+  useEffect(() => {
+    const ctx = gsap.context(() => {
+      // 1. Hero Staggered Entrance
+      const heroTl = gsap.timeline({ defaults: { ease: "power4.out" } });
+
+      heroTl
+        .fromTo(
+          ".gsap-hero-badge",
+          { opacity: 0, y: -18, scale: 0.94 },
+          { opacity: 1, y: 0, scale: 1, duration: 0.6 }
+        )
+        .fromTo(
+          ".gsap-hero-heading",
+          { opacity: 0, y: 35 },
+          { opacity: 1, y: 0, duration: 0.85 },
+          "-=0.35"
+        )
+        .fromTo(
+          ".gsap-hero-desc",
+          { opacity: 0, y: 22 },
+          { opacity: 1, y: 0, duration: 0.7 },
+          "-=0.55"
+        )
+        .fromTo(
+          ".gsap-hero-cta-btn",
+          { opacity: 0, y: 20, scale: 0.96 },
+          { opacity: 1, y: 0, scale: 1, duration: 0.5, stagger: 0.1 },
+          "-=0.4"
+        )
+        .fromTo(
+          ".gsap-hero-proof",
+          { opacity: 0, y: 15 },
+          { opacity: 1, y: 0, duration: 0.6 },
+          "-=0.3"
+        )
+        .fromTo(
+          ".gsap-hero-rocket",
+          { opacity: 0, x: 50, y: 30, scale: 0.88 },
+          { opacity: 1, x: 0, y: 0, scale: 1, duration: 1.1, ease: "back.out(1.3)" },
+          "-=0.8"
+        );
+
+      // Continuous organic float for rocket
+      gsap.to(".gsap-hero-rocket-inner", {
+        y: "-=14",
+        rotation: 1.5,
+        duration: 3.2,
+        repeat: -1,
+        yoyo: true,
+        ease: "sine.inOut",
+      });
+
+      // Scroll Parallax for Hero Ambient Glow & Rocket
+      gsap.to(".gsap-hero-glow", {
+        y: 130,
+        ease: "none",
+        scrollTrigger: {
+          trigger: ".am-home-hero-content",
+          start: "top top",
+          end: "bottom top",
+          scrub: 1.2,
+        },
+      });
+
+      gsap.to(".gsap-hero-rocket", {
+        y: 90,
+        ease: "none",
+        scrollTrigger: {
+          trigger: ".am-home-hero-content",
+          start: "top top",
+          end: "bottom top",
+          scrub: 1.5,
+        },
+      });
+
+      // 2. Section 2: Platform 8-Grid Bento Scroll Reveal
+      gsap.fromTo(
+        ".platform-tile",
+        { opacity: 0, y: 35, scale: 0.96 },
+        {
+          opacity: 1,
+          y: 0,
+          scale: 1,
+          duration: 0.7,
+          stagger: 0.07,
+          ease: "power3.out",
+          scrollTrigger: {
+            trigger: ".platform-tiles-grid",
+            start: "top 85%",
+            toggleActions: "play none none none",
+            once: true,
+          },
+        }
+      );
+
+      // Testimonial 1 reveal
+      gsap.fromTo(
+        ".gsap-testimonial-1",
+        { opacity: 0, y: 30 },
+        {
+          opacity: 1,
+          y: 0,
+          duration: 0.75,
+          ease: "power3.out",
+          scrollTrigger: {
+            trigger: ".gsap-testimonial-1",
+            start: "top 85%",
+            once: true,
+          },
+        }
+      );
+
+      // 3. Section 3: Duo AI Agent Screen & Floating Signal Cards
+      gsap.fromTo(
+        ".gsap-duo-screen",
+        { opacity: 0, scale: 0.94, y: 35 },
+        {
+          opacity: 1,
+          scale: 1,
+          y: 0,
+          duration: 0.85,
+          ease: "power3.out",
+          scrollTrigger: {
+            trigger: ".am-ai-assistant-interaction-wrapper",
+            start: "top 80%",
+            once: true,
+          },
+        }
+      );
+
+      // Signal cards pop-in
+      gsap.fromTo(
+        ".gsap-signal-card",
+        { opacity: 0, scale: 0.7, y: 30 },
+        {
+          opacity: 1,
+          scale: 1,
+          y: 0,
+          duration: 0.7,
+          stagger: 0.15,
+          ease: "back.out(1.6)",
+          scrollTrigger: {
+            trigger: ".am-ai-assistant-interaction-wrapper",
+            start: "top 75%",
+            once: true,
+          },
+        }
+      );
+
+      // Continuous sine-wave floating oscillation on signal cards
+      gsap.utils.toArray<HTMLElement>(".gsap-signal-card").forEach((card, idx) => {
+        gsap.to(card, {
+          y: "-=10",
+          rotation: idx % 2 === 0 ? "+=1.5" : "-=1.5",
+          duration: 2.4 + idx * 0.4,
+          repeat: -1,
+          yoyo: true,
+          ease: "sine.inOut",
+          delay: idx * 0.25,
+        });
+      });
+
+      // Testimonial 2 reveal
+      gsap.fromTo(
+        ".gsap-testimonial-2",
+        { opacity: 0, y: 30 },
+        {
+          opacity: 1,
+          y: 0,
+          duration: 0.75,
+          ease: "power3.out",
+          scrollTrigger: {
+            trigger: ".gsap-testimonial-2",
+            start: "top 85%",
+            once: true,
+          },
+        }
+      );
+
+      // 4. Section 5: Midnight Indigo Journey Banner
+      gsap.fromTo(
+        ".gsap-midnight-banner",
+        { opacity: 0, scale: 0.95, y: 40 },
+        {
+          opacity: 1,
+          scale: 1,
+          y: 0,
+          duration: 0.85,
+          ease: "power3.out",
+          scrollTrigger: {
+            trigger: ".gsap-midnight-banner",
+            start: "top 85%",
+            once: true,
+          },
+        }
+      );
+
+      // 5. Section 6: Personas Section Reveal
+      gsap.fromTo(
+        ".am-personas-wrapper",
+        { opacity: 0, y: 35 },
+        {
+          opacity: 1,
+          y: 0,
+          duration: 0.8,
+          ease: "power3.out",
+          scrollTrigger: {
+            trigger: ".am-personas-wrapper",
+            start: "top 85%",
+            once: true,
+          },
+        }
+      );
+
+      // 6. Section 7: Bento Customer Stories / Results Grid
+      gsap.fromTo(
+        ".bento-results-grid > div",
+        { opacity: 0, y: 35, scale: 0.97 },
+        {
+          opacity: 1,
+          y: 0,
+          scale: 1,
+          duration: 0.7,
+          stagger: 0.1,
+          ease: "power3.out",
+          scrollTrigger: {
+            trigger: ".bento-results-grid",
+            start: "top 85%",
+            once: true,
+          },
+        }
+      );
+
+      // 7. Section 8: Active Campaigns Grid
+      gsap.fromTo(
+        ".gsap-campaign-card",
+        { opacity: 0, y: 30 },
+        {
+          opacity: 1,
+          y: 0,
+          duration: 0.65,
+          stagger: 0.1,
+          ease: "power3.out",
+          scrollTrigger: {
+            trigger: ".gsap-campaigns-grid",
+            start: "top 85%",
+            once: true,
+          },
+        }
+      );
+
+      // 8. Section 9: Blog Articles Grid
+      gsap.fromTo(
+        ".gsap-blog-card",
+        { opacity: 0, y: 30 },
+        {
+          opacity: 1,
+          y: 0,
+          duration: 0.65,
+          stagger: 0.12,
+          ease: "power3.out",
+          scrollTrigger: {
+            trigger: ".gsap-blog-grid",
+            start: "top 85%",
+            once: true,
+          },
+        }
+      );
+
+      // 9. Section 10: Wall of Love Testimonial Cards
+      gsap.fromTo(
+        ".gsap-wall-card",
+        { opacity: 0, y: 30 },
+        {
+          opacity: 1,
+          y: 0,
+          duration: 0.65,
+          stagger: 0.12,
+          ease: "power3.out",
+          scrollTrigger: {
+            trigger: ".gsap-wall-grid",
+            start: "top 85%",
+            once: true,
+          },
+        }
+      );
+
+      // 10. Section 11: FAQ Accordion items
+      gsap.fromTo(
+        ".gsap-faq-item",
+        { opacity: 0, y: 20 },
+        {
+          opacity: 1,
+          y: 0,
+          duration: 0.5,
+          stagger: 0.08,
+          ease: "power3.out",
+          scrollTrigger: {
+            trigger: ".gsap-faq-list",
+            start: "top 85%",
+            once: true,
+          },
+        }
+      );
+
+      // 11. Section 12: Pre-Footer Banner
+      gsap.fromTo(
+        ".gsap-footer-cta",
+        { opacity: 0, y: 35, scale: 0.96 },
+        {
+          opacity: 1,
+          y: 0,
+          scale: 1,
+          duration: 0.85,
+          ease: "power3.out",
+          scrollTrigger: {
+            trigger: ".am-footer-cta",
+            start: "top 85%",
+            once: true,
+          },
+        }
+      );
+    }, mainContainerRef);
+
+    return () => ctx.revert();
+  }, []);
+
+  // Animate tab transitions when user clicks Pillar tabs
+  useEffect(() => {
+    if (tabContentRef.current) {
+      gsap.fromTo(
+        tabContentRef.current,
+        { opacity: 0, y: 14, scale: 0.985 },
+        { opacity: 1, y: 0, scale: 1, duration: 0.35, ease: "power2.out" }
+      );
+    }
+  }, [activePillar]);
+
+  // Animate persona transition when user clicks Persona tabs
+  useEffect(() => {
+    if (personaContentRef.current) {
+      gsap.fromTo(
+        personaContentRef.current,
+        { opacity: 0, y: 14 },
+        { opacity: 1, y: 0, duration: 0.35, ease: "power2.out" }
+      );
+    }
+  }, [activePersona]);
 
   const toggleFaq = (index: number) => {
     setOpenFaq(openFaq === index ? null : index);
   };
 
   return (
-    <div className="flex flex-col w-full">
+    <div ref={mainContainerRef} className="flex flex-col w-full">
       {/* ── 1. HERO SECTION (Amplemarket Reference Hero) ──────────────── */}
       <section
         className="am-section am-max-width-1440 am-centered-margins"
@@ -136,10 +504,19 @@ function HomePageContent() {
           position: "relative",
           overflow: "hidden",
           backgroundColor: "#ffffff",
+          minHeight: "100vh",
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "center",
+          alignItems: "center",
+          paddingTop: "5rem",
+          paddingBottom: "2.5rem",
+          boxSizing: "border-box",
         }}
       >
         {/* Bespoke ClipStream Aesthetic Ambient Glow Mesh (Emerald + Amber + Violet with Grain) */}
         <div
+          className="gsap-hero-glow"
           style={{
             position: "absolute",
             top: "-8%",
@@ -147,7 +524,7 @@ function HomePageContent() {
             width: "55%",
             height: "95%",
             background:
-              "radial-gradient(ellipse at 30% 35%, rgba(0, 208, 132, 0.24) 0%, rgba(245, 158, 11, 0.26) 28%, rgba(251, 113, 133, 0.18) 50%, rgba(139, 92, 246, 0.15) 68%, transparent 82%)",
+                "radial-gradient(ellipse at 30% 35%, rgba(0, 208, 132, 0.24) 0%, rgba(245, 158, 11, 0.26) 28%, rgba(251, 113, 133, 0.18) 50%, rgba(139, 92, 246, 0.15) 68%, transparent 82%)",
             filter: "blur(54px)",
             pointerEvents: "none",
             zIndex: 0,
@@ -180,34 +557,36 @@ function HomePageContent() {
         </svg>
 
         {/* Bespoke Original ClipStream Creator Rocket Vector Illustration */}
-        <HeroCreatorRocket />
+        <HeroCreatorRocket className="gsap-hero-rocket" />
 
-        <div className="am-container" style={{ position: "relative", zIndex: 1 }}>
-          <div className="am-home-hero-content am-padding-168-top" style={{ paddingTop: "7.5rem" }}>
-            <div className="am-home-hero-content-top">
-              <div className="am-home-hero-content-top-text" style={{ maxWidth: "64rem", margin: "0 auto", textAlign: "center" }}>
-                <div className="am-home-hero-heading-wrapper" style={{ maxWidth: "60rem", margin: "0 auto" }}>
+        <div className="am-container" style={{ position: "relative", zIndex: 1, paddingLeft: "1rem", paddingRight: "1rem", width: "100%" }}>
+          <div className="am-home-hero-content" style={{ paddingTop: "0.25rem", width: "100%", alignItems: "center" }}>
+            <div className="am-home-hero-content-top" style={{ width: "100%" }}>
+              <div className="am-home-hero-content-top-text" style={{ maxWidth: "64rem", margin: "0 auto", textAlign: "center", width: "100%" }}>
+                <div className="am-home-hero-heading-wrapper" style={{ maxWidth: "60rem", margin: "0 auto", width: "100%" }}>
                   {/* Eyebrow Link / Badge */}
-                  <Link href="/campaigns" className="am-featured-link w-inline-block">
-                    <div className="am-new-label is-black">
+                  <Link href="/campaigns" className="am-featured-link w-inline-block gsap-hero-badge" style={{ maxWidth: "100%", whiteSpace: "normal", marginBottom: "0.75rem" }}>
+                    <div className="am-new-label is-black" style={{ flexShrink: 0 }}>
                       <div>BNB CHAIN 2026</div>
                     </div>
-                    <div className="am-opacity-80">
+                    <div className="am-opacity-80" style={{ fontSize: "0.8125rem" }}>
                       Kreator + AI Agent Escrow Ecosystem →
                     </div>
                   </Link>
 
                   {/* Main Display Title - Wide, breathing, balanced */}
                   <h1
-                    className="am-heading-56 am-text-align-center"
+                    className="am-heading-56 am-text-align-center gsap-hero-heading"
                     style={{
                       maxWidth: "58rem",
-                      margin: "0.75rem auto 0 auto",
-                      fontSize: "clamp(2.75rem, 5.2vw, 4.25rem)",
-                      lineHeight: 1.14,
-                      letterSpacing: "-0.04em",
+                      margin: "0 auto",
+                      fontSize: "clamp(1.85rem, 5.5vw, 4.25rem)",
+                      lineHeight: 1.15,
+                      letterSpacing: "-0.035em",
                       fontWeight: 800,
                       fontFamily: "'Labil Grotesk Variable', sans-serif",
+                      wordBreak: "break-word",
+                      overflowWrap: "break-word",
                     }}
                   >
                     <span>Kl</span>ip <span className="am-alternate">ka</span>mu, diba
@@ -218,13 +597,14 @@ function HomePageContent() {
 
                 {/* Subtitle - Wider and comfortably spaced */}
                 <p
-                  className="am-paragraph-20 am-opacity-60 am-text-align-center"
+                  className="am-paragraph-20 am-opacity-60 am-text-align-center gsap-hero-desc"
                   style={{
                     maxWidth: "46rem",
-                    margin: "1.5rem auto 0 auto",
-                    fontSize: "1.1875rem",
-                    lineHeight: 1.65,
+                    margin: "1rem auto 0 auto",
+                    fontSize: "clamp(0.9375rem, 2vw, 1.1875rem)",
+                    lineHeight: 1.6,
                     color: "rgba(17, 17, 17, 0.68)",
+                    padding: "0 0.25rem",
                   }}
                 >
                   Platform escrow video terdesentralisasi pertama di BNB Chain. Upload klip TikTok,
@@ -234,20 +614,22 @@ function HomePageContent() {
               </div>
 
               {/* Dual Action CTAs for Clipper & Brand */}
-              <div style={{ marginTop: "2.25rem", display: "flex", flexDirection: "column", alignItems: "center" }}>
+              <div style={{ marginTop: "1.75rem", display: "flex", flexDirection: "column", alignItems: "center", width: "100%" }}>
                 <div
                   style={{
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
-                    gap: "0.875rem",
+                    gap: "0.75rem",
                     flexWrap: "wrap",
+                    width: "100%",
+                    maxWidth: "480px",
                   }}
                 >
                   <button
                     type="button"
                     onClick={() => setShowRoleModal(true)}
-                    className="am-nav-btn"
+                    className="am-nav-btn gsap-hero-cta-btn w-full sm:w-auto"
                     style={{
                       backgroundColor: "#111111",
                       color: "#ffffff",
@@ -257,11 +639,13 @@ function HomePageContent() {
                       fontWeight: 600,
                       display: "inline-flex",
                       alignItems: "center",
+                      justifyContent: "center",
                       gap: "0.5rem",
                       border: "none",
                       cursor: "pointer",
                       boxShadow: "0 4px 16px rgba(0, 0, 0, 0.12)",
                       transition: "transform 0.15s ease, box-shadow 0.15s ease",
+                      minWidth: "200px",
                     }}
                   >
                     <span>Daftar sebagai Clipper</span>
@@ -271,7 +655,7 @@ function HomePageContent() {
                   <button
                     type="button"
                     onClick={() => setShowRoleModal(true)}
-                    className="am-nav-btn is-secondary"
+                    className="am-nav-btn is-secondary gsap-hero-cta-btn w-full sm:w-auto"
                     style={{
                       backgroundColor: "rgba(17, 17, 17, 0.04)",
                       color: "#111111",
@@ -282,34 +666,57 @@ function HomePageContent() {
                       fontWeight: 600,
                       display: "inline-flex",
                       alignItems: "center",
+                      justifyContent: "center",
                       gap: "0.5rem",
                       cursor: "pointer",
                       transition: "all 0.15s ease",
+                      minWidth: "200px",
                     }}
                   >
                     <span>Pasang Bounty Brand</span>
                   </button>
                 </div>
 
-
-
-
                 {/* Social Proof Stripe with CertiK & OpenZeppelin Security Audit */}
-                <div className="am-social-proof-stripe is-dark" style={{ marginTop: "1.25rem" }}>
-                  <div className="am-social-proof-stars">
+                <div
+                  className="am-social-proof-stripe is-dark gsap-hero-proof"
+                  style={{
+                    marginTop: "1.25rem",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    flexWrap: "wrap",
+                    gap: "0.5rem",
+                    maxWidth: "100%",
+                    padding: "0 0.5rem",
+                  }}
+                >
+                  <div className="am-social-proof-stars" style={{ display: "flex", alignItems: "center" }}>
                     <div className="am-social-proof-link w-inline-block">
                       <img
                         src="/assets/669e737879aa8335b500699a_g2-starts.svg"
                         loading="eager"
                         alt="Kreator reviews 5 stars"
                         className="am-image"
+                        style={{ maxHeight: "20px" }}
                       />
                     </div>
                   </div>
-                  <div className="am-vertical-divider"></div>
-                  <div className="am-social-proof-gartner-wrapper am-social-proof-link w-inline-block" style={{ gap: "0.45rem" }}>
-                    <ShieldCheck size={16} style={{ color: "#00d084" }} />
-                    <div className="am-social-proof-gartner-text" style={{ fontSize: "0.75rem", fontWeight: 600 }}>
+                  <div className="am-vertical-divider hidden sm:block"></div>
+                  <div
+                    className="am-social-proof-gartner-wrapper am-social-proof-link w-inline-block"
+                    style={{
+                      display: "inline-flex",
+                      alignItems: "center",
+                      gap: "0.45rem",
+                      textAlign: "center",
+                    }}
+                  >
+                    <ShieldCheck size={16} style={{ color: "#00d084", flexShrink: 0 }} />
+                    <div
+                      className="am-social-proof-gartner-text"
+                      style={{ fontSize: "0.75rem", fontWeight: 600, lineHeight: 1.4 }}
+                    >
                       Audit Keamanan Smart Contract oleh <span style={{ color: "#111", fontWeight: 700 }}>CertiK</span> &amp; Standar OpenZeppelin
                     </div>
                   </div>
@@ -332,31 +739,9 @@ function HomePageContent() {
               </ScrollReveal>
 
               {/* Clean 8-Card Grid with Normal 1px Borders */}
-              <div
-                style={{
-                  display: "grid",
-                  gridTemplateColumns: "repeat(4, 1fr)",
-                  border: "1px solid rgba(0, 0, 0, 0.08)",
-                  borderRadius: "16px",
-                  overflow: "hidden",
-                  backgroundColor: "#ffffff",
-                  boxShadow: "0 4px 20px rgba(0, 0, 0, 0.02)",
-                }}
-                className="platform-tiles-grid"
-              >
+              <div className="platform-tiles-grid">
                 {/* Tile 1: YouTube Shorts */}
-                <div
-                  style={{
-                    padding: "2rem 1.75rem",
-                    display: "flex",
-                    flexDirection: "column",
-                    justifyContent: "space-between",
-                    minHeight: "170px",
-                    borderRight: "1px solid rgba(0, 0, 0, 0.06)",
-                    borderBottom: "1px solid rgba(0, 0, 0, 0.06)",
-                    backgroundColor: "#ffffff",
-                  }}
-                >
+                <div className="platform-tile">
                   <div style={{ display: "flex", alignItems: "center", gap: "0.625rem", marginBottom: "1.25rem" }}>
                     <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
                       <rect width="24" height="24" rx="6" fill="#FF0000" />
@@ -375,18 +760,7 @@ function HomePageContent() {
                 </div>
 
                 {/* Tile 2: TikTok */}
-                <div
-                  style={{
-                    padding: "2rem 1.75rem",
-                    display: "flex",
-                    flexDirection: "column",
-                    justifyContent: "space-between",
-                    minHeight: "170px",
-                    borderRight: "1px solid rgba(0, 0, 0, 0.06)",
-                    borderBottom: "1px solid rgba(0, 0, 0, 0.06)",
-                    backgroundColor: "#ffffff",
-                  }}
-                >
+                <div className="platform-tile">
                   <div style={{ display: "flex", alignItems: "center", gap: "0.625rem", marginBottom: "1.25rem" }}>
                     <svg width="26" height="26" viewBox="0 0 24 24" fill="#000000">
                       <path d="M19.589 6.686a4.793 4.793 0 0 1-3.77-4.245V2h-3.445v13.672a2.896 2.896 0 0 1-2.902 2.896 2.897 2.897 0 0 1-2.896-2.896 2.897 2.897 0 0 1 2.896-2.896c.294 0 .576.046.842.128V9.43a6.37 6.37 0 0 0-.842-.057A6.34 6.34 0 0 0 3 15.668 6.34 6.34 0 0 0 9.368 22a6.34 6.34 0 0 0 6.368-6.332V9.08a8.212 8.212 0 0 0 4.853 1.574V7.21a4.814 4.814 0 0 1-1-.524z" />
@@ -404,18 +778,7 @@ function HomePageContent() {
                 </div>
 
                 {/* Tile 3: Instagram Reels */}
-                <div
-                  style={{
-                    padding: "2rem 1.75rem",
-                    display: "flex",
-                    flexDirection: "column",
-                    justifyContent: "space-between",
-                    minHeight: "170px",
-                    borderRight: "1px solid rgba(0, 0, 0, 0.06)",
-                    borderBottom: "1px solid rgba(0, 0, 0, 0.06)",
-                    backgroundColor: "#ffffff",
-                  }}
-                >
+                <div className="platform-tile">
                   <div style={{ display: "flex", alignItems: "center", gap: "0.625rem", marginBottom: "1.25rem" }}>
                     <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
                       <rect x="2" y="2" width="20" height="20" rx="5" stroke="#E1306C" strokeWidth="2.2" />
@@ -435,18 +798,7 @@ function HomePageContent() {
                 </div>
 
                 {/* Tile 4: BNB Chain */}
-                <div
-                  style={{
-                    padding: "2rem 1.75rem",
-                    display: "flex",
-                    flexDirection: "column",
-                    justifyContent: "space-between",
-                    minHeight: "170px",
-                    borderRight: "1px solid rgba(0, 0, 0, 0.06)",
-                    borderBottom: "1px solid rgba(0, 0, 0, 0.06)",
-                    backgroundColor: "#ffffff",
-                  }}
-                >
+                <div className="platform-tile">
                   <div style={{ display: "flex", alignItems: "center", gap: "0.625rem", marginBottom: "1.25rem" }}>
                     <svg width="26" height="26" viewBox="0 0 32 32" fill="#F3BA2F">
                       <path d="M16 2l4.1 4.1-8.2 8.2L7.8 10.2 16 2zm0 28l-4.1-4.1 8.2-8.2 4.1 4.1L16 30zm-9.9-14l-4.1 4.1L2 16l4.1-4.1 4.1 4.1-4.1 4.1zm19.8 0l4.1-4.1L30 16l-4.1 4.1-4.1-4.1 4.1-4.1zM16 11.9l4.1 4.1-4.1 4.1-4.1-4.1 4.1-4.1z" />
@@ -464,18 +816,7 @@ function HomePageContent() {
                 </div>
 
                 {/* Tile 5: CertiK Verified */}
-                <div
-                  style={{
-                    padding: "2rem 1.75rem",
-                    display: "flex",
-                    flexDirection: "column",
-                    justifyContent: "space-between",
-                    minHeight: "170px",
-                    borderRight: "1px solid rgba(0, 0, 0, 0.06)",
-                    borderBottom: "1px solid rgba(0, 0, 0, 0.06)",
-                    backgroundColor: "#ffffff",
-                  }}
-                >
+                <div className="platform-tile">
                   <div style={{ display: "flex", alignItems: "center", gap: "0.625rem", marginBottom: "1.25rem" }}>
                     <ShieldCheck size={26} style={{ color: "#00d084" }} />
                     <span style={{ fontSize: "1.0625rem", fontWeight: 700, color: "#111", letterSpacing: "-0.02em" }}>CertiK Verified</span>
@@ -491,18 +832,7 @@ function HomePageContent() {
                 </div>
 
                 {/* Tile 6: IPFS Storage */}
-                <div
-                  style={{
-                    padding: "2rem 1.75rem",
-                    display: "flex",
-                    flexDirection: "column",
-                    justifyContent: "space-between",
-                    minHeight: "170px",
-                    borderRight: "1px solid rgba(0, 0, 0, 0.06)",
-                    borderBottom: "1px solid rgba(0, 0, 0, 0.06)",
-                    backgroundColor: "#ffffff",
-                  }}
-                >
+                <div className="platform-tile">
                   <div style={{ display: "flex", alignItems: "center", gap: "0.625rem", marginBottom: "1.25rem" }}>
                     <Layers size={26} style={{ color: "#06b6d4" }} />
                     <span style={{ fontSize: "1.0625rem", fontWeight: 700, color: "#111", letterSpacing: "-0.02em" }}>IPFS Storage</span>
@@ -518,18 +848,7 @@ function HomePageContent() {
                 </div>
 
                 {/* Tile 7: Timelock Escrow */}
-                <div
-                  style={{
-                    padding: "2rem 1.75rem",
-                    display: "flex",
-                    flexDirection: "column",
-                    justifyContent: "space-between",
-                    minHeight: "170px",
-                    borderRight: "1px solid rgba(0, 0, 0, 0.06)",
-                    borderBottom: "1px solid rgba(0, 0, 0, 0.06)",
-                    backgroundColor: "#ffffff",
-                  }}
-                >
+                <div className="platform-tile">
                   <div style={{ display: "flex", alignItems: "center", gap: "0.625rem", marginBottom: "1.25rem" }}>
                     <Lock size={26} style={{ color: "#7c3aed" }} />
                     <span style={{ fontSize: "1.0625rem", fontWeight: 700, color: "#111", letterSpacing: "-0.02em" }}>Timelock Escrow</span>
@@ -545,16 +864,7 @@ function HomePageContent() {
                 </div>
 
                 {/* Tile 8: Whisper AI */}
-                <div
-                  style={{
-                    padding: "2rem 1.75rem",
-                    display: "flex",
-                    flexDirection: "column",
-                    justifyContent: "space-between",
-                    minHeight: "170px",
-                    backgroundColor: "#ffffff",
-                  }}
-                >
+                <div className="platform-tile" style={{ borderRight: "none" }}>
                   <div style={{ display: "flex", alignItems: "center", gap: "0.625rem", marginBottom: "1.25rem" }}>
                     <Bot size={26} style={{ color: "#e8400d" }} />
                     <span style={{ fontSize: "1.0625rem", fontWeight: 700, color: "#111", letterSpacing: "-0.02em" }}>Whisper AI</span>
@@ -572,7 +882,7 @@ function HomePageContent() {
             </div>
 
             {/* Testimonial 1 */}
-            <div data-testimonial-color-mode="light" className="am-testimonial-wrapper-new" style={{ marginTop: "5rem" }}>
+            <div data-testimonial-color-mode="light" className="am-testimonial-wrapper-new gsap-testimonial-1" style={{ marginTop: "5rem" }}>
               <div className="am-testimonial-inner-wrapper">
                 <div className="am-testimonial-text-wrapper">
                   <p data-testimonial-text-size="normal" className="am-heading-36 am-is-line-height-120 am-text-wrap-pretty">
@@ -582,15 +892,8 @@ function HomePageContent() {
 
                 <div className="am-testiminial-info-wrapper">
                   <div className="am-testimonial-user-wrapper">
-                    <img
-                      src="/assets/69010d9b0603ca7931b01826_testimonial-ceros-3.avif"
-                      loading="lazy"
-                      width="70"
-                      alt="Rizky Pratama"
-                      className="am-testimonial-user-image"
-                    />
                     <div className="am-testimonial-user-text">
-                      <div className="am-paragraph-16">Rizky Pratama</div>
+                      <div className="am-paragraph-16" style={{ fontWeight: 700, color: "#111" }}>Rizky Pratama</div>
                       <div className="am-paragraph-16 am-opacity-60">Top Video Clipper (5.2M Views)</div>
                     </div>
                   </div>
@@ -666,12 +969,12 @@ function HomePageContent() {
                   src="/assets/68752b3932dc24182dd919f0_75fdee8b7b6fff4d0482abce86648ded_am_duo_copilot-p-1600.avif"
                   loading="lazy"
                   alt="Duo AI Copilot product screen"
-                  className="am-home-duo-product-screen"
+                  className="am-home-duo-product-screen gsap-duo-screen"
                 />
 
                 {/* Floating Signal Card 1: Whisper Audio Match (Minimalist White - Top Left) */}
                 <div
-                  className="am-home-duo-product-screen-signal-container is-1 hidden md:block"
+                  className="am-home-duo-product-screen-signal-container gsap-signal-card is-1 hidden md:block"
                   style={{
                     backgroundColor: "#ffffff",
                     border: "1px solid rgba(0, 0, 0, 0.08)",
@@ -707,7 +1010,7 @@ function HomePageContent() {
 
                 {/* Floating Signal Card 2: Gemini Vision Views (Minimalist White - Right) */}
                 <div
-                  className="am-home-duo-product-screen-signal-container is-3 hidden md:block"
+                  className="am-home-duo-product-screen-signal-container gsap-signal-card is-3 hidden md:block"
                   style={{
                     backgroundColor: "#ffffff",
                     border: "1px solid rgba(0, 0, 0, 0.08)",
@@ -743,7 +1046,7 @@ function HomePageContent() {
 
                 {/* Floating Signal Card 3: Smart Contract Timelock (Minimalist White - Bottom Center) */}
                 <div
-                  className="am-home-duo-product-screen-signal-container is-2 hidden md:block"
+                  className="am-home-duo-product-screen-signal-container gsap-signal-card is-2 hidden md:block"
                   style={{
                     backgroundColor: "#ffffff",
                     border: "1px solid rgba(0, 0, 0, 0.08)",
@@ -1011,7 +1314,7 @@ function HomePageContent() {
 
           {/* Testimonial 2 (Dark Deel Testimonial) */}
           <div className="am-container">
-            <div data-testimonial-color-mode="dark" className="am-testimonial-wrapper-new" style={{ marginTop: "2rem", borderTop: "1px solid rgba(255,255,255,0.1)", paddingTop: "4rem" }}>
+            <div data-testimonial-color-mode="dark" className="am-testimonial-wrapper-new gsap-testimonial-2" style={{ marginTop: "2rem", borderTop: "1px solid rgba(255,255,255,0.1)", paddingTop: "4rem" }}>
               <div className="am-testimonial-inner-wrapper">
                 <div className="am-testimonial-text-wrapper">
                   <p data-testimonial-text-size="normal" className="am-heading-36 am-is-line-height-120 am-text-wrap-pretty" style={{ color: "#fff" }}>
@@ -1021,15 +1324,8 @@ function HomePageContent() {
 
                 <div className="am-testiminial-info-wrapper">
                   <div className="am-testimonial-user-wrapper">
-                    <img
-                      src="/assets/6908e02441e4d882747ca5be_testimonial-cabify.avif"
-                      loading="lazy"
-                      width="70"
-                      alt="Jonathan Kevin"
-                      className="am-testimonial-user-image"
-                    />
                     <div className="am-testimonial-user-text">
-                      <div className="am-paragraph-16" style={{ color: "#fff" }}>Jonathan Kevin</div>
+                      <div className="am-paragraph-16" style={{ color: "#fff", fontWeight: 700 }}>Jonathan Kevin</div>
                       <div className="am-paragraph-16 am-opacity-60" style={{ color: "rgba(255,255,255,0.6)" }}>Campaign Director, Web3 Media Lab</div>
                     </div>
                   </div>
@@ -1047,7 +1343,7 @@ function HomePageContent() {
             <div className="am-pillars-content-top">
               <ScrollReveal>
             <h2 className="am-heading-44 am-text-align-center am-text-wrap-balance">
-              A<span className="am-alternate">ell</span>-in-<span className="am-alternate">o</span>ne platform{" "}
+              <span className="am-alternate">All</span>-in-one platform{" "}
               u<span className="am-alternate">nt</span>uk mak<span className="am-alternate">sim</span>alkan hasil klip
             </h2>
             <p className="am-paragraph-16 am-opacity-60 am-text-align-center" style={{ maxWidth: "420px", margin: "0 auto" }}>
@@ -1113,6 +1409,7 @@ function HomePageContent() {
 
             {/* Stable Tab Body Container (Never collapses, fixes jumping bug) */}
             <div
+              ref={tabContentRef}
               className="am-pillars-content-bottom"
               style={{
                 position: "relative",
@@ -1123,7 +1420,7 @@ function HomePageContent() {
                 backgroundColor: "#ffffff",
                 boxShadow: "0 10px 30px rgba(0, 0, 0, 0.05)",
                 overflow: "hidden",
-                padding: "2.5rem",
+                padding: "clamp(1.25rem, 3vw, 2.5rem)",
               }}
             >
               {/* Tab 1 Content: Multi-Modal Verification */}
@@ -1392,7 +1689,7 @@ function HomePageContent() {
       {/* ── 5. MID-PAGE JOURNEY BANNER (3D Gradient Indigo Card) ──────── */}
       <section className="am-section am-padding-bottom-44" style={{ paddingTop: "6rem", paddingBottom: "3rem", position: "relative", zIndex: 2, clear: "both" }}>
         <div className="am-cta-content-wrapper am-max-width-1440 am-centered-margins">
-          <div className="am-cta-wrapper is-bold is-midnight-indigo am-padding-100 am-padding-bottom-84">
+          <div className="am-cta-wrapper is-bold is-midnight-indigo am-padding-100 am-padding-bottom-84 gsap-midnight-banner">
             <div className="am-cta-heading-wrapper">
               <div className="w-richtext">
                 <div className="w-embed">
@@ -1449,220 +1746,357 @@ function HomePageContent() {
       {/* ── 6. PERSONAS SECTION (5 Roles with Sketch Figures) ─────────── */}
       {/* ── 6. PERSONAS SECTION (5 Roles with Sketch Figures & Dynamic Pastel Tint) ── */}
       <section className="am-section" style={{ paddingTop: "5rem", paddingBottom: "5rem" }}>
-        <div className="am-container am-is-smaller">
+        <div className="am-container" style={{ maxWidth: "1280px", width: "100%", margin: "0 auto", paddingLeft: "1.5rem", paddingRight: "1.5rem" }}>
           <div
-            className="am-personas-wrapper am-padding-100"
+            className="am-personas-wrapper"
             style={{
               backgroundColor: activePersona === 1 ? "#eefdf4" : activePersona === 2 ? "#fffbeb" : activePersona === 3 ? "#faf5ff" : activePersona === 4 ? "#f0f9ff" : activePersona === 5 ? "#fff1f2" : "#ffffff",
               borderColor: activePersona === 1 ? "#86efac" : activePersona === 2 ? "#fde68a" : activePersona === 3 ? "#e9d5ff" : activePersona === 4 ? "#bae6fd" : activePersona === 5 ? "#fecdd3" : "rgba(0, 0, 0, 0.08)",
               borderWidth: "1.5px",
               borderStyle: "solid",
-              borderRadius: "24px",
+              borderRadius: "28px",
+              padding: "clamp(2rem, 4vw, 4rem) clamp(1rem, 3vw, 2.5rem)",
               transition: "background-color 0.35s ease, border-color 0.35s ease, box-shadow 0.35s ease",
-              boxShadow: activePersona ? "0 18px 44px -12px rgba(0, 0, 0, 0.08)" : "0 4px 20px rgba(0, 0, 0, 0.04)",
+              boxShadow: activePersona ? "0 20px 48px -12px rgba(0, 0, 0, 0.08)" : "0 4px 20px rgba(0, 0, 0, 0.04)",
+              width: "100%",
             }}
           >
             <ScrollReveal>
-              <h2 className="am-heading-44 am-text-align-center am-max-width-436" style={{ margin: "0 auto" }}>
+              <h2 className="am-heading-44 am-text-align-center" style={{ margin: "0 auto", maxWidth: "720px" }}>
                 D<span className="am-alternate">id</span>esain untuk{" "}
-                <span className="am-word-doodle is-personas">semua peran</span> di ekosistem video
+                <span
+                  style={{
+                    color:
+                      activePersona === 1
+                        ? "#15803d"
+                        : activePersona === 2
+                        ? "#b45309"
+                        : activePersona === 3
+                        ? "#7e22ce"
+                        : activePersona === 4
+                        ? "#0369a1"
+                        : "#be123c",
+                    fontWeight: 700,
+                    transition: "color 0.3s ease",
+                  }}
+                >
+                  semua peran
+                </span>{" "}
+                di ekosistem video
               </h2>
             </ScrollReveal>
 
-            <div className="am-personas-content am-hide-mobile" style={{ marginTop: "3rem" }}>
+            <div className="am-personas-content" style={{ marginTop: "2.5rem" }}>
               <div className="am-personas-content-wrapper">
-                <div className="tabs-2 w-tabs">
-                  {/* Persona Tabs Menu */}
-                  <div className="am-personas-tabs-wrapper w-tab-menu" style={{ display: "flex", justifyContent: "center", gap: "0.75rem", flexWrap: "wrap" }}>
-                    <button
-                      type="button"
-                      onClick={() => setActivePersona(1)}
-                      className={`am-personas-tab is-sellers w-inline-block w-tab-link ${activePersona === 1 ? "w--current" : ""}`}
-                      style={{
-                        background: activePersona === 1 ? "#dcfce7" : "#ffffff",
-                        border: activePersona === 1 ? "1.5px solid #22c55e" : "1px solid rgba(0, 0, 0, 0.08)",
-                        borderRadius: "16px",
-                        padding: "0.875rem 1.125rem",
-                        cursor: "pointer",
-                        transition: "all 0.25s ease",
-                        boxShadow: activePersona === 1 ? "0 4px 12px rgba(34, 197, 94, 0.15)" : "none",
-                      }}
-                    >
-                      <div style={{ fontWeight: activePersona === 1 ? 700 : 500, color: activePersona === 1 ? "#15803d" : "#111111" }}>Clipper</div>
-                      <img
-                        src="/assets/66aca46a2e87f778fe899f3b_am_6_personas_sellers 2.avif"
-                        alt="Clipper"
-                        className="am-personas-hero-illustration"
-                      />
-                    </button>
+                {/* Responsive Persona Tabs Menu with Character Illustrations (Desktop) & Clean Pills (Mobile) */}
+                <div
+                  className="am-personas-tabs-wrapper"
+                  style={{
+                    display: "grid",
+                    gridTemplateColumns: "repeat(auto-fit, minmax(130px, 1fr))",
+                    gap: "0.75rem",
+                    maxWidth: "1120px",
+                    margin: "0 auto",
+                    width: "100%",
+                  }}
+                >
+                  {[
+                    {
+                      id: 1,
+                      role: "Clipper",
+                      subtitle: "Kreator Konten & Editor Video",
+                      icon: Scissors,
+                      image: "/assets/66aca46a2e87f778fe899f3b_am_6_personas_sellers%202.avif",
+                      color: "#22c55e",
+                      bgActive: "#dcfce7",
+                      borderActive: "#22c55e",
+                      textColor: "#15803d",
+                      heading: "Fokus Bikin Klip Menarik, Bayaran Masuk Otomatis",
+                      desc: "Pilih kampanye favorit, potong klip video terbaik, pasang watermark sponsor, dan upload ke TikTok/Shorts. Begitu views naik, hadiah langsung ditransfer smart contract ke wallet kamu tanpa nunggu admin.",
+                      cta: "Mulai Jadi Clipper →",
+                      ctaHref: "/clipper",
+                      benefits: [
+                        "Reward USDT langsung cair berdasarkan views TikTok, Shorts, dan Reels",
+                        "AI Agent verifikasi audio Whisper dan visual watermark otomatis",
+                        "0% potongan platform fee — 100% alokasi reward untuk kreator",
+                      ],
+                    },
+                    {
+                      id: 2,
+                      role: "Brand / Bisnis",
+                      subtitle: "Brand, Perusahaan & Pengiklan",
+                      icon: Megaphone,
+                      image: "/assets/66aca8430056a00245b85bf7_am_7_personas_sales_leaders%202.avif",
+                      color: "#f59e0b",
+                      bgActive: "#fef3c7",
+                      borderActive: "#f59e0b",
+                      textColor: "#b45309",
+                      heading: "Dapatkan Jutaan Impresi Organik Tanpa Risiko",
+                      desc: "Kunci budget kampanye di escrow smart contract BNB Chain. Anda hanya membayar views asli yang telah divalidasi oleh AI Agent. Hemat hingga 70% budget dibanding iklan konvensional.",
+                      cta: "Buat Kampanye Pertama →",
+                      ctaHref: "/brand/new",
+                      benefits: [
+                        "Dana terkunci aman dalam timelock smart contract terverifikasi",
+                        "Dukungan multi-platform tracking dengan deduplikasi views otomatis",
+                        "Proteksi anti-sybil melindungi budget dari manipulasi bot",
+                      ],
+                    },
+                    {
+                      id: 3,
+                      role: "Agency Kreator",
+                      subtitle: "Agency Talent & Multi-Channel Network",
+                      icon: Users,
+                      image: "/assets/66aca84f860e0b6ca0cabcda_am_8_personas_founders_2%202.avif",
+                      color: "#a855f7",
+                      bgActive: "#f3e8ff",
+                      borderActive: "#a855f7",
+                      textColor: "#7e22ce",
+                      heading: "Kelola Ratusan Clipper dalam Satu Dashboard",
+                      desc: "Otomasi pembagian komisi agency dan kreator secara real-time. Tidak ada lagi rekonsiliasi manual atau invoice bermasalah di akhir bulan.",
+                      cta: "Pelajari Solusi Agency →",
+                      ctaHref: "/campaigns",
+                      benefits: [
+                        "Bagi hasil komisi otomatis langsung ke dompet sub-kreator",
+                        "Analitik live per performa campaign dan retensi klip",
+                        "Dashboard terpadu untuk monitoring puluhan akun talent",
+                      ],
+                    },
+                    {
+                      id: 4,
+                      role: "Reviewer Node",
+                      subtitle: "Validator Komunitas & Reviewer Node",
+                      icon: ShieldCheck,
+                      image: "/assets/66aca84f1064e578674a4da0_am_9_personas_revops%202.avif",
+                      color: "#0284c7",
+                      bgActive: "#e0f2fe",
+                      borderActive: "#0284c7",
+                      textColor: "#0369a1",
+                      heading: "Validasi Klip dan Dapatkan Fee Verifikasi",
+                      desc: "Bantu jaringan memvalidasi video yang ditandai disputed oleh AI dan peroleh bagian reward dari protokol tata kelola BNB Chain.",
+                      cta: "Pelajari Reviewer Node →",
+                      ctaHref: "/campaigns",
+                      benefits: [
+                        "Verifikasi second-opinion untuk klip yang terkena dispute",
+                        "Dapatkan imbal hasil staking validator on-chain",
+                        "Mendukung transparansi ekosistem Web3 video bebas kecurangan",
+                      ],
+                    },
+                    {
+                      id: 5,
+                      role: "Web3 Protocol",
+                      subtitle: "Web3 Protocols, dApps & DAO Ecosystem",
+                      icon: Layers,
+                      image: "/assets/66aca84f84f3bc82100d704e_am_10_personas_marketers%202.avif",
+                      color: "#e11d48",
+                      bgActive: "#ffe4e6",
+                      borderActive: "#e11d48",
+                      textColor: "#be123c",
+                      heading: "Integrasi Smart Contract Escrow ke dApp Anda",
+                      desc: "Gunakan kontrak terverifikasi kami untuk mendanai bounties video komunitas Anda di BNB Chain dengan audit transparan on-chain.",
+                      cta: "Lihat Repositori & Kontrak ↗",
+                      ctaHref: "https://testnet.bscscan.com",
+                      benefits: [
+                        "Smart contract escrow BNB Chain non-kustodian yang siap diintegrasikan",
+                        "REST & Webhook API untuk sinkronisasi bounty ke dApp Anda",
+                        "Audit keamanan terstandarisasi CertiK & OpenZeppelin",
+                      ],
+                    },
+                  ].map((p) => {
+                    const isSelected = activePersona === p.id;
+                    const IconComp = p.icon;
+                    return (
+                      <button
+                        key={p.id}
+                        type="button"
+                        onClick={() => setActivePersona(p.id)}
+                        className="am-personas-tab w-inline-block"
+                        style={{
+                          background: isSelected ? p.bgActive : "#ffffff",
+                          border: isSelected ? `1.5px solid ${p.borderActive}` : "1px solid rgba(0, 0, 0, 0.08)",
+                          borderRadius: "18px",
+                          padding: "0.875rem 0.625rem",
+                          cursor: "pointer",
+                          transition: "all 0.25s ease",
+                          boxShadow: isSelected ? `0 6px 18px ${p.color}25` : "0 2px 6px rgba(0, 0, 0, 0.02)",
+                          display: "flex",
+                          flexDirection: "column",
+                          alignItems: "center",
+                          justifyContent: "space-between",
+                          width: "100%",
+                        }}
+                      >
+                        <div
+                          style={{
+                            fontWeight: isSelected ? 700 : 600,
+                            color: isSelected ? p.textColor : "#111111",
+                            fontSize: "0.875rem",
+                            display: "inline-flex",
+                            alignItems: "center",
+                            gap: "0.35rem",
+                          }}
+                        >
+                          <IconComp size={15} style={{ color: isSelected ? p.textColor : p.color, flexShrink: 0 }} />
+                          <span>{p.role}</span>
+                        </div>
 
-                    <button
-                      type="button"
-                      onClick={() => setActivePersona(2)}
-                      className={`am-personas-tab is-leaders w-inline-block w-tab-link ${activePersona === 2 ? "w--current" : ""}`}
-                      style={{
-                        background: activePersona === 2 ? "#fef3c7" : "#ffffff",
-                        border: activePersona === 2 ? "1.5px solid #f59e0b" : "1px solid rgba(0, 0, 0, 0.08)",
-                        borderRadius: "16px",
-                        padding: "0.875rem 1.125rem",
-                        cursor: "pointer",
-                        transition: "all 0.25s ease",
-                        boxShadow: activePersona === 2 ? "0 4px 12px rgba(245, 158, 11, 0.15)" : "none",
-                      }}
-                    >
-                      <div style={{ fontWeight: activePersona === 2 ? 700 : 500, color: activePersona === 2 ? "#b45309" : "#111111" }}>Brand / Bisnis</div>
-                      <img
-                        src="/assets/66aca8430056a00245b85bf7_am_7_personas_sales_leaders 2.avif"
-                        alt="Brand"
-                        className="am-personas-hero-illustration"
-                      />
-                    </button>
+                        {/* Character illustration image — visible on desktop/tablet, hidden on mobile */}
+                        <div className="hidden md:flex items-center justify-center" style={{ marginTop: "0.5rem", height: "125px" }}>
+                          <img
+                            src={p.image}
+                            alt={p.role}
+                            className="am-personas-hero-illustration"
+                            style={{ maxHeight: "125px", width: "auto", objectFit: "contain" }}
+                          />
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
 
-                    <button
-                      type="button"
-                      onClick={() => setActivePersona(3)}
-                      className={`am-personas-tab is-founders w-inline-block w-tab-link ${activePersona === 3 ? "w--current" : ""}`}
-                      style={{
-                        background: activePersona === 3 ? "#f3e8ff" : "#ffffff",
-                        border: activePersona === 3 ? "1.5px solid #a855f7" : "1px solid rgba(0, 0, 0, 0.08)",
-                        borderRadius: "16px",
-                        padding: "0.875rem 1.125rem",
-                        cursor: "pointer",
-                        transition: "all 0.25s ease",
-                        boxShadow: activePersona === 3 ? "0 4px 12px rgba(168, 85, 247, 0.15)" : "none",
-                      }}
-                    >
-                      <div style={{ fontWeight: activePersona === 3 ? 700 : 500, color: activePersona === 3 ? "#7e22ce" : "#111111" }}>Agency Kreator</div>
-                      <img
-                        src="/assets/66aca84f860e0b6ca0cabcda_am_8_personas_founders_2 2.avif"
-                        alt="Agency"
-                        className="am-personas-hero-illustration"
-                      />
-                    </button>
-
-                    <button
-                      type="button"
-                      onClick={() => setActivePersona(4)}
-                      className={`am-personas-tab is-revops w-inline-block w-tab-link ${activePersona === 4 ? "w--current" : ""}`}
-                      style={{
-                        background: activePersona === 4 ? "#e0f2fe" : "#ffffff",
-                        border: activePersona === 4 ? "1.5px solid #38bdf8" : "1px solid rgba(0, 0, 0, 0.08)",
-                        borderRadius: "16px",
-                        padding: "0.875rem 1.125rem",
-                        cursor: "pointer",
-                        transition: "all 0.25s ease",
-                        boxShadow: activePersona === 4 ? "0 4px 12px rgba(56, 189, 248, 0.15)" : "none",
-                      }}
-                    >
-                      <div style={{ fontWeight: activePersona === 4 ? 700 : 500, color: activePersona === 4 ? "#0369a1" : "#111111" }}>Reviewer Node</div>
-                      <img
-                        src="/assets/66aca84f1064e578674a4da0_am_9_personas_revops 2.avif"
-                        alt="Reviewer Node"
-                        className="am-personas-hero-illustration"
-                      />
-                    </button>
-
-                    <button
-                      type="button"
-                      onClick={() => setActivePersona(5)}
-                      className={`am-personas-tab is-marketers w-inline-block w-tab-link ${activePersona === 5 ? "w--current" : ""}`}
-                      style={{
-                        background: activePersona === 5 ? "#ffe4e6" : "#ffffff",
-                        border: activePersona === 5 ? "1.5px solid #fb7185" : "1px solid rgba(0, 0, 0, 0.08)",
-                        borderRadius: "16px",
-                        padding: "0.875rem 1.125rem",
-                        cursor: "pointer",
-                        transition: "all 0.25s ease",
-                        boxShadow: activePersona === 5 ? "0 4px 12px rgba(251, 113, 133, 0.15)" : "none",
-                      }}
-                    >
-                      <div style={{ fontWeight: activePersona === 5 ? 700 : 500, color: activePersona === 5 ? "#be123c" : "#111111" }}>Web3 Protocol</div>
-                      <img
-                        src="/assets/66aca84f84f3bc82100d704e_am_10_personas_marketers 2.avif"
-                        alt="Protocol"
-                        className="am-personas-hero-illustration"
-                      />
-                    </button>
-                  </div>
-
-                  {/* Persona Content Panel */}
-                  <div className="w-tab-content" style={{ marginTop: "2rem", textAlign: "center" }}>
-                    {activePersona === 1 && (
-                      <div className="w-tab-pane w--tab-active" style={{ display: "block", maxWidth: "36rem", margin: "0 auto" }}>
-                        <h3 className="am-heading-28" style={{ marginBottom: "0.75rem" }}>
-                          Fokus Bikin Klip Menarik, Bayaran Masuk Otomatis
+                {/* Persona Content Panel */}
+                <div ref={personaContentRef} style={{ marginTop: "3rem", textAlign: "center" }}>
+                  {[
+                    {
+                      id: 1,
+                      subtitle: "Kreator Konten & Editor Video",
+                      color: "#22c55e",
+                      bgActive: "#dcfce7",
+                      textColor: "#15803d",
+                      heading: "Fokus Bikin Klip Menarik, Bayaran Masuk Otomatis",
+                      desc: "Pilih kampanye favorit, potong klip video terbaik, pasang watermark sponsor, dan upload ke TikTok/Shorts. Begitu views naik, hadiah langsung ditransfer smart contract ke wallet kamu tanpa nunggu admin.",
+                      cta: "Mulai Jadi Clipper →",
+                      ctaHref: "/clipper",
+                      benefits: [
+                        "Reward USDT langsung cair berdasarkan views TikTok, Shorts, dan Reels",
+                        "AI Agent verifikasi audio Whisper dan visual watermark otomatis",
+                        "0% potongan platform fee — 100% alokasi reward untuk kreator",
+                      ],
+                    },
+                    {
+                      id: 2,
+                      subtitle: "Brand, Perusahaan & Pengiklan",
+                      color: "#f59e0b",
+                      bgActive: "#fef3c7",
+                      textColor: "#b45309",
+                      heading: "Dapatkan Jutaan Impresi Organik Tanpa Risiko",
+                      desc: "Kunci budget kampanye di escrow smart contract BNB Chain. Anda hanya membayar views asli yang telah divalidasi oleh AI Agent. Hemat hingga 70% budget dibanding iklan konvensional.",
+                      cta: "Buat Kampanye Pertama →",
+                      ctaHref: "/brand/new",
+                      benefits: [
+                        "Dana terkunci aman dalam timelock smart contract terverifikasi",
+                        "Dukungan multi-platform tracking dengan deduplikasi views otomatis",
+                        "Proteksi anti-sybil melindungi budget dari manipulasi bot",
+                      ],
+                    },
+                    {
+                      id: 3,
+                      subtitle: "Agency Talent & Multi-Channel Network",
+                      color: "#a855f7",
+                      bgActive: "#f3e8ff",
+                      textColor: "#7e22ce",
+                      heading: "Kelola Ratusan Clipper dalam Satu Dashboard",
+                      desc: "Otomasi pembagian komisi agency dan kreator secara real-time. Tidak ada lagi rekonsiliasi manual atau invoice bermasalah di akhir bulan.",
+                      cta: "Pelajari Solusi Agency →",
+                      ctaHref: "/campaigns",
+                      benefits: [
+                        "Bagi hasil komisi otomatis langsung ke dompet sub-kreator",
+                        "Analitik live per performa campaign dan retensi klip",
+                        "Dashboard terpadu untuk monitoring puluhan akun talent",
+                      ],
+                    },
+                    {
+                      id: 4,
+                      subtitle: "Validator Komunitas & Reviewer Node",
+                      color: "#0284c7",
+                      bgActive: "#e0f2fe",
+                      textColor: "#0369a1",
+                      heading: "Validasi Klip dan Dapatkan Fee Verifikasi",
+                      desc: "Bantu jaringan memvalidasi video yang ditandai disputed oleh AI dan peroleh bagian reward dari protokol tata kelola BNB Chain.",
+                      cta: "Pelajari Reviewer Node →",
+                      ctaHref: "/campaigns",
+                      benefits: [
+                        "Verifikasi second-opinion untuk klip yang terkena dispute",
+                        "Dapatkan imbal hasil staking validator on-chain",
+                        "Mendukung transparansi ekosistem Web3 video bebas kecurangan",
+                      ],
+                    },
+                    {
+                      id: 5,
+                      subtitle: "Web3 Protocols, dApps & DAO Ecosystem",
+                      color: "#e11d48",
+                      bgActive: "#ffe4e6",
+                      textColor: "#be123c",
+                      heading: "Integrasi Smart Contract Escrow ke dApp Anda",
+                      desc: "Gunakan kontrak terverifikasi kami untuk mendanai bounties video komunitas Anda di BNB Chain dengan audit transparan on-chain.",
+                      cta: "Lihat Repositori & Kontrak ↗",
+                      ctaHref: "https://testnet.bscscan.com",
+                      benefits: [
+                        "Smart contract escrow BNB Chain non-kustodian yang siap diintegrasikan",
+                        "REST & Webhook API untuk sinkronisasi bounty ke dApp Anda",
+                        "Audit keamanan terstandarisasi CertiK & OpenZeppelin",
+                      ],
+                    },
+                  ].map((p) => {
+                    if (activePersona !== p.id) return null;
+                    return (
+                      <div key={p.id} style={{ display: "block", maxWidth: "48rem", margin: "0 auto" }}>
+                        <div
+                          style={{
+                            display: "inline-flex",
+                            alignItems: "center",
+                            padding: "0.3rem 0.875rem",
+                            borderRadius: "9999px",
+                            backgroundColor: p.bgActive,
+                            color: p.textColor,
+                            fontSize: "0.75rem",
+                            fontWeight: 700,
+                            letterSpacing: "0.5px",
+                            marginBottom: "1rem",
+                            textTransform: "uppercase",
+                          }}
+                        >
+                          {p.subtitle}
+                        </div>
+                        <h3 className="am-heading-28" style={{ marginBottom: "0.875rem", fontSize: "clamp(1.35rem, 4vw, 1.875rem)", fontWeight: 700, lineHeight: 1.25 }}>
+                          {p.heading}
                         </h3>
-                        <p className="am-paragraph-16 am-opacity-60">
-                          Pilih kampanye favorit, potong klip video terbaik, pasang watermark sponsor, dan upload ke TikTok/Shorts. Begitu views naik, hadiah langsung ditransfer smart contract ke wallet kamu.
+                        <p className="am-paragraph-16 am-opacity-60" style={{ fontSize: "1rem", lineHeight: 1.6, maxWidth: "42rem", margin: "0 auto" }}>
+                          {p.desc}
                         </p>
-                        <div style={{ marginTop: "1.5rem" }}>
-                          <Link href="/clipper" className="am-nav-btn is-secondary">
-                            Mulai Jadi Clipper →
-                          </Link>
+
+                        <div style={{ display: "flex", flexDirection: "column", gap: "0.625rem", marginTop: "1.5rem", alignItems: "center" }}>
+                          {p.benefits.map((b, bi) => (
+                            <div key={bi} style={{ display: "inline-flex", alignItems: "center", gap: "0.5rem", fontSize: "0.875rem", color: "#374151" }}>
+                              <span style={{ color: p.color, fontWeight: 800 }}>✓</span>
+                              <span>{b}</span>
+                            </div>
+                          ))}
+                        </div>
+
+                        <div style={{ marginTop: "2rem" }}>
+                          {p.ctaHref.startsWith("http") ? (
+                            <a
+                              href={p.ctaHref}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="am-nav-btn is-secondary"
+                              style={{ display: "inline-flex", alignItems: "center", gap: "0.35rem" }}
+                            >
+                              {p.cta}
+                            </a>
+                          ) : (
+                            <Link
+                              href={p.ctaHref}
+                              className="am-nav-btn is-secondary"
+                              style={{ display: "inline-flex", alignItems: "center", gap: "0.35rem" }}
+                            >
+                              {p.cta}
+                            </Link>
+                          )}
                         </div>
                       </div>
-                    )}
-                    {activePersona === 2 && (
-                      <div className="w-tab-pane w--tab-active" style={{ display: "block", maxWidth: "36rem", margin: "0 auto" }}>
-                        <h3 className="am-heading-28" style={{ marginBottom: "0.75rem" }}>
-                          Dapatkan Jutaan Impresi Organik Tanpa Risiko
-                        </h3>
-                        <p className="am-paragraph-16 am-opacity-60">
-                          Kunci budget kampanye di escrow smart contract BNB Chain. Anda hanya membayar views asli yang telah divalidasi oleh AI Agent. Hemat 70% budget dibanding iklan berbayar.
-                        </p>
-                        <div style={{ marginTop: "1.5rem" }}>
-                          <Link href="/brand/new" className="am-nav-btn is-secondary">
-                            Buat Kampanye Pertama →
-                          </Link>
-                        </div>
-                      </div>
-                    )}
-                    {activePersona === 3 && (
-                      <div className="w-tab-pane w--tab-active" style={{ display: "block", maxWidth: "36rem", margin: "0 auto" }}>
-                        <h3 className="am-heading-28" style={{ marginBottom: "0.75rem" }}>
-                          Kelola Ratusan Clipper dalam Satu Dashboard
-                        </h3>
-                        <p className="am-paragraph-16 am-opacity-60">
-                          Otomasi pembagian komisi agency dan kreator secara real-time. Tidak ada lagi rekonsiliasi manual atau invoice bermasalah di akhir bulan.
-                        </p>
-                        <div style={{ marginTop: "1.5rem" }}>
-                          <Link href="/campaigns" className="am-nav-btn is-secondary">
-                            Pelajari Solusi Agency →
-                          </Link>
-                        </div>
-                      </div>
-                    )}
-                    {activePersona === 4 && (
-                      <div className="w-tab-pane w--tab-active" style={{ display: "block", maxWidth: "36rem", margin: "0 auto" }}>
-                        <h3 className="am-heading-28" style={{ marginBottom: "0.75rem" }}>
-                          Validasi Klip dan Dapatkan Fee Verifikasi
-                        </h3>
-                        <p className="am-paragraph-16 am-opacity-60">
-                          Bantu jaringan memvalidasi video yang ditandai mencurigakan oleh AI dan peroleh bagian reward dari protokol tata kelola BNB Chain.
-                        </p>
-                        <div style={{ marginTop: "1.5rem" }}>
-                          <Link href="/campaigns" className="am-nav-btn is-secondary">
-                            Pelajari Reviewer Node →
-                          </Link>
-                        </div>
-                      </div>
-                    )}
-                    {activePersona === 5 && (
-                      <div className="w-tab-pane w--tab-active" style={{ display: "block", maxWidth: "36rem", margin: "0 auto" }}>
-                        <h3 className="am-heading-28" style={{ marginBottom: "0.75rem" }}>
-                          Integrasi Smart Contract Escrow ke dApp Anda
-                        </h3>
-                        <p className="am-paragraph-16 am-opacity-60">
-                          Gunakan kontrak terverifikasi kami untuk mendanai bounties video komunitas Anda di BNB Chain dengan audit transparan on-chain.
-                        </p>
-                        <div style={{ marginTop: "1.5rem" }}>
-                          <a href="https://testnet.bscscan.com" target="_blank" rel="noreferrer" className="am-nav-btn is-secondary">
-                            Lihat Repositori &amp; Kontrak ↗
-                          </a>
-                        </div>
-                      </div>
-                    )}
-                  </div>
+                    );
+                  })}
                 </div>
               </div>
             </div>
@@ -1727,8 +2161,7 @@ function HomePageContent() {
                   &ldquo;ClipStream AI membantu kami meluncurkan kampanye klip video viral dengan 2 juta views dalam 10 hari tanpa ada kekhawatiran view palsu.&rdquo;
                 </p>
                 <div className="am-customer-stories-testimonial-details" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: "1.25rem" }}>
-                  <div className="am-case-study-person-details" style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
-                    <img src="/assets/66a8c170f46451aec8c15273_testimonial-storylake.webp" alt="Arya Wijaya" className="am-customer-stories-testimonial-img" style={{ width: "42px", height: "42px", borderRadius: "10px", objectFit: "cover" }} />
+                  <div className="am-case-study-person-details">
                     <div className="am-paragraph-14">
                       <div style={{ fontWeight: 700, color: "#111111" }}>Arya Wijaya</div>
                       <div className="am-opacity-60" style={{ fontSize: "0.8125rem", color: "#6b7280" }}>Head of Community, Web3 Gaming Guild</div>
@@ -1747,8 +2180,7 @@ function HomePageContent() {
                   &ldquo;Kemampuan memverifikasi sponsor di video secara otomatis lewat Whisper AI telah menghemat puluhan jam kerja admin tiap minggu.&rdquo;
                 </p>
                 <div className="am-customer-stories-testimonial-details" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: "1.25rem" }}>
-                  <div className="am-case-study-person-details" style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
-                    <img src="/assets/68d3ca98c47913fa25c4ded3_am-testimonial-hpe.avif" alt="Dimas Setiawan" className="am-customer-stories-testimonial-img" style={{ width: "42px", height: "42px", borderRadius: "10px", objectFit: "cover" }} />
+                  <div className="am-case-study-person-details">
                     <div className="am-paragraph-14">
                       <div style={{ fontWeight: 700, color: "#111111" }}>Dimas Setiawan</div>
                       <div className="am-opacity-60" style={{ fontSize: "0.8125rem", color: "#6b7280" }}>Operations Head, FinTech Media</div>
@@ -1809,15 +2241,15 @@ function HomePageContent() {
 
       {/* ── 8. LIVE ACTIVE CAMPAIGNS MARKETPLACE (Backend Wired) ──────── */}
       <section className="am-section am-padding-100" style={{ paddingTop: "5rem", paddingBottom: "5rem", backgroundColor: "#f6f5f3" }}>
-        <div className="am-container">
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "2.5rem" }}>
+        <div className="am-container" style={{ paddingLeft: "1.25rem", paddingRight: "1.25rem" }}>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "2.5rem", flexWrap: "wrap", gap: "1rem" }}>
             <div>
               <div className="am-eyebrow" style={{ fontSize: "0.75rem", fontWeight: 700, letterSpacing: "1px", color: "#e8400d", textTransform: "uppercase", marginBottom: "0.5rem" }}>
                 PASAR KAMPANYE AKTIF
               </div>
               <h2 className="am-heading-36">Bounty Video Siap Diambil</h2>
             </div>
-            <Link href="/campaigns" className="am-nav-btn is-secondary am-hide-mobile">
+            <Link href="/campaigns" className="am-nav-btn is-secondary hidden sm:inline-flex">
               Lihat Semua Kampanye →
             </Link>
           </div>
@@ -1825,13 +2257,13 @@ function HomePageContent() {
           {(() => {
             const displayCampaigns = campaigns.length > 0 ? campaigns : defaultLandingDemoCampaigns;
             return loading ? (
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))", gap: "1.5rem" }}>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: "1.25rem" }}>
                 {[1, 2, 3].map((n) => (
                   <div key={n} style={{ height: "200px", backgroundColor: "rgba(0,0,0,0.05)", borderRadius: "12px" }} />
                 ))}
               </div>
             ) : (
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))", gap: "1.5rem" }}>
+              <div className="gsap-campaigns-grid" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: "1.25rem" }}>
                 {displayCampaigns.map((c) => {
                   const budgetRemaining = Number(c.remainingBudget);
                   const budgetPool = Number(c.totalBudget);
@@ -1840,6 +2272,7 @@ function HomePageContent() {
                   return (
                     <div
                       key={c.id}
+                      className="gsap-campaign-card"
                       style={{
                         backgroundColor: "#fff",
                         borderRadius: "12px",
@@ -1918,17 +2351,17 @@ function HomePageContent() {
       <section className="am-section am-is-white-bg am-padding-144" style={{ backgroundColor: "#fff", paddingTop: "5rem", paddingBottom: "6rem" }}>
         <div className="am-container">
           <div className="am-blog-section-wrapper">
-            <div className="am-blog-section-content-top">
-              <h3 className="am-heading-36 am-text-wrap-balance">Tingkatkan skill &amp; penghasilan klip kamu</h3>
+            <div className="am-blog-section-content-top" style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: "1rem" }}>
+              <h3 className="am-heading-36 am-text-wrap-balance" style={{ margin: 0 }}>Tingkatkan skill &amp; penghasilan klip kamu</h3>
               <Link href="/blog" className="am-nav-btn is-secondary w-button">
                 Lihat Semua Artikel
               </Link>
             </div>
 
             <div className="w-dyn-list" style={{ marginTop: "2.5rem" }}>
-              <div role="list" className="am-blog-section-articles w-dyn-items" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))", gap: "1.5rem" }}>
+              <div role="list" className="am-blog-section-articles w-dyn-items gsap-blog-grid" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))", gap: "1.5rem" }}>
                 {/* Article 1 */}
-                <div role="listitem" className="am-blog-section-item w-dyn-item">
+                <div role="listitem" className="am-blog-section-item w-dyn-item gsap-blog-card">
                   <Link href="/blog/panduan-memulai-clipper-bnb-chain" style={{ textDecoration: "none", display: "block" }}>
                     <div className="am-blog-index-item-wrapper" style={{ border: "1px solid rgba(17,17,17,0.08)", borderRadius: "12px", overflow: "hidden", transition: "box-shadow 0.2s" }}>
                       <div className="am-blog-index-item-thumbnail" style={{ height: "170px", backgroundColor: "#111" }}>
@@ -1954,7 +2387,7 @@ function HomePageContent() {
                 </div>
 
                 {/* Article 2 */}
-                <div role="listitem" className="am-blog-section-item w-dyn-item">
+                <div role="listitem" className="am-blog-section-item w-dyn-item gsap-blog-card">
                   <Link href="/blog/timelock-escrow-pembayaran-tanpa-admin" style={{ textDecoration: "none", display: "block" }}>
                     <div className="am-blog-index-item-wrapper" style={{ border: "1px solid rgba(17,17,17,0.08)", borderRadius: "12px", overflow: "hidden", transition: "box-shadow 0.2s" }}>
                       <div className="am-blog-index-item-thumbnail" style={{ height: "170px", backgroundColor: "#111" }}>
@@ -1980,7 +2413,7 @@ function HomePageContent() {
                 </div>
 
                 {/* Article 3 */}
-                <div role="listitem" className="am-blog-section-item w-dyn-item">
+                <div role="listitem" className="am-blog-section-item w-dyn-item gsap-blog-card">
                   <Link href="/blog/whisper-ai-gemini-vision-validasi-watermark" style={{ textDecoration: "none", display: "block" }}>
                     <div className="am-blog-index-item-wrapper" style={{ border: "1px solid rgba(17,17,17,0.08)", borderRadius: "12px", overflow: "hidden", transition: "box-shadow 0.2s" }}>
                       <div className="am-blog-index-item-thumbnail" style={{ height: "170px", backgroundColor: "#111" }}>
@@ -2021,44 +2454,74 @@ function HomePageContent() {
               </h2>
             </div>
 
-            <div className="am-customers-wall-of-love-grid" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: "1.25rem" }}>
+            <div className="am-customers-wall-of-love-grid gsap-wall-grid" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: "1.25rem" }}>
               {/* Testimonial Card 1 */}
-              <div className="am-customers-wall-of-love-card" style={{ backgroundColor: "#1e1d1c", padding: "1.5rem", borderRadius: "12px", border: "1px solid rgba(255,255,255,0.08)" }}>
-                <div className="am-customer-stories-testimonial-details" style={{ marginBottom: "1rem" }}>
+              <div className="am-customers-wall-of-love-card gsap-wall-card" style={{ backgroundColor: "#1e1d1c", padding: "1.5rem", borderRadius: "14px", border: "1px solid rgba(255,255,255,0.08)", display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
+                <div>
+                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "0.75rem" }}>
+                    <div style={{ display: "flex", gap: "2px", color: "#f59e0b", fontSize: "0.875rem" }}>
+                      ★★★★★
+                    </div>
+                    <span style={{ fontSize: "0.6875rem", fontWeight: 700, color: "#00d084", backgroundColor: "rgba(0, 208, 132, 0.12)", padding: "2px 8px", borderRadius: "9999px" }}>
+                      Verified Clipper
+                    </span>
+                  </div>
+                  <p className="am-paragraph-16 am-is-white am-opacity-80" style={{ fontSize: "0.9375rem", lineHeight: 1.6, marginBottom: "1.25rem" }}>
+                    &ldquo;Dulu sering banget ditipu sama brand yang kabur setelah video FYP. Di ClipStream AI, uangnya udah dikunci di smart contract. Begitu tembus target, USDT langsung masuk dompet!&rdquo;
+                  </p>
+                </div>
+                <div className="am-customer-stories-testimonial-details">
                   <div className="am-paragraph-14 am-is-white">
                     <div style={{ fontWeight: 600 }}>Budi Santoso</div>
                     <div className="am-opacity-60" style={{ fontSize: "0.75rem" }}>Clipper TikTok • 850k Views</div>
                   </div>
                 </div>
-                <p className="am-paragraph-16 am-is-white am-opacity-80">
-                  &ldquo;Dulu sering banget ditipu sama brand yang kabur setelah video FYP. Di ClipStream AI, uangnya udah dikunci di smart contract. Begitu tembus target, USDT langsung masuk dompet!&rdquo;
-                </p>
               </div>
 
               {/* Testimonial Card 2 */}
-              <div className="am-customers-wall-of-love-card" style={{ backgroundColor: "#1e1d1c", padding: "1.5rem", borderRadius: "12px", border: "1px solid rgba(255,255,255,0.08)" }}>
-                <div className="am-customer-stories-testimonial-details" style={{ marginBottom: "1rem" }}>
+              <div className="am-customers-wall-of-love-card gsap-wall-card" style={{ backgroundColor: "#1e1d1c", padding: "1.5rem", borderRadius: "14px", border: "1px solid rgba(255,255,255,0.08)", display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
+                <div>
+                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "0.75rem" }}>
+                    <div style={{ display: "flex", gap: "2px", color: "#f59e0b", fontSize: "0.875rem" }}>
+                      ★★★★★
+                    </div>
+                    <span style={{ fontSize: "0.6875rem", fontWeight: 700, color: "#00d084", backgroundColor: "rgba(0, 208, 132, 0.12)", padding: "2px 8px", borderRadius: "9999px" }}>
+                      Verified Clipper
+                    </span>
+                  </div>
+                  <p className="am-paragraph-16 am-is-white am-opacity-80" style={{ fontSize: "0.9375rem", lineHeight: 1.6, marginBottom: "1.25rem" }}>
+                    &ldquo;Verifikasinya beneran otomatis. Saya submit URL Shorts malam hari, paginya cek wallet udah ada transferan 180 USDT. Nggak perlu chat admin sama sekali.&rdquo;
+                  </p>
+                </div>
+                <div className="am-customer-stories-testimonial-details">
                   <div className="am-paragraph-14 am-is-white">
                     <div style={{ fontWeight: 600 }}>Rian Pratama</div>
                     <div className="am-opacity-60" style={{ fontSize: "0.75rem" }}>Content Creator • YouTube Shorts</div>
                   </div>
                 </div>
-                <p className="am-paragraph-16 am-is-white am-opacity-80">
-                  &ldquo;Verifikasinya beneran otomatis. Saya submit URL Shorts malam hari, paginya cek wallet udah ada transferan 180 USDT. Nggak perlu chat admin sama sekali.&rdquo;
-                </p>
               </div>
 
               {/* Testimonial Card 3 */}
-              <div className="am-customers-wall-of-love-card" style={{ backgroundColor: "#1e1d1c", padding: "1.5rem", borderRadius: "12px", border: "1px solid rgba(255,255,255,0.08)" }}>
-                <div className="am-customer-stories-testimonial-details" style={{ marginBottom: "1rem" }}>
+              <div className="am-customers-wall-of-love-card gsap-wall-card" style={{ backgroundColor: "#1e1d1c", padding: "1.5rem", borderRadius: "14px", border: "1px solid rgba(255,255,255,0.08)", display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
+                <div>
+                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "0.75rem" }}>
+                    <div style={{ display: "flex", gap: "2px", color: "#f59e0b", fontSize: "0.875rem" }}>
+                      ★★★★★
+                    </div>
+                    <span style={{ fontSize: "0.6875rem", fontWeight: 700, color: "#38bdf8", backgroundColor: "rgba(56, 189, 248, 0.12)", padding: "2px 8px", borderRadius: "9999px" }}>
+                      Verified Brand
+                    </span>
+                  </div>
+                  <p className="am-paragraph-16 am-is-white am-opacity-80" style={{ fontSize: "0.9375rem", lineHeight: 1.6, marginBottom: "1.25rem" }}>
+                    &ldquo;Kami pasang bounty 2.000 USDT untuk promo produk baru. Dapat 50+ video dari clipper dengan total 1,8 juta views dalam 1 minggu. CPM jauh lebih murah dari Meta Ads!&rdquo;
+                  </p>
+                </div>
+                <div className="am-customer-stories-testimonial-details">
                   <div className="am-paragraph-14 am-is-white">
                     <div style={{ fontWeight: 600 }}>Jessica Hartono</div>
                     <div className="am-opacity-60" style={{ fontSize: "0.75rem" }}>Marketing Lead, Brand D2C</div>
                   </div>
                 </div>
-                <p className="am-paragraph-16 am-is-white am-opacity-80">
-                  &ldquo;Kami pasang bounty 2.000 USDT untuk promo produk baru. Dapat 50+ video dari clipper dengan total 1,8 juta views dalam 1 minggu. CPM jauh lebih murah dari Meta Ads!&rdquo;
-                </p>
               </div>
             </div>
           </div>
@@ -2073,7 +2536,7 @@ function HomePageContent() {
               Pertanyaan yang Sering Diajukan
             </h2>
 
-            <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
+            <div className="gsap-faq-list" style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
               {[
                 {
                   q: "Bagaimana cara kerja smart contract escrow ClipStream AI?",
@@ -2091,9 +2554,18 @@ function HomePageContent() {
                   q: "Platform video apa saja yang didukung saat ini?",
                   a: "Saat ini ClipStream AI mendukung klip dari TikTok, YouTube Shorts, dan Instagram Reels.",
                 },
+                {
+                  q: "Bagaimana sistem perhitungan rate CPM di ClipStream AI?",
+                  a: "Rate CPM ditentukan langsung oleh brand sponsor (berkisar Rp 15.000 - Rp 35.000 per 1.000 views terverifikasi). Sistem membaca performa views secara transparan lewat YouTube Data API dan TikTok crawler.",
+                },
+                {
+                  q: "Apakah ada potongan biaya platform (platform fee)?",
+                  a: "ClipStream AI menerapkan 0% platform fee untuk kreator clipper. 100% dana bounty yang dialokasikan sponsor langsung masuk ke dompet wallet kreator.",
+                },
               ].map((faq, i) => (
                 <div
                   key={i}
+                  className="gsap-faq-item"
                   style={{
                     border: "1px solid rgba(17,17,17,0.08)",
                     borderRadius: "10px",
@@ -2147,59 +2619,86 @@ function HomePageContent() {
       </section>
 
       {/* ── 12. GLOWING PRE-FOOTER BANNER (Amplemarket Footer CTA) ────── */}
-      <section className="am-section am-is-black-bg" style={{ backgroundColor: "#111", color: "#fff", paddingTop: "5rem", paddingBottom: "5rem" }}>
-        <div className="am-container">
-          <div className="am-footer-cta">
-            <div className="am-footer-cta-wrapper am-padding-100">
-              <div className="am-footer-rich-text w-richtext">
-                <div className="w-embed">
-                  <h2 className="am-heading-56-caps am-is-white am-text-align-center">
-                    Raih Penghasilan Otomatis dari Setiap{" "}
-                    <span className="am-text-gradient-container">
-                      <span className="am-text-gradient is-footer">Klip Video</span>
-                      <span className="am-grain-word"></span>
-                    </span>
-                  </h2>
-                </div>
-              </div>
+      <section className="am-section am-is-black-bg" style={{ backgroundColor: "#111111", color: "#ffffff", paddingTop: "5.5rem", paddingBottom: "5.5rem" }}>
+        <div className="am-container" style={{ maxWidth: "60rem", margin: "0 auto", padding: "0 1.5rem" }}>
+          <div className="gsap-footer-cta" style={{ textAlign: "center" }}>
+            <h2
+              style={{
+                fontSize: "clamp(2rem, 4.5vw, 3.25rem)",
+                fontWeight: 800,
+                letterSpacing: "-0.03em",
+                color: "#ffffff",
+                textAlign: "center",
+                margin: "0 auto",
+                lineHeight: 1.15,
+                textTransform: "uppercase",
+                maxWidth: "48rem",
+              }}
+            >
+              Raih Penghasilan Otomatis dari Setiap{" "}
+              <span
+                style={{
+                  background: "linear-gradient(90deg, #ff7a45 0%, #ffc069 50%, #85e89d 100%)",
+                  WebkitBackgroundClip: "text",
+                  WebkitTextFillColor: "transparent",
+                  display: "inline-block",
+                }}
+              >
+                Klip Video
+              </span>
+            </h2>
 
-              <div className="am-partial-form-wrapper" style={{ marginTop: "2rem" }}>
-                <div data-form-color-mode="dark" data-form-align="center" className="am-partial-form-container">
-                  <div className="am-form-block-wrapper w-form">
-                    <form
-                      onSubmit={(e) => {
-                        e.preventDefault();
-                        setShowRoleModal(true);
-                      }}
-                      className="am-form-wrapper"
-                    >
-                      <input
-                        className="am-form-email business-only-email-field w-input"
-                        placeholder="Mulai monetisasi klip video kamu sekarang"
-                        type="text"
-                        required
-                      />
-                      <div className="am-form-submit-wrapper">
-                        <div className="am-nav-btn-wrapper">
-                          <button
-                            type="submit"
-                            className="am-nav-btn business-only-submit-button is-full-size-mobile w-button"
-                            style={{
-                              backgroundColor: "#fff",
-                              color: "#111",
-                              fontWeight: 700,
-                              border: "none",
-                              cursor: "pointer",
-                            }}
-                          >
-                            Daftar Sekarang
-                          </button>
-                        </div>
-                      </div>
-                    </form>
-                  </div>
-                </div>
-              </div>
+            <div style={{ marginTop: "2.25rem", maxWidth: "520px", marginLeft: "auto", marginRight: "auto" }}>
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  setShowRoleModal(true);
+                }}
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  backgroundColor: "#ffffff",
+                  borderRadius: "9999px",
+                  padding: "5px 6px 5px 18px",
+                  boxShadow: "0 15px 35px rgba(0, 0, 0, 0.35)",
+                  boxSizing: "border-box",
+                  width: "100%",
+                }}
+              >
+                <input
+                  type="text"
+                  placeholder="Mulai monetisasi klip video kamu sekarang..."
+                  style={{
+                    flex: 1,
+                    border: "none",
+                    outline: "none",
+                    backgroundColor: "transparent",
+                    fontSize: "0.875rem",
+                    color: "#111111",
+                    minWidth: 0,
+                    padding: "8px 12px 8px 0",
+                    fontFamily: "inherit",
+                  }}
+                />
+                <button
+                  type="submit"
+                  style={{
+                    backgroundColor: "#111111",
+                    color: "#ffffff",
+                    border: "none",
+                    borderRadius: "9999px",
+                    padding: "10px 20px",
+                    fontSize: "0.8125rem",
+                    fontWeight: 700,
+                    cursor: "pointer",
+                    whiteSpace: "nowrap",
+                    transition: "all 0.15s ease",
+                    flexShrink: 0,
+                  }}
+                >
+                  Daftar Sekarang
+                </button>
+              </form>
             </div>
           </div>
         </div>

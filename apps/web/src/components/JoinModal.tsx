@@ -33,7 +33,7 @@ export function JoinModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-fade-in-up">
-      <div className="card bg-white max-w-lg w-full p-6 md:p-8 rounded-2xl shadow-xl relative border border-[rgba(17,17,17,0.08)]">
+      <div className="card bg-white max-w-lg w-full max-h-[90vh] overflow-y-auto p-6 md:p-8 rounded-2xl shadow-xl relative border border-[rgba(17,17,17,0.08)]">
         <button
           type="button"
           onClick={onClose}

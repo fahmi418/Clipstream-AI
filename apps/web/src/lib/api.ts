@@ -95,10 +95,16 @@ export interface Stats {
   timestamp: string;
 }
 
+export type UserRole = "CLIPPER" | "BRAND" | "ADMIN";
+
 export interface User {
   id: string;
-  walletAddress: string;
+  email: string | null;
+  role: UserRole;
+  walletAddress: string | null;
   displayName: string | null;
+  avatarUrl?: string | null;
+  bio?: string | null;
 }
 
 export interface ApiResponse<T> {
@@ -112,6 +118,24 @@ export interface ApiError {
     code: string;
     message: string;
   };
+}
+
+// ── Token Storage ───────────────────────────────────────────────────────
+
+export const AUTH_TOKEN_KEY = "clipstream_auth_token";
+
+export function getAuthToken(): string | null {
+  if (typeof window === "undefined") return null;
+  return localStorage.getItem(AUTH_TOKEN_KEY);
+}
+
+export function setAuthToken(token: string | null): void {
+  if (typeof window === "undefined") return;
+  if (token) {
+    localStorage.setItem(AUTH_TOKEN_KEY, token);
+  } else {
+    localStorage.removeItem(AUTH_TOKEN_KEY);
+  }
 }
 
 // ── Fetch wrapper ───────────────────────────────────────────────────────
@@ -131,12 +155,16 @@ async function request<T>(
   path: string,
   init?: RequestInit
 ): Promise<T> {
+  const token = getAuthToken();
+  const headers: Record<string, string> = {
+    "Content-Type": "application/json",
+    ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    ...((init?.headers as Record<string, string>) ?? {}),
+  };
+
   const res = await fetch(`${API_BASE}${path}`, {
     credentials: "include",
-    headers: {
-      "Content-Type": "application/json",
-      ...(init?.headers ?? {}),
-    },
+    headers,
     ...init,
   });
 
@@ -153,16 +181,123 @@ async function request<T>(
   return json.data;
 }
 
-// ── Auth ────────────────────────────────────────────────────────────────
+// ── Auth API ────────────────────────────────────────────────────────────
+
+export interface RegisterPayload {
+  email: string;
+  password: string;
+  role: UserRole;
+  displayName?: string;
+  walletAddress?: string;
+}
+
+export interface LoginPayload {
+  email: string;
+  password: string;
+}
+
+export interface WalletLoginPayload {
+  walletAddress: string;
+  role?: UserRole;
+  displayName?: string;
+  signature?: string;
+}
+
+export interface AuthResult {
+  token: string;
+  user: User;
+  isNewUser?: boolean;
+}
+
+export interface WithdrawPayload {
+  type: "EWALLET" | "BANK" | "CRYPTO";
+  provider: string;
+  accountNumber: string;
+  accountName?: string;
+  amountUsdc: number;
+}
+
+export interface WithdrawResult {
+  withdrawalId: string;
+  status: "SUCCESS" | "PROCESSING" | "FAILED";
+  amountUsdc: number;
+  amountIdr: number;
+  idrRate: number;
+  type: string;
+  provider: string;
+  accountNumber: string;
+  accountName: string;
+  sourceWallet: string | null;
+  txHash: string;
+  timestamp: string;
+  message: string;
+}
+
+export const authApi = {
+  register: async (payload: RegisterPayload): Promise<AuthResult> => {
+    const data = await request<AuthResult>("/api/auth/register", {
+      method: "POST",
+      body: JSON.stringify(payload),
+    });
+    if (data.token) setAuthToken(data.token);
+    return data;
+  },
+
+  login: async (payload: LoginPayload): Promise<AuthResult> => {
+    const data = await request<AuthResult>("/api/auth/login", {
+      method: "POST",
+      body: JSON.stringify(payload),
+    });
+    if (data.token) setAuthToken(data.token);
+    return data;
+  },
+
+  walletLogin: async (payload: WalletLoginPayload): Promise<AuthResult> => {
+    const data = await request<AuthResult>("/api/auth/wallet-login", {
+      method: "POST",
+      body: JSON.stringify(payload),
+    });
+    if (data.token) setAuthToken(data.token);
+    return data;
+  },
+
+  withdraw: async (payload: WithdrawPayload): Promise<WithdrawResult> => {
+    const data = await request<WithdrawResult>("/api/auth/withdraw", {
+      method: "POST",
+      body: JSON.stringify(payload),
+    });
+    return data;
+  },
+
+  getMe: async (): Promise<User> => {
+    const data = await request<{ user: User }>("/api/auth/me");
+    return data.user;
+  },
+
+  logout: async (): Promise<void> => {
+    try {
+      await request<{ message: string }>("/api/auth/logout", {
+        method: "POST",
+      });
+    } catch {
+      // ignore network errors on logout
+    } finally {
+      setAuthToken(null);
+    }
+  },
+};
 
 export function createSession(payload: {
   privyToken: string;
   walletAddress?: string;
   displayName?: string;
 }) {
-  return request<{ user: User; isNewUser: boolean }>("/api/auth/session", {
+  return request<{ user: User; isNewUser: boolean; token?: string }>("/api/auth/session", {
     method: "POST",
     body: JSON.stringify(payload),
+  }).then((res) => {
+    if (res.token) setAuthToken(res.token);
+    return res;
   });
 }
 

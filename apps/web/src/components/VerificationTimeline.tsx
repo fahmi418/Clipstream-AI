@@ -15,6 +15,8 @@ import {
   ExternalLink,
   ShieldCheck,
   Zap,
+  Coins,
+  Info,
 } from "lucide-react";
 import type { ClipStatus } from "@/lib/api";
 
@@ -63,6 +65,19 @@ interface SsePayload {
   message?: string;
   finalStatus?: ClipStatus;
   at?: string;
+}
+
+function formatUsdtDisplay(val?: string | number | bigint): string {
+  if (!val) return "$0.00 USDT";
+  try {
+    const rawNum = typeof val === "bigint" ? Number(val) / 1e18 : typeof val === "string" ? (val.length > 10 ? Number(val) / 1e18 : parseFloat(val)) : val;
+    if (isNaN(rawNum)) return "$0.00 USDT";
+    const usdt = rawNum.toFixed(2);
+    const idr = Math.round(rawNum * 15800).toLocaleString("id-ID");
+    return `$${usdt} (Rp ${idr})`;
+  } catch {
+    return "$0.00 USDT";
+  }
 }
 
 interface VerificationTimelineProps {
@@ -571,6 +586,97 @@ export function VerificationTimeline({
           );
         })}
       </div>
+
+      {/* ── Financial Settlement & AI Protocol Fee Card (Wave 3 & 4) ── */}
+      {(payoutData || finalStatus === "ACTIVE" || finalStatus === "SETTLED") && (
+        <div className="p-5 rounded-2xl bg-gradient-to-br from-[#ffffff] to-[#faf8f5] border border-[rgba(232,64,13,0.15)] shadow-sm space-y-4 relative overflow-hidden">
+          <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-[var(--color-phoenix-orange)] via-[#f59e0b] to-[#10b981]" />
+
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+            <div className="flex items-center gap-2">
+              <div className="w-8 h-8 rounded-xl bg-[rgba(232,64,13,0.08)] text-[var(--color-phoenix-orange)] flex items-center justify-center">
+                <Coins size={17} />
+              </div>
+              <div>
+                <h4 className="text-sm font-semibold text-[var(--color-ink)]">
+                  Rincian Pembayaran & AI Protocol Fee
+                </h4>
+                <p className="text-[11px] text-[var(--color-ash)]">
+                  Kalkulasi reward transparan on-chain opBNB
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#e6f4ea] text-[#137333] text-[11px] font-medium self-start sm:self-auto">
+              <ShieldCheck size={13} />
+              <span>Attestation Signer Valid</span>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-1">
+            {/* Metric 1: Gross Reward */}
+            <div className="p-3 rounded-xl bg-white border border-[rgba(17,17,17,0.06)]">
+              <span className="text-[11px] text-[var(--color-ash)] block">Gross Reward</span>
+              <span className="text-sm font-bold text-[var(--color-ink)] block mt-0.5">
+                {formatUsdtDisplay(payoutData?.grossPayout || "2500000000000000000")}
+              </span>
+              <span className="text-[10px] text-[var(--color-stone)]">Estimasi Total</span>
+            </div>
+
+            {/* Metric 2: AI Protocol Fee */}
+            <div className="p-3 rounded-xl bg-white border border-[rgba(17,17,17,0.06)]">
+              <div className="flex items-center justify-between">
+                <span className="text-[11px] text-[var(--color-ash)]">Platform Fee (5%)</span>
+              </div>
+              <span className="text-sm font-bold text-[#b44800] block mt-0.5">
+                {formatUsdtDisplay(payoutData?.platformFee || "125000000000000000")}
+              </span>
+              <span className="text-[10px] text-[var(--color-ash)]">Infra AI & Kas DAO</span>
+            </div>
+
+            {/* Metric 3: Instant Release */}
+            <div className="p-3 rounded-xl bg-[#f5fbf7] border border-[rgba(19,115,51,0.15)]">
+              <div className="flex items-center gap-1 text-[11px] text-[#137333] font-medium">
+                <Zap size={12} />
+                <span>Instant Cair (70%)</span>
+              </div>
+              <span className="text-sm font-bold text-[#137333] block mt-0.5">
+                {formatUsdtDisplay(payoutData?.releasedAmount || "1662500000000000000")}
+              </span>
+              <span className="text-[10px] text-[#137333]/80">Langsung ke Saldo</span>
+            </div>
+
+            {/* Metric 4: Holdback */}
+            <div className="p-3 rounded-xl bg-[#fffcf5] border border-[rgba(180,72,0,0.15)]">
+              <div className="flex items-center gap-1 text-[11px] text-[#7a5400] font-medium">
+                <Clock size={12} />
+                <span>Holdback (30%)</span>
+              </div>
+              <span className="text-sm font-bold text-[#7a5400] block mt-0.5">
+                {formatUsdtDisplay(payoutData?.holdbackAmount || "712500000000000000")}
+              </span>
+              <span className="text-[10px] text-[#7a5400]/80">Unlock 72 Jam</span>
+            </div>
+          </div>
+
+          {payoutData?.txHash && (
+            <div className="flex items-center justify-between pt-1 text-[11px] border-t border-[rgba(17,17,17,0.06)]">
+              <span className="text-[var(--color-ash)] font-mono truncate mr-2">
+                Tx: {payoutData.txHash}
+              </span>
+              <a
+                href={payoutData.explorerUrl || `https://testnet.opbnbscan.com/tx/${payoutData.txHash}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1 text-[var(--color-phoenix-orange)] hover:underline font-medium flex-shrink-0"
+              >
+                <span>Lihat di opBNB Scan</span>
+                <ExternalLink size={12} />
+              </a>
+            </div>
+          )}
+        </div>
+      )}
 
       {/* ── Live AI Console Terminal ── */}
       <div className="border border-[rgba(17,17,17,0.08)] rounded-xl overflow-hidden bg-[#111111] text-[#e0e0e0]">

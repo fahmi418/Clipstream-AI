@@ -33,24 +33,15 @@ import {
 
 export function Nav() {
   const pathname = usePathname();
-  const { login: privyLogin, authenticated, logout } = usePrivy();
-  const { user } = useAuth();
+  const { login: privyLogin, authenticated, logout: privyLogout } = usePrivy();
+  const { user, logout: authLogout } = useAuth();
   const [scrolled, setScrolled] = useState(false);
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
   const [activeProductTab, setActiveProductTab] = useState<string>("ai-verifier");
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [showRoleModal, setShowRoleModal] = useState(false);
-  const [currentRole, setCurrentRole] = useState<string | null>(null);
 
   const navRef = useRef<HTMLDivElement>(null);
-
-  // Read stored role on mount and pathname changes
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      const stored = localStorage.getItem("clipstream_user_role");
-      if (stored) setCurrentRole(stored);
-    }
-  }, [pathname]);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -93,27 +84,32 @@ export function Nav() {
   const handleLogout = async () => {
     if (typeof window !== "undefined") {
       localStorage.removeItem("clipstream_user_role");
+      localStorage.removeItem("clipstream_auth_token");
     }
-    setCurrentRole(null);
     try {
-      await logout();
+      if (authenticated) {
+        await privyLogout();
+      }
+      await authLogout();
     } catch (err) {
       console.error("Logout error:", err);
     }
+    window.location.href = "/";
   };
 
   // Determine user login status and destination dashboard
-  const isLoggedIn = Boolean(authenticated || user || currentRole);
+  const isLoggedIn = Boolean(user);
+  const userRole = user?.role || "CLIPPER";
   const dashboardHref =
-    currentRole === "admin"
-      ? "/admin"
-      : currentRole === "brand"
+    userRole === "ADMIN"
+      ? "/admin/appeals"
+      : userRole === "BRAND"
       ? "/brand/campaigns"
       : "/clipper";
   const dashboardLabel =
-    currentRole === "admin"
+    userRole === "ADMIN"
       ? "Portal Superadmin"
-      : currentRole === "brand"
+      : userRole === "BRAND"
       ? "Dashboard Brand"
       : "Dashboard Clipper";
 
@@ -185,8 +181,8 @@ export function Nav() {
 
                   {/* Desktop Dropdowns & Navigation (No Dashboard links here for public) */}
                   <div
-                    className="am-nav-content-links am-hide-tablet"
-                    style={{ display: "flex", alignItems: "center", gap: "0.35rem" }}
+                    className="hidden lg:flex items-center"
+                    style={{ gap: "0.35rem" }}
                   >
                     {/* 1. PRODUK DROPDOWN */}
                     <div
@@ -851,60 +847,47 @@ export function Nav() {
                 {/* Right Side: Auth & Conditional Dashboard Button */}
                 <div
                   className="am-nav-content-right"
-                  style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}
+                  style={{ display: "flex", alignItems: "center", gap: "0.375rem" }}
                 >
+                  {/* Right Side: Account state & Action CTA */}
                   {isLoggedIn ? (
                     <>
-                      {/* Persona Indicator Badge (Switch Role) */}
-                      {currentRole && (
-                        <button
-                          type="button"
-                          onClick={() => setShowRoleModal(true)}
-                          title="Klik untuk ganti peran"
-                          className="am-hide-mobile"
-                          style={{
-                            display: "inline-flex",
-                            alignItems: "center",
-                            gap: "0.35rem",
-                            padding: "0.25rem 0.625rem",
-                            borderRadius: "9999px",
-                            fontSize: "0.75rem",
-                            fontWeight: 600,
-                            border: "1px solid rgba(17,17,17,0.08)",
-                            backgroundColor:
-                              currentRole === "admin"
-                                ? "#f5f3ff"
-                                : currentRole === "brand"
-                                ? "#fffbeb"
-                                : "#ecfdf5",
-                            color:
-                              currentRole === "admin"
-                                ? "#7c3aed"
-                                : currentRole === "brand"
-                                ? "#d97706"
-                                : "#059669",
-                            cursor: "pointer",
-                          }}
-                        >
-                          <span style={{ textTransform: "capitalize" }}>
-                            {currentRole === "admin"
-                              ? "Superadmin"
-                              : currentRole === "brand"
-                              ? "Brand"
-                              : "Clipper"}
-                          </span>
-                          <Sliders size={11} />
-                        </button>
-                      )}
+                      {/* User Role Badge */}
+                      <span
+                        className="hidden md:inline-flex items-center"
+                        style={{
+                          padding: "0.25rem 0.625rem",
+                          borderRadius: "9999px",
+                          fontSize: "0.75rem",
+                          fontWeight: 600,
+                          border: "1px solid rgba(17,17,17,0.08)",
+                          backgroundColor:
+                            userRole === "ADMIN"
+                              ? "#f5f3ff"
+                              : userRole === "BRAND"
+                              ? "#fffbeb"
+                              : "#ecfdf5",
+                          color:
+                            userRole === "ADMIN"
+                              ? "#7c3aed"
+                              : userRole === "BRAND"
+                              ? "#d97706"
+                              : "#059669",
+                        }}
+                      >
+                        <span style={{ textTransform: "capitalize" }}>
+                          {user?.displayName || (userRole === "ADMIN" ? "Superadmin" : userRole === "BRAND" ? "Brand" : "Clipper")}
+                        </span>
+                      </span>
 
                       {/* Direct Dashboard Access Button for Logged In User */}
                       <Link
                         href={dashboardHref}
                         className="am-nav-btn"
                         style={{
-                          fontSize: "0.8125rem",
-                          padding: "0 1.125rem",
-                          height: "34px",
+                          fontSize: "0.75rem",
+                          padding: "0 0.875rem",
+                          height: "32px",
                           backgroundColor: "#111",
                           color: "#fff",
                           fontWeight: 600,
@@ -912,7 +895,7 @@ export function Nav() {
                           display: "inline-flex",
                           alignItems: "center",
                           justifyContent: "center",
-                          gap: "0.35rem",
+                          gap: "0.25rem",
                           textDecoration: "none",
                           boxShadow: "0 2px 8px rgba(0,0,0,0.15)",
                           whiteSpace: "nowrap",
@@ -920,23 +903,21 @@ export function Nav() {
                         }}
                       >
                         <span>Dashboard</span>
-                        <ArrowRight size={13} />
+                        <ArrowRight size={12} />
                       </Link>
 
-                      {/* Logout button */}
+                      {/* Logout button - Desktop */}
                       <button
                         type="button"
                         onClick={handleLogout}
                         title="Keluar akun"
-                        className="am-hide-mobile"
+                        className="hidden md:inline-flex items-center"
                         style={{
                           background: "none",
                           border: "none",
                           cursor: "pointer",
                           padding: "0.4rem",
                           color: "rgba(17,17,17,0.5)",
-                          display: "inline-flex",
-                          alignItems: "center",
                           borderRadius: "50%",
                           transition: "color 0.15s ease",
                         }}
@@ -946,39 +927,37 @@ export function Nav() {
                     </>
                   ) : (
                     <>
-                      {/* Masuk Button */}
-                      <button
-                        type="button"
-                        onClick={() => setShowRoleModal(true)}
-                        className="am-nav-btn is-secondary am-hide-mobile"
+                      {/* Masuk Button - Desktop Only */}
+                      <Link
+                        href="/login"
+                        className="am-nav-btn is-secondary hidden md:inline-flex"
                         style={{
                           fontSize: "0.8125rem",
                           padding: "0 0.875rem",
                           height: "34px",
                           fontWeight: 500,
                           borderRadius: "9999px",
-                          display: "inline-flex",
                           alignItems: "center",
                           justifyContent: "center",
                           cursor: "pointer",
                           backgroundColor: "rgba(17,17,17,0.04)",
                           border: "1px solid rgba(17,17,17,0.08)",
                           color: "#111",
+                          textDecoration: "none",
                           transition: "all 0.15s ease",
                         }}
                       >
                         Masuk
-                      </button>
+                      </Link>
 
                       {/* Mulai Gratis CTA Button */}
-                      <button
-                        type="button"
-                        onClick={() => setShowRoleModal(true)}
+                      <Link
+                        href="/register"
                         className="am-nav-btn"
                         style={{
-                          fontSize: "0.8125rem",
-                          padding: "0 1.125rem",
-                          height: "34px",
+                          fontSize: "0.75rem",
+                          padding: "0 0.875rem",
+                          height: "32px",
                           backgroundColor: "#111",
                           color: "#fff",
                           fontWeight: 600,
@@ -990,45 +969,37 @@ export function Nav() {
                           border: "none",
                           boxShadow: "0 2px 8px rgba(0,0,0,0.15)",
                           whiteSpace: "nowrap",
+                          textDecoration: "none",
                           transition: "all 0.15s ease",
                         }}
                       >
                         Mulai Gratis
-                      </button>
+                      </Link>
                     </>
                   )}
 
-                  {/* Mobile Drawer Hamburger */}
+                  {/* Mobile Drawer Hamburger Button */}
                   <button
                     type="button"
                     onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                    className="am-navbar-mobile-menu-btn am-show-tablet"
+                    className="flex lg:hidden items-center justify-center p-1.5 rounded-full hover:bg-black/5"
                     style={{
-                      display: "none",
                       background: "none",
                       border: "none",
-                      padding: "0.5rem",
                       cursor: "pointer",
+                      marginLeft: "0.25rem",
                     }}
                     aria-label="Toggle menu"
                   >
-                    <div
-                      style={{
-                        width: "20px",
-                        height: "2px",
-                        backgroundColor: "#111",
-                        marginBottom: "4px",
-                      }}
-                    />
-                    <div
-                      style={{
-                        width: "20px",
-                        height: "2px",
-                        backgroundColor: "#111",
-                        marginBottom: "4px",
-                      }}
-                    />
-                    <div style={{ width: "20px", height: "2px", backgroundColor: "#111" }} />
+                    {mobileMenuOpen ? (
+                      <span style={{ fontSize: "1.125rem", fontWeight: 700, color: "#111", lineHeight: 1 }}>✕</span>
+                    ) : (
+                      <div style={{ display: "flex", flexDirection: "column", gap: "3.5px" }}>
+                        <div style={{ width: "18px", height: "2px", backgroundColor: "#111", borderRadius: "2px" }} />
+                        <div style={{ width: "18px", height: "2px", backgroundColor: "#111", borderRadius: "2px" }} />
+                        <div style={{ width: "18px", height: "2px", backgroundColor: "#111", borderRadius: "2px" }} />
+                      </div>
+                    )}
                   </button>
                 </div>
               </div>
@@ -1038,46 +1009,141 @@ export function Nav() {
                 <div
                   className="am-navbar-mobile-menu-wrapper"
                   style={{
-                    backgroundColor: "#fbfaf9",
+                    backgroundColor: "#ffffff",
                     padding: "1.25rem",
-                    borderRadius: "1rem",
+                    borderRadius: "1.25rem",
                     marginTop: "0.5rem",
                     border: "1px solid rgba(17,17,17,0.08)",
-                    boxShadow: "0 12px 35px rgba(0,0,0,0.1)",
+                    boxShadow: "0 20px 45px -10px rgba(0,0,0,0.15)",
+                    maxHeight: "80vh",
+                    overflowY: "auto",
                   }}
                 >
-                  <div style={{ display: "flex", flexDirection: "column", gap: "0.875rem" }}>
-                    <Link
-                      href="/campaigns"
-                      onClick={() => setMobileMenuOpen(false)}
-                      className="am-footer-link"
-                      style={{ fontSize: "1rem", fontWeight: 600, color: "#111" }}
-                    >
-                      Marketplace Kampanye
-                    </Link>
+                  <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
+                    {/* Public Navigation */}
+                    <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
+                      <div style={{ fontSize: "0.6875rem", fontWeight: 700, color: "rgba(17,17,17,0.4)", textTransform: "uppercase", letterSpacing: "0.05em", paddingLeft: "0.25rem" }}>
+                        Navigasi Utama
+                      </div>
+                      <Link
+                        href="/campaigns"
+                        onClick={() => setMobileMenuOpen(false)}
+                        style={{
+                          fontSize: "0.9375rem",
+                          fontWeight: 600,
+                          color: "#111",
+                          textDecoration: "none",
+                          padding: "0.625rem 0.75rem",
+                          borderRadius: "10px",
+                          backgroundColor: "rgba(17,17,17,0.03)",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "space-between",
+                        }}
+                      >
+                        <span>🔥 Marketplace Kampanye</span>
+                        <ArrowRight size={14} color="#888" />
+                      </Link>
 
+                      <Link
+                        href="/clipper"
+                        onClick={() => setMobileMenuOpen(false)}
+                        style={{
+                          fontSize: "0.9375rem",
+                          fontWeight: 600,
+                          color: "#111",
+                          textDecoration: "none",
+                          padding: "0.625rem 0.75rem",
+                          borderRadius: "10px",
+                          backgroundColor: "rgba(17,17,17,0.03)",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "space-between",
+                        }}
+                      >
+                        <span>🎬 Clipper Studio</span>
+                        <ArrowRight size={14} color="#888" />
+                      </Link>
+
+                      {userRole === "CLIPPER" ? (
+                        <Link
+                          href="/clipper/wallet"
+                          onClick={() => setMobileMenuOpen(false)}
+                          style={{
+                            fontSize: "0.9375rem",
+                            fontWeight: 600,
+                            color: "#059669",
+                            textDecoration: "none",
+                            padding: "0.625rem 0.75rem",
+                            borderRadius: "10px",
+                            backgroundColor: "#ecfdf5",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "space-between",
+                          }}
+                        >
+                          <span>💰 Dompet &amp; Saldo</span>
+                          <ArrowRight size={14} color="#059669" />
+                        </Link>
+                      ) : (
+                        <Link
+                          href="/brand/new"
+                          onClick={() => setMobileMenuOpen(false)}
+                          style={{
+                            fontSize: "0.9375rem",
+                            fontWeight: 600,
+                            color: "#111",
+                            textDecoration: "none",
+                            padding: "0.625rem 0.75rem",
+                            borderRadius: "10px",
+                            backgroundColor: "rgba(17,17,17,0.03)",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "space-between",
+                          }}
+                        >
+                          <span>🚀 Pasang Bounty Brand</span>
+                          <ArrowRight size={14} color="#888" />
+                        </Link>
+                      )}
+
+                      <Link
+                        href="/blog"
+                        onClick={() => setMobileMenuOpen(false)}
+                        style={{
+                          fontSize: "0.9375rem",
+                          fontWeight: 600,
+                          color: "#111",
+                          textDecoration: "none",
+                          padding: "0.625rem 0.75rem",
+                          borderRadius: "10px",
+                          backgroundColor: "rgba(17,17,17,0.03)",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "space-between",
+                        }}
+                      >
+                        <span>📖 Blog &amp; Tutorial</span>
+                        <ArrowRight size={14} color="#888" />
+                      </Link>
+                    </div>
+
+                    <div style={{ height: "1px", backgroundColor: "rgba(17,17,17,0.08)" }} />
+
+                    {/* Account Section */}
                     {isLoggedIn ? (
-                      <>
+                      <div style={{ display: "flex", flexDirection: "column", gap: "0.625rem" }}>
                         <Link
                           href={dashboardHref}
                           onClick={() => setMobileMenuOpen(false)}
-                          className="am-footer-link"
-                          style={{ fontSize: "1rem", fontWeight: 600, color: "#e8400d" }}
-                        >
-                          {dashboardLabel}
-                        </Link>
-                        <div className="am-horizontal-divider" />
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setMobileMenuOpen(false);
-                            setShowRoleModal(true);
-                          }}
-                          className="am-nav-btn is-secondary"
                           style={{
-                            padding: "0.625rem",
-                            borderRadius: "9999px",
-                            fontWeight: 600,
+                            fontSize: "0.9375rem",
+                            fontWeight: 700,
+                            color: "#fff",
+                            backgroundColor: "#111",
+                            padding: "0.75rem 1rem",
+                            borderRadius: "12px",
+                            textDecoration: "none",
                             textAlign: "center",
                             display: "flex",
                             alignItems: "center",
@@ -1085,9 +1151,10 @@ export function Nav() {
                             gap: "0.5rem",
                           }}
                         >
-                          <Sliders size={14} />
-                          <span>Ganti Peran ({currentRole || "Pilih"})</span>
-                        </button>
+                          <span>Masuk ke {dashboardLabel}</span>
+                          <ArrowRight size={14} />
+                        </Link>
+
                         <button
                           type="button"
                           onClick={() => {
@@ -1106,34 +1173,54 @@ export function Nav() {
                             alignItems: "center",
                             justifyContent: "center",
                             gap: "0.35rem",
+                            marginTop: "0.25rem",
                           }}
                         >
                           <LogOut size={14} />
                           <span>Keluar Akun</span>
                         </button>
-                      </>
+                      </div>
                     ) : (
-                      <>
-                        <div className="am-horizontal-divider" />
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setMobileMenuOpen(false);
-                            setShowRoleModal(true);
+                      <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
+                        <Link
+                          href="/login"
+                          onClick={() => setMobileMenuOpen(false)}
+                          className="am-nav-btn is-secondary"
+                          style={{
+                            padding: "0.75rem",
+                            borderRadius: "12px",
+                            fontWeight: 600,
+                            textAlign: "center",
+                            display: "block",
+                            textDecoration: "none",
+                            backgroundColor: "rgba(17,17,17,0.04)",
+                            border: "1px solid rgba(17,17,17,0.08)",
+                            color: "#111",
+                            fontSize: "0.9375rem",
                           }}
+                        >
+                          Masuk ke Akun
+                        </Link>
+                        <Link
+                          href="/register"
+                          onClick={() => setMobileMenuOpen(false)}
                           className="am-nav-btn"
                           style={{
                             backgroundColor: "#111",
                             color: "#fff",
                             padding: "0.75rem",
-                            borderRadius: "9999px",
+                            borderRadius: "12px",
                             fontWeight: 600,
                             textAlign: "center",
+                            display: "block",
+                            textDecoration: "none",
+                            border: "none",
+                            fontSize: "0.9375rem",
                           }}
                         >
-                          Masuk / Mulai Gratis
-                        </button>
-                      </>
+                          Mulai Gratis 🚀
+                        </Link>
+                      </div>
                     )}
                   </div>
                 </div>
@@ -1147,7 +1234,6 @@ export function Nav() {
       <RoleSelectModal
         isOpen={showRoleModal}
         onClose={() => setShowRoleModal(false)}
-        onSelectRole={(role) => setCurrentRole(role)}
       />
     </>
   );

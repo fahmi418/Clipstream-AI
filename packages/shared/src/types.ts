@@ -155,6 +155,14 @@ export interface EvidenceBundle {
     safety: string;
   };
   transcriptHash: `0x${string}`;
+  financials?: {
+    grossPayout?: string;
+    platformFeeAmount?: string;
+    platformFeeBps?: number;
+    netPayout?: string;
+    immediateAmount?: string;
+    holdbackAmount?: string;
+  };
 }
 
 // Float score to Basis Points (0 - 10000).

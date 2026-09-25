@@ -7,12 +7,18 @@ import type {
   EvidenceBundle,
 } from '@clipstream/shared';
 
+export type UserRole = 'CLIPPER' | 'BRAND' | 'ADMIN';
+
 export interface UserEntity {
   id: string;
-  privyDid: string;
-  walletAddress: string;
+  privyDid: string | null;
+  walletAddress: string | null;
   displayName: string | null;
   email: string | null;
+  passwordHash?: string | null;
+  role: UserRole;
+  avatarUrl?: string | null;
+  bio?: string | null;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -189,7 +195,10 @@ export interface IDatabaseRepository {
   getUserById(id: string): Promise<UserEntity | null>;
   getUserByPrivyDid(privyDid: string): Promise<UserEntity | null>;
   getUserByWallet(address: string): Promise<UserEntity | null>;
-  upsertUser(user: Omit<UserEntity, 'id' | 'createdAt' | 'updatedAt'>): Promise<UserEntity>;
+  getUserByEmail(email: string): Promise<UserEntity | null>;
+  upsertUser(user: Partial<UserEntity> & { role?: UserRole }): Promise<UserEntity>;
+  createUser(user: Partial<UserEntity> & { role: UserRole }): Promise<UserEntity>;
+  updateUser(id: string, updates: Partial<UserEntity>): Promise<UserEntity>;
 
   // Source Videos & Chunks
   createSourceVideo(

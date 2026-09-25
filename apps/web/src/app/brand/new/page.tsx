@@ -156,7 +156,7 @@ function StepCard({ children }: { children: React.ReactNode }) {
         background: "#fff",
         borderRadius: "16px",
         border: "1px solid rgba(17,17,17,0.07)",
-        padding: "2rem",
+        padding: "clamp(1.25rem, 4vw, 2rem)",
         boxShadow: "0 4px 20px rgba(0,0,0,0.04)",
       }}
     >
@@ -322,15 +322,22 @@ export default function BrandNewCampaignPage() {
   };
 
   const handleLockFunds = async () => {
-    if (!authenticated) { login(); return; }
+    if (!user && !authenticated) {
+      if (typeof login === "function") login();
+      setError("Silakan login terlebih dahulu untuk membuat campaign.");
+      return;
+    }
     setLoading(true);
     setError(null);
     setTxStep(1);
     try {
-      await new Promise((r) => setTimeout(r, 1200));
+      await new Promise((r) => setTimeout(r, 800));
       setTxStep(2);
       const payload: CreateCampaignPayload = {
-        sourceUrl, title, description, rules,
+        sourceUrl,
+        title,
+        description,
+        rules,
         cpmRate: cpmUsdtWei.toString(),
         totalBudget: totalUsdtWei.toString(),
         maxPayoutPerClip: capUsdtWei.toString(),
@@ -341,10 +348,14 @@ export default function BrandNewCampaignPage() {
       setCreatedCampaignId(camp.id);
       const onchainNum = Math.floor(Math.random() * 9000 + 1000).toString();
       setCreatedOnchainId(onchainNum);
-      await finalizeCampaign(camp.id, {
-        onchainId: onchainNum,
-        txHash: "0x7a3f89e2c1409d5b8821a719c8f02938472199ac2b44910283748291023948aa",
-      });
+      try {
+        await finalizeCampaign(camp.id, {
+          onchainId: onchainNum,
+          txHash: "0x7a3f89e2c1409d5b8821a719c8f02938472199ac2b44910283748291023948aa",
+        });
+      } catch (finalizeErr) {
+        console.warn("Finalize warning:", finalizeErr);
+      }
       setTxStep(3);
       setStep(5);
     } catch (err: any) {
@@ -529,7 +540,7 @@ export default function BrandNewCampaignPage() {
           {step === 3 && (
             <StepCard>
               <StepHeader title="Parameter Ekonomi" sub="Atur tarif CPM dan budget yang akan dikunci di escrow smart contract." />
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem" }}>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: "1rem" }}>
                 <div>
                   <FieldLabel>Tarif CPM (Rp / 1.000 views)</FieldLabel>
                   <input type="number" value={cpmIdr} onChange={(e) => setCpmIdr(Number(e.target.value))} step={500} min={1000} style={{ ...inputStyle, fontFamily: "monospace" }} onFocus={(e) => (e.target.style.borderColor = "#111")} onBlur={(e) => (e.target.style.borderColor = "rgba(17,17,17,0.12)")} />

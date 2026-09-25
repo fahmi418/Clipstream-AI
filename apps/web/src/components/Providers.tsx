@@ -6,7 +6,15 @@ import { PrivyProvider, usePrivy } from "@privy-io/react-auth";
 import { useState, useEffect, useRef, type ReactNode } from "react";
 import { wagmiConfig } from "@/lib/wagmi-config";
 import { AuthContext, type AuthState } from "@/lib/auth-context";
-import { createSession, type User } from "@/lib/api";
+import {
+  authApi,
+  getAuthToken,
+  setAuthToken,
+  type User,
+  type LoginPayload,
+  type RegisterPayload,
+  type WalletLoginPayload,
+} from "@/lib/api";
 
 const privyAppId = process.env.NEXT_PUBLIC_PRIVY_APP_ID ?? "cm00000000000000000000000";
 
@@ -33,24 +41,33 @@ function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isNewUser, setIsNewUser] = useState(false);
-  const { authenticated, user: privyUser, ready, login: privyLogin } = usePrivy();
+  const { authenticated, user: privyUser, ready } = usePrivy();
   const sessionSyncRef = useRef<string | null>(null);
 
-  // Restore session from cookie on mount
+  // 1. Restore session on mount via /api/auth/me if token exists
   useEffect(() => {
-    fetch(
-      `${process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3001"}/api/auth/me`,
-      { credentials: "include" }
-    )
-      .then((r) => r.json())
-      .then((json) => {
-        if (json.ok) setUser(json.data.user);
+    const token = getAuthToken();
+    if (!token) {
+      setIsLoading(false);
+      return;
+    }
+
+    authApi
+      .getMe()
+      .then((me) => {
+        setUser(me);
       })
-      .catch(() => {})
-      .finally(() => setIsLoading(false));
+      .catch(() => {
+        // Invalid or expired token
+        setAuthToken(null);
+        setUser(null);
+      })
+      .finally(() => {
+        setIsLoading(false);
+      });
   }, []);
 
-  // Sync session when Privy authenticates
+  // 2. Sync session if Privy is used
   useEffect(() => {
     if (!ready || !authenticated || !privyUser) return;
     if (sessionSyncRef.current === privyUser.id) return;
@@ -65,58 +82,68 @@ function AuthProvider({ children }: { children: ReactNode }) {
       privyUser.email?.address ??
       wallet?.address;
 
-    createSession({
-      privyToken: privyUser.id,
-      walletAddress: wallet?.address,
-      displayName,
-    })
+    authApi
+      .walletLogin({
+        walletAddress: wallet?.address || "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
+        displayName,
+        role: "CLIPPER",
+      })
       .then((res) => {
         setUser(res.user);
-        setIsNewUser(res.isNewUser);
+        setIsNewUser(!!res.isNewUser);
       })
       .catch(() => {});
   }, [ready, authenticated, privyUser]);
 
-  const login = () => {
+  const login = async (payload: LoginPayload): Promise<User> => {
+    const res = await authApi.login(payload);
+    setUser(res.user);
+    return res.user;
+  };
+
+  const register = async (payload: RegisterPayload): Promise<User> => {
+    const res = await authApi.register(payload);
+    setUser(res.user);
+    setIsNewUser(true);
+    return res.user;
+  };
+
+  const loginWithWallet = async (payload: WalletLoginPayload): Promise<User> => {
+    const res = await authApi.walletLogin(payload);
+    setUser(res.user);
+    setIsNewUser(!!res.isNewUser);
+    return res.user;
+  };
+
+  const logout = async (): Promise<void> => {
+    await authApi.logout();
+    setUser(null);
+    setIsNewUser(false);
+  };
+
+  const refreshUser = async (): Promise<User | null> => {
     try {
-      if (ready && privyLogin) {
-        privyLogin();
-      } else {
-        // Fallback quick dev session if Privy is not initialized
-        createSession({
-          privyToken: "dev-session-" + Date.now(),
-          walletAddress: "0x70997970C51812dc3A010C7d01b50e0d17dc79C8",
-          displayName: "Demo Creator",
-        }).then((res) => {
-          setUser(res.user);
-          setIsNewUser(res.isNewUser);
-        }).catch(() => {});
-      }
+      const u = await authApi.getMe();
+      setUser(u);
+      return u;
     } catch {
-      createSession({
-        privyToken: "dev-session-" + Date.now(),
-        walletAddress: "0x70997970C51812dc3A010C7d01b50e0d17dc79C8",
-        displayName: "Demo Creator",
-      }).then((res) => {
-        setUser(res.user);
-        setIsNewUser(res.isNewUser);
-      }).catch(() => {});
+      setUser(null);
+      return null;
     }
   };
 
-  const logout = () => {
-    try {
-      if (authenticated && logout) logout();
-    } catch {}
-    fetch(
-      `${process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3001"}/api/auth/logout`,
-      { method: "POST", credentials: "include" }
-    )
-      .catch(() => {})
-      .finally(() => setUser(null));
+  const value: AuthState = {
+    user,
+    role: user?.role || null,
+    isLoading,
+    isAuthenticated: !!user,
+    isNewUser,
+    login,
+    register,
+    loginWithWallet,
+    logout,
+    refreshUser,
   };
-
-  const value: AuthState = { user, isLoading, isNewUser, login, logout };
 
   return (
     <AuthContext.Provider value={value}>{children}</AuthContext.Provider>

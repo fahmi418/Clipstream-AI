@@ -16,6 +16,7 @@ import {
   MockWhisperAdapter,
   MockEmbeddingAdapter,
   MockLlmAdapter,
+  createLlmAdapter,
   AgentSigner,
   chunkTranscript,
 } from '@clipstream/agent';
@@ -45,16 +46,14 @@ export class VerifyClipWorker {
     this.chain = deps.chain;
     this.youtube =
       deps.youtube ||
-      (process.env.YOUTUBE_API_KEY
-        ? new YouTubeAdapter(process.env.YOUTUBE_API_KEY)
-        : new MockYouTubeAdapter());
+      new YouTubeAdapter(process.env.YOUTUBE_API_KEY);
     this.whisper =
       deps.whisper ||
       (process.env.WHISPER_ENDPOINT_URL
         ? new WhisperAdapter(process.env.WHISPER_ENDPOINT_URL)
         : new MockWhisperAdapter());
     this.embedding = deps.embedding || new MockEmbeddingAdapter();
-    this.llm = deps.llm || new MockLlmAdapter();
+    this.llm = deps.llm || createLlmAdapter();
 
     const privateKey =
       (process.env.AGENT_PRIVATE_KEY as `0x${string}`) ||
@@ -269,14 +268,19 @@ export class VerifyClipWorker {
       // Onchain release
       const txResult = await this.chain.releaseMilestone(attestation, signature);
 
+      // Platform & Protocol Fee (5.00% take-rate to sustain AI verification infra and treasury)
+      const platformFeeBps = 500n;
+      const platformFeeAmount = (cappedPayout * platformFeeBps) / 10000n;
+      const netPayout = cappedPayout > platformFeeAmount ? cappedPayout - platformFeeAmount : cappedPayout;
+
       const holdbackBps =
         attestation.anomalyBps <= 4500
           ? 3000n
           : attestation.anomalyBps <= 7500
           ? 5000n
           : 10000n;
-      const holdbackAmount = (cappedPayout * holdbackBps) / 10000n;
-      const immediateAmount = cappedPayout - holdbackAmount;
+      const holdbackAmount = (netPayout * holdbackBps) / 10000n;
+      const immediateAmount = netPayout - holdbackAmount;
 
       const dbAtt = await this.repo.createAttestation({
         clipId,
@@ -302,7 +306,17 @@ export class VerifyClipWorker {
 
       await this.repo.createEvidenceBundle({
         attestationId: dbAtt.id,
-        payload: evidenceBundle,
+        payload: {
+          ...evidenceBundle,
+          financials: {
+            grossPayout: cappedPayout.toString(),
+            platformFeeAmount: platformFeeAmount.toString(),
+            platformFeeBps: Number(platformFeeBps),
+            netPayout: netPayout.toString(),
+            immediateAmount: immediateAmount.toString(),
+            holdbackAmount: holdbackAmount.toString(),
+          },
+        },
         payloadHash: attestation.evidenceHash,
         ipfsCid: null,
         ipfsStatus: 'PENDING',
@@ -322,6 +336,9 @@ export class VerifyClipWorker {
 
       sseService.broadcast(clipId, {
         type: 'payout',
+        grossPayout: cappedPayout.toString(),
+        platformFee: platformFeeAmount.toString(),
+        platformFeeBps: Number(platformFeeBps),
         releasedAmount: immediateAmount.toString(),
         holdbackAmount: holdbackAmount.toString(),
         holdbackUnlockAt: holdbackUnlockAt.toISOString(),
