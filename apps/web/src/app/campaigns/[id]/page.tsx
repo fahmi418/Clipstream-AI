@@ -90,30 +90,37 @@ export default function CampaignDetailPage({
   }, [id]);
 
   const handleJoin = async () => {
-    if (!authenticated) {
-      login();
-      return;
-    }
-
     setJoining(true);
     try {
+      // 1. If user is logged in, try registering participant on backend API
       const res = await joinCampaign(id);
-      setVerificationCode(res.verificationCode);
-      if (typeof window !== "undefined") {
-        localStorage.setItem(`clipstream_code_${id}`, res.verificationCode);
+      if (res && res.verificationCode) {
+        setVerificationCode(res.verificationCode);
+        if (typeof window !== "undefined") {
+          localStorage.setItem(`clipstream_code_${id}`, res.verificationCode);
+        }
+        setJoinModalOpen(true);
+        setJoining(false);
+        return;
       }
-      setJoinModalOpen(true);
     } catch {
-      // Deterministic fallback code format
-      const fallbackCode = `CS-${id.replace("camp-seed-", "")}-${(user?.walletAddress || "709979c8").slice(-6).toUpperCase()}`;
-      setVerificationCode(fallbackCode);
-      if (typeof window !== "undefined") {
-        localStorage.setItem(`clipstream_code_${id}`, fallbackCode);
-      }
-      setJoinModalOpen(true);
-    } finally {
-      setJoining(false);
+      // Fallback if unauthenticated or demo mode
     }
+
+    // 2. Generate clean deterministic unique code immediately
+    const cleanId = id.replace("camp-seed-", "").replace(/[^a-zA-Z0-9]/g, "").slice(0, 4).toUpperCase() || "1";
+    const userWallet = user?.walletAddress || "";
+    const suffix = userWallet
+      ? userWallet.slice(-6).toUpperCase()
+      : Math.random().toString(36).substring(2, 8).toUpperCase();
+    const fallbackCode = `CS-${cleanId}-${suffix}`;
+
+    setVerificationCode(fallbackCode);
+    if (typeof window !== "undefined") {
+      localStorage.setItem(`clipstream_code_${id}`, fallbackCode);
+    }
+    setJoinModalOpen(true);
+    setJoining(false);
   };
 
   const handleShare = () => {
@@ -818,8 +825,8 @@ export default function CampaignDetailPage({
                           >
                             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: "0.5rem" }}>
                               <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-                                <span style={{ fontFamily: "monospace", fontSize: "0.75rem", fontWeight: 700, padding: "0.2rem 0.5rem", borderRadius: "6px", backgroundColor: "#f4f3f0", color: "#111111" }}>
-                                  ⏱️ {m.time}
+                                <span style={{ display: "inline-flex", alignItems: "center", gap: "0.25rem", fontFamily: "monospace", fontSize: "0.75rem", fontWeight: 700, padding: "0.2rem 0.5rem", borderRadius: "6px", backgroundColor: "#f4f3f0", color: "#111111" }}>
+                                  <Clock size={12} /> {m.time}
                                 </span>
                                 <span style={{ fontWeight: 700, fontSize: "0.875rem", color: "#111111" }}>
                                   {m.title}
@@ -961,7 +968,21 @@ export default function CampaignDetailPage({
                               {clips.map((clip, idx) => (
                                 <tr key={clip.id} style={{ borderBottom: "1px solid rgba(17,17,17,0.05)" }}>
                                   <td style={{ padding: "0.75rem 1rem", fontFamily: "monospace", color: "#6d6c6b" }}>
-                                    {idx === 0 ? "🥇" : idx === 1 ? "🥈" : idx === 2 ? "🥉" : `#${idx + 1}`}
+                                    {idx === 0 ? (
+                                      <span style={{ display: "inline-flex", alignItems: "center", gap: "0.25rem", color: "#d97706", fontWeight: 700 }}>
+                                        <Trophy size={14} /> #1
+                                      </span>
+                                    ) : idx === 1 ? (
+                                      <span style={{ display: "inline-flex", alignItems: "center", gap: "0.25rem", color: "#64748b", fontWeight: 700 }}>
+                                        <Trophy size={14} /> #2
+                                      </span>
+                                    ) : idx === 2 ? (
+                                      <span style={{ display: "inline-flex", alignItems: "center", gap: "0.25rem", color: "#b45309", fontWeight: 700 }}>
+                                        <Trophy size={14} /> #3
+                                      </span>
+                                    ) : (
+                                      `#${idx + 1}`
+                                    )}
                                   </td>
                                   <td style={{ padding: "0.75rem 1rem", fontWeight: 600, color: "#111111" }}>
                                     <Link href={`/clippers/${clip.clipperId}`} style={{ color: "inherit", textDecoration: "none", fontFamily: "monospace" }}>

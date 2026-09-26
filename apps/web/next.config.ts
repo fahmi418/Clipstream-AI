@@ -12,7 +12,7 @@ const nextConfig: NextConfig = {
   },
   turbopack: {
     resolveAlias: {
-      "@farcaster/mini-app-solana": emptyModulePath,
+      "@farcaster/mini-app-solana": "./src/lib/empty-module.ts",
     },
   },
   webpack: (config) => {

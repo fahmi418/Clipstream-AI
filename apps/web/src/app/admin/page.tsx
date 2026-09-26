@@ -467,7 +467,7 @@ export default function AdminDashboardPage() {
                 borderRadius: "9999px",
               }}
             >
-              ★ 99.8% Match Accuracy
+              <Sparkles size={12} /> 99.8% Match Accuracy
             </div>
           </div>
 
@@ -506,7 +506,7 @@ export default function AdminDashboardPage() {
                 borderRadius: "9999px",
               }}
             >
-              ⚡ Perlu Tinjauan Superadmin
+              <Zap size={12} /> Perlu Tinjauan Superadmin
             </div>
           </div>
 
@@ -729,11 +729,19 @@ export default function AdminDashboardPage() {
                                 : "#dc2626",
                           }}
                         >
-                          {disp.status === "OPEN"
-                            ? "● Menunggu Keputusan Admin"
-                            : disp.status === "RESOLVED_APPROVED"
-                            ? "✓ Disetujui (Payout Terkirim)"
-                            : "✕ Ditolak (Refund Brand)"}
+                          {disp.status === "OPEN" ? (
+                            <span style={{ display: "inline-flex", alignItems: "center", gap: "0.25rem" }}>
+                              <Clock size={12} /> Menunggu Keputusan Admin
+                            </span>
+                          ) : disp.status === "RESOLVED_APPROVED" ? (
+                            <span style={{ display: "inline-flex", alignItems: "center", gap: "0.25rem" }}>
+                              <Check size={12} /> Disetujui (Payout Terkirim)
+                            </span>
+                          ) : (
+                            <span style={{ display: "inline-flex", alignItems: "center", gap: "0.25rem" }}>
+                              <X size={12} /> Ditolak (Refund Brand)
+                            </span>
+                          )}
                         </span>
                         <span style={{ fontSize: "0.75rem", color: "rgba(17,17,17,0.5)" }}>
                           {disp.submittedAt}
@@ -1582,13 +1590,22 @@ export default function AdminDashboardPage() {
                     lineHeight: 1.4,
                   }}
                 >
-                  {reviewDecision === "approve"
-                    ? "✓ Menyetujui sengketa ini akan memicu Smart Contract CampaignEscrow.sol untuk mentransfer payout sebesar " +
-                      selectedDispute.claimAmount +
-                      " langsung ke dompet kreator."
-                    : "✕ Menolak sengketa ini akan mengembalikan alokasi dana " +
-                      selectedDispute.claimAmount +
-                      " ke saldo kampanye brand sponsor."}
+                  {reviewDecision === "approve" ? (
+                    <span style={{ display: "inline-flex", alignItems: "flex-start", gap: "0.375rem" }}>
+                      <CheckCircle2 size={14} style={{ flexShrink: 0, marginTop: "2px" }} />
+                      <span>
+                        Menyetujui sengketa ini akan memicu Smart Contract CampaignEscrow.sol untuk mentransfer payout sebesar{" "}
+                        {selectedDispute.claimAmount} langsung ke dompet kreator.
+                      </span>
+                    </span>
+                  ) : (
+                    <span style={{ display: "inline-flex", alignItems: "flex-start", gap: "0.375rem" }}>
+                      <XCircle size={14} style={{ flexShrink: 0, marginTop: "2px" }} />
+                      <span>
+                        Menolak sengketa ini akan mengembalikan alokasi dana {selectedDispute.claimAmount} ke saldo kampanye brand sponsor.
+                      </span>
+                    </span>
+                  )}
                 </div>
 
                 {/* Actions */}

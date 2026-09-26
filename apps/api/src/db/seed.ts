@@ -175,11 +175,49 @@ export async function seedDemoData(): Promise<void> {
     activatedAt: new Date(),
   });
 
+  // Source Video 3: P-Z7Mj9Pifo
+  const srcVideo3 = await repo.createSourceVideo({
+    platform: 'youtube',
+    videoId: 'P-Z7Mj9Pifo',
+    videoIdHash: keccak256(encodePacked(['string', 'string'], ['youtube', 'P-Z7Mj9Pifo'])),
+    title: 'Panduan AI Whisper & Gemini Vision Clipstream',
+    durationSec: 1800,
+    transcript:
+      'Tutorial lengkap cara kerja AI verifier Clipstream menggunakan OpenAI Whisper audio similarity dan Gemini Vision watermark OCR.',
+    transcriptHash: '0x9999999999999999999999999999999999999999999999999999999999999999',
+    transcriptStatus: 'READY',
+  });
+
+  // Campaign 5: Panduan AI Whisper & Gemini Vision
+  const campaign5 = await repo.createCampaign({
+    id: 'abd87056-b996-4337-a09e-abdf60b8fd3d',
+    onchainId: 5n,
+    brandId: brandUser.id,
+    sourceVideoId: srcVideo3.id,
+    title: 'Panduan AI Whisper & Gemini Vision Clipstream',
+    description:
+      'Cuplikan seputar validasi OCR dan Whisper AI Clipstream.',
+    rules: 'Wajib menyertakan watermark sponsor dan tagar #BNBChain. Tanpa SARA.',
+    tokenAddress: '0x0000000000000000000000000000000000000000',
+    cpmRate: 306748n,
+    totalBudget: 46012269n,
+    remainingBudget: 45000000n,
+    maxPayoutPerClip: 10000000n,
+    minViews: 1000,
+    deadline: new Date(Date.now() + 14 * 86400_000),
+    sourceHash: '0x33d4748cbeac6139be99c8415876034d5b31de36fb866c04102ec61eb756ec55',
+    rulesHash: '0x5a32225c32239c3b0544519d1540ed705e142ecbc05832a9092c0b7a48cc7f4f',
+    status: 'ACTIVE',
+    createTxHash: '0x7a3f89e2c1409d5b8821a719c8f02938472199ac2b44910283748291023948aa',
+    activatedAt: new Date(),
+  });
+
   // 5. Participants
   await repo.joinCampaign(campaign1.id, clipperUser.id, 'CS-1-a9f3c1');
   await repo.joinCampaign(campaign2.id, clipperUser.id, 'CS-2-b8e2d4');
   await repo.joinCampaign(campaign3.id, clipperUser.id, 'CS-3-c7d1e5');
   await repo.joinCampaign(campaign4.id, clipperUser.id, 'CS-4-d6c0f6');
+  await repo.joinCampaign(campaign5.id, clipperUser.id, 'CS-5-e8d1a2');
 
   // 6. Demo Clips (SCHEMA §12)
   // Klip A: ACTIVE, sudah dibayar (Happy path)

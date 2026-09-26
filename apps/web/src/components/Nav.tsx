@@ -29,6 +29,11 @@ import {
   Bot,
   Sliders,
   Check,
+  X,
+  Flame,
+  Wallet,
+  Rocket,
+  BookOpen,
 } from "lucide-react";
 
 export function Nav() {
@@ -992,7 +997,7 @@ export function Nav() {
                     aria-label="Toggle menu"
                   >
                     {mobileMenuOpen ? (
-                      <span style={{ fontSize: "1.125rem", fontWeight: 700, color: "#111", lineHeight: 1 }}>✕</span>
+                      <X size={20} color="#111" />
                     ) : (
                       <div style={{ display: "flex", flexDirection: "column", gap: "3.5px" }}>
                         <div style={{ width: "18px", height: "2px", backgroundColor: "#111", borderRadius: "2px" }} />
@@ -1041,7 +1046,10 @@ export function Nav() {
                           justifyContent: "space-between",
                         }}
                       >
-                        <span>🔥 Marketplace Kampanye</span>
+                        <span style={{ display: "inline-flex", alignItems: "center", gap: "8px" }}>
+                          <Flame size={17} color="#e8400d" />
+                          <span>Marketplace Kampanye</span>
+                        </span>
                         <ArrowRight size={14} color="#888" />
                       </Link>
 
@@ -1061,7 +1069,10 @@ export function Nav() {
                           justifyContent: "space-between",
                         }}
                       >
-                        <span>🎬 Clipper Studio</span>
+                        <span style={{ display: "inline-flex", alignItems: "center", gap: "8px" }}>
+                          <Scissors size={17} color="#e8400d" />
+                          <span>Clipper Studio</span>
+                        </span>
                         <ArrowRight size={14} color="#888" />
                       </Link>
 
@@ -1082,7 +1093,10 @@ export function Nav() {
                             justifyContent: "space-between",
                           }}
                         >
-                          <span>💰 Dompet &amp; Saldo</span>
+                          <span style={{ display: "inline-flex", alignItems: "center", gap: "8px" }}>
+                            <Wallet size={17} color="#059669" />
+                            <span>Dompet &amp; Saldo</span>
+                          </span>
                           <ArrowRight size={14} color="#059669" />
                         </Link>
                       ) : (
@@ -1102,7 +1116,10 @@ export function Nav() {
                             justifyContent: "space-between",
                           }}
                         >
-                          <span>🚀 Pasang Bounty Brand</span>
+                          <span style={{ display: "inline-flex", alignItems: "center", gap: "8px" }}>
+                            <Rocket size={17} color="#e8400d" />
+                            <span>Pasang Bounty Brand</span>
+                          </span>
                           <ArrowRight size={14} color="#888" />
                         </Link>
                       )}
@@ -1123,7 +1140,10 @@ export function Nav() {
                           justifyContent: "space-between",
                         }}
                       >
-                        <span>📖 Blog &amp; Tutorial</span>
+                        <span style={{ display: "inline-flex", alignItems: "center", gap: "8px" }}>
+                          <BookOpen size={17} color="#e8400d" />
+                          <span>Blog &amp; Tutorial</span>
+                        </span>
                         <ArrowRight size={14} color="#888" />
                       </Link>
                     </div>
@@ -1218,7 +1238,10 @@ export function Nav() {
                             fontSize: "0.9375rem",
                           }}
                         >
-                          Mulai Gratis 🚀
+                          <span style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", gap: "8px" }}>
+                            <span>Mulai Gratis</span>
+                            <Rocket size={16} />
+                          </span>
                         </Link>
                       </div>
                     )}

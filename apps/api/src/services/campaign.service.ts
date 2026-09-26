@@ -243,7 +243,52 @@ export class CampaignService {
     };
   }
 
-  async getCampaign(id: string): Promise<CampaignEntity | null> {
-    return this.repo.getCampaignById(id);
+  async getCampaign(id: string): Promise<any> {
+    const c = await this.repo.getCampaignById(id);
+    if (!c) return null;
+
+    const brand = await this.repo.getUserById(c.brandId);
+    const sourceVideo = await this.repo.getSourceVideoById(c.sourceVideoId);
+    const clipperCount = await this.repo.countParticipants(c.id);
+    const clipCount = await this.repo.countClipsByCampaign(c.id);
+
+    const remainingBudget = c.onchainId
+      ? (await this.chain.getCampaignBudget(c.onchainId)).remaining.toString()
+      : c.totalBudget.toString();
+
+    return {
+      id: c.id,
+      onchainId: c.onchainId ? c.onchainId.toString() : '0',
+      title: c.title,
+      description: null,
+      brandId: c.brandId,
+      sourceUrl: sourceVideo ? `https://www.youtube.com/watch?v=${sourceVideo.videoId}` : '',
+      rules: c.rules,
+      tokenAddress: c.tokenAddress,
+      cpmRate: c.cpmRate.toString(),
+      cpmRateDisplay: `${c.cpmRate.toString()} (${c.tokenAddress === '0x0000000000000000000000000000000000000000' ? 'BNB' : 'BEP-20'}) / 1.000 views`,
+      totalBudget: c.totalBudget.toString(),
+      remainingBudget,
+      maxPayoutPerClip: c.maxPayoutPerClip.toString(),
+      minViews: c.minViews,
+      deadline: c.deadline.toISOString(),
+      clipperCount,
+      clipCount,
+      status: c.status,
+      brand: {
+        address: brand?.walletAddress || '0x0000000000000000000000000000000000000000',
+        displayName: brand?.displayName || null,
+      },
+      sourceVideo: {
+        title: sourceVideo?.title || 'Video Sumber',
+        thumbnailUrl: sourceVideo
+          ? `https://img.youtube.com/vi/${sourceVideo.videoId}/hqdefault.jpg`
+          : '',
+        durationSec: sourceVideo?.durationSec || 0,
+        videoId: sourceVideo?.videoId || '',
+      },
+      txHash: c.createTxHash || null,
+      createdAt: c.createdAt.toISOString(),
+    };
   }
 }

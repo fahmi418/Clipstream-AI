@@ -17,6 +17,7 @@ import {
   CheckCircle2,
   Sparkles,
   ShieldCheck,
+  Zap,
 } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
 import type { UserRole } from "@/lib/api";
@@ -419,8 +420,8 @@ function LoginFormContent() {
               }}
             >
               <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "6px" }}>
-                <span style={{ fontSize: "0.6875rem", fontWeight: 700, color: "#64748b", textTransform: "uppercase", letterSpacing: "0.5px" }}>
-                  ⚡ Akun Demo Siap Pakai (1-Klik)
+                <span style={{ fontSize: "0.6875rem", fontWeight: 700, color: "#64748b", textTransform: "uppercase", letterSpacing: "0.5px", display: "inline-flex", alignItems: "center", gap: "4px" }}>
+                  <Zap size={11} /> Akun Demo Siap Pakai (1-Klik)
                 </span>
                 <span style={{ fontSize: "0.625rem", color: "#059669", fontWeight: 700, backgroundColor: "#ecfdf5", padding: "1px 6px", borderRadius: "9999px" }}>
                   Auto-Fill
@@ -444,9 +445,13 @@ function LoginFormContent() {
                     cursor: "pointer",
                     textAlign: "center",
                     transition: "all 0.15s ease",
+                    display: "inline-flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    gap: "4px",
                   }}
                 >
-                  ✂️ Clipper
+                  <Scissors size={12} /> Clipper
                 </button>
 
                 <button
@@ -466,9 +471,13 @@ function LoginFormContent() {
                     cursor: "pointer",
                     textAlign: "center",
                     transition: "all 0.15s ease",
+                    display: "inline-flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    gap: "4px",
                   }}
                 >
-                  📢 Brand
+                  <Megaphone size={12} /> Brand
                 </button>
 
                 <button
@@ -488,9 +497,13 @@ function LoginFormContent() {
                     cursor: "pointer",
                     textAlign: "center",
                     transition: "all 0.15s ease",
+                    display: "inline-flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    gap: "4px",
                   }}
                 >
-                  🛡️ Admin
+                  <ShieldCheck size={12} /> Admin
                 </button>
               </div>
             </div>

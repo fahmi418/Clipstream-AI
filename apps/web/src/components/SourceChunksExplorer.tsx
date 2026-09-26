@@ -14,6 +14,7 @@ import {
   ChevronRight,
   Database,
   Cpu,
+  Lightbulb,
 } from "lucide-react";
 import type { SourceChunk } from "@/lib/api";
 
@@ -385,9 +386,13 @@ export function SourceChunksExplorer({
                   padding: "0.625rem 0.75rem",
                   borderRadius: "8px",
                   border: "1px solid #fef3c7",
+                  display: "flex",
+                  alignItems: "flex-start",
+                  gap: "6px",
                 }}
               >
-                💡 <strong>Tips Clipper:</strong> Memotong klip Shorts pada rentang detik ini akan menghasilkan skor keselarasan semantik di atas 85% pada verifikasi otomatis.
+                <Lightbulb size={14} color="#d97706" style={{ flexShrink: 0, marginTop: "2px" }} />
+                <span><strong>Tips Clipper:</strong> Memotong klip Shorts pada rentang detik ini akan menghasilkan skor keselarasan semantik di atas 85% pada verifikasi otomatis.</span>
               </div>
             </div>
 

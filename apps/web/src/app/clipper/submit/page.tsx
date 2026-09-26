@@ -943,13 +943,15 @@ function ClipperSubmitContent() {
                     <CheckCircle2 size={14} color="#059669" />
                     Cair sekarang (70%):
                   </span>
-                  <span style={{ fontWeight: 600, color: "#111" }}>
+                  <span style={{ fontWeight: 600, color: "#111", display: "inline-flex", alignItems: "center", gap: "0.25rem" }}>
                     {formatUsdt(
                       verificationResult.clip?.payoutData?.releasedAmount ??
                         verificationResult.clip?.releasedAmount ??
                         "10990000"
-                    )}{" "}
-                    (✓ Terkirim on-chain)
+                    )}
+                    <span style={{ color: "#059669", display: "inline-flex", alignItems: "center", gap: "2px", fontSize: "0.75rem", marginLeft: "4px" }}>
+                      (<Check size={11} /> Terkirim on-chain)
+                    </span>
                   </span>
                 </div>
 

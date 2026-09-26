@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 import {
@@ -18,6 +18,8 @@ import {
   AlertCircle,
   TrendingUp,
   Zap,
+  Info,
+  Lock,
 } from "lucide-react";
 import { authApi, type User } from "@/lib/api";
 import { PokoOffRampModal } from "@/components/PokoOffRampModal";
@@ -30,19 +32,7 @@ interface ClipperWalletModalProps {
   onWithdrawSuccess?: (newBalance: number) => void;
 }
 
-const EWALLET_PROVIDERS = [
-  { id: "DANA", name: "DANA", color: "#118eea", bg: "#eef7fe" },
-  { id: "GOPAY", name: "GoPay", color: "#00aed6", bg: "#e6f8fc" },
-  { id: "OVO", name: "OVO", color: "#4c2a86", bg: "#f3effa" },
-  { id: "SHOPEEPAY", name: "ShopeePay", color: "#ee4d2d", bg: "#feeeea" },
-];
-
-const BANK_PROVIDERS = [
-  { id: "BCA", name: "Bank BCA", color: "#005baa", bg: "#e6eff7" },
-  { id: "MANDIRI", name: "Bank Mandiri", color: "#003d79", bg: "#e6ecf2" },
-  { id: "BRI", name: "Bank BRI", color: "#00529c", bg: "#e6eef5" },
-  { id: "BNI", name: "Bank BNI", color: "#f15a24", bg: "#feefe9" },
-];
+import { EWALLET_PROVIDERS, BANK_PROVIDERS } from "@/data/payment-providers";
 
 export function ClipperWalletModal({
   isOpen,
@@ -96,7 +86,7 @@ export function ClipperWalletModal({
     }
 
     if (numAmount > availableBalanceUsdc) {
-      setErrorMsg(`Saldo tidak mencukupi. Maksimal saldo tersedia adalah $${availableBalanceUsdc.toFixed(2)} USDC.`);
+      setErrorMsg(`Saldo tidak mencukupi. Maksimal saldo tersedia adalah $${availableBalanceUsdc.toFixed(2)} USDT.`);
       return;
     }
 
@@ -283,7 +273,7 @@ export function ClipperWalletModal({
               <span style={{ fontSize: "2rem", fontWeight: 800, letterSpacing: "-0.03em" }}>
                 ${availableBalanceUsdc.toFixed(2)}
               </span>
-              <span style={{ fontSize: "0.9375rem", fontWeight: 700, color: "#34d399" }}>USDC</span>
+              <span style={{ fontSize: "0.9375rem", fontWeight: 700, color: "#34d399" }}>USDT</span>
             </div>
 
             <div style={{ fontSize: "0.875rem", color: "rgba(255,255,255,0.7)", marginTop: "2px" }}>
@@ -421,7 +411,7 @@ export function ClipperWalletModal({
                 <div style={{ display: "flex", justifyContent: "space-between" }}>
                   <span style={{ color: "#666" }}>Total Dicairkan:</span>
                   <span style={{ fontWeight: 800, color: "#059669" }}>
-                    Rp {successReceipt.amountIdr.toLocaleString("id-ID")} (${successReceipt.amountUsdc} USDC)
+                    Rp {successReceipt.amountIdr.toLocaleString("id-ID")} (${successReceipt.amountUsdc} USDT)
                   </span>
                 </div>
                 <div style={{ display: "flex", justifyContent: "space-between" }}>
@@ -696,7 +686,7 @@ export function ClipperWalletModal({
                   <div>
                     <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "4px" }}>
                       <label style={{ fontSize: "0.75rem", fontWeight: 700, color: "#333" }}>
-                        Jumlah Penarikan (USDC)
+                        Jumlah Penarikan (USDT)
                       </label>
                       <button
                         type="button"
@@ -743,7 +733,7 @@ export function ClipperWalletModal({
 
                     {/* Conversion info */}
                     <div style={{ display: "flex", justifyContent: "space-between", marginTop: "6px", fontSize: "0.75rem", color: "#666" }}>
-                      <span>Kurs: 1 USDC = Rp {idrRate.toLocaleString("id-ID")}</span>
+                      <span>Kurs: 1 USDT = Rp {idrRate.toLocaleString("id-ID")}</span>
                       <span style={{ fontWeight: 700, color: "#059669" }}>
                         Kamu terima: Rp {estimatedIdr.toLocaleString("id-ID")}
                       </span>
@@ -785,8 +775,9 @@ export function ClipperWalletModal({
               {/* TAB 2: Direct Web3 / Crypto Transfer */}
               {activeTab === "CRYPTO" && (
                 <form onSubmit={handleWithdrawSubmit} style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
-                  <div style={{ padding: "0.75rem", backgroundColor: "#f0fdf4", border: "1px solid #bbf7d0", borderRadius: "12px", color: "#166534", fontSize: "0.75rem" }}>
-                    💡 Transfer USDC langsung ke MetaMask, TrustWallet, Binance, atau Indodax Anda melalui jaringan <strong>BNB Chain (BEP-20)</strong> dengan biaya gas nol (gasless).
+                  <div style={{ padding: "0.75rem", backgroundColor: "#f0fdf4", border: "1px solid #bbf7d0", borderRadius: "12px", color: "#166534", fontSize: "0.75rem", display: "flex", alignItems: "flex-start", gap: "8px" }}>
+                    <Info size={15} style={{ flexShrink: 0, marginTop: "2px" }} />
+                    <span>Transfer USDT langsung ke MetaMask, TrustWallet, Binance, atau Indodax Anda melalui jaringan <strong>BNB Chain (BEP-20)</strong> dengan biaya gas nol (gasless).</span>
                   </div>
 
                   <div>
@@ -817,7 +808,7 @@ export function ClipperWalletModal({
                   <div>
                     <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "4px" }}>
                       <label style={{ fontSize: "0.75rem", fontWeight: 700, color: "#333" }}>
-                        Jumlah USDC
+                        Jumlah USDT
                       </label>
                       <button
                         type="button"
@@ -882,7 +873,7 @@ export function ClipperWalletModal({
                     ) : (
                       <>
                         <Wallet size={16} />
-                        <span>Kirim {numAmount} USDC On-Chain</span>
+                        <span>Kirim {numAmount} USDT On-Chain</span>
                         <ArrowRight size={15} />
                       </>
                     )}
@@ -894,8 +885,9 @@ export function ClipperWalletModal({
               {activeTab === "FAQ" && (
                 <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem", fontSize: "0.8125rem" }}>
                   <div style={{ padding: "0.75rem", borderRadius: "10px", backgroundColor: "#faf9f6", border: "1px solid rgba(0,0,0,0.06)" }}>
-                    <div style={{ fontWeight: 700, color: "#111", marginBottom: "3px" }}>
-                      ❓ Apakah saya butuh aplikasi MetaMask untuk mulai?
+                    <div style={{ fontWeight: 700, color: "#111", marginBottom: "3px", display: "flex", alignItems: "center", gap: "6px" }}>
+                      <HelpCircle size={14} color="#e8400d" />
+                      <span>Apakah saya butuh aplikasi MetaMask untuk mulai?</span>
                     </div>
                     <div style={{ color: "#666", lineHeight: 1.45 }}>
                       <strong>Tidak perlu!</strong> Akun Clipstream kamu otomatis dibuatkan dompet pintar di BNB Chain. Kamu bisa langsung menarik hasil klip ke <strong>DANA, GoPay, OVO, atau Rekening Bank</strong> dalam bentuk Rupiah.
@@ -903,17 +895,19 @@ export function ClipperWalletModal({
                   </div>
 
                   <div style={{ padding: "0.75rem", borderRadius: "10px", backgroundColor: "#faf9f6", border: "1px solid rgba(0,0,0,0.06)" }}>
-                    <div style={{ fontWeight: 700, color: "#111", marginBottom: "3px" }}>
-                      💰 Berapa minimal penarikan?
+                    <div style={{ fontWeight: 700, color: "#111", marginBottom: "3px", display: "flex", alignItems: "center", gap: "6px" }}>
+                      <Coins size={14} color="#e8400d" />
+                      <span>Berapa minimal penarikan?</span>
                     </div>
                     <div style={{ color: "#666", lineHeight: 1.45 }}>
-                      Minimal penarikan hanya <strong>$0.50 USDC (~Rp 8.150)</strong>. Proses penarikan otomatis diproses dalam 1-5 menit.
+                      Minimal penarikan hanya <strong>$0.50 USDT (~Rp 8.150)</strong>. Proses penarikan otomatis diproses dalam 1-5 menit.
                     </div>
                   </div>
 
                   <div style={{ padding: "0.75rem", borderRadius: "10px", backgroundColor: "#faf9f6", border: "1px solid rgba(0,0,0,0.06)" }}>
-                    <div style={{ fontWeight: 700, color: "#111", marginBottom: "3px" }}>
-                      🔒 Bagaimana jika saya ingin ekspor ke wallet pribadi?
+                    <div style={{ fontWeight: 700, color: "#111", marginBottom: "3px", display: "flex", alignItems: "center", gap: "6px" }}>
+                      <Lock size={14} color="#e8400d" />
+                      <span>Bagaimana jika saya ingin ekspor ke wallet pribadi?</span>
                     </div>
                     <div style={{ color: "#666", lineHeight: 1.45 }}>
                       Kamu bisa menggunakan opsi <em>MetaMask / Web3</em> di atas untuk mentransfer saldo kripto kamu ke wallet pribadi atau exchange lokal kapan saja.

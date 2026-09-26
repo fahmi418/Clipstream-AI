@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Copy, Check, X, Play, ArrowRight, ShieldAlert } from "lucide-react";
+import { Copy, Check, X, Play, ArrowRight, ShieldAlert, CheckCircle2 } from "lucide-react";
 import Link from "next/link";
 
 interface JoinModalProps {
@@ -32,103 +32,207 @@ export function JoinModal({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-fade-in-up">
-      <div className="card bg-white max-w-lg w-full max-h-[90vh] overflow-y-auto p-6 md:p-8 rounded-2xl shadow-xl relative border border-[rgba(17,17,17,0.08)]">
+    <div
+      style={{
+        position: "fixed",
+        inset: 0,
+        zIndex: 9999,
+        backgroundColor: "rgba(0, 0, 0, 0.65)",
+        backdropFilter: "blur(6px)",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        padding: "1rem",
+      }}
+    >
+      <div
+        style={{
+          backgroundColor: "#ffffff",
+          maxWidth: "32rem",
+          width: "100%",
+          maxHeight: "90vh",
+          overflowY: "auto",
+          padding: "2rem",
+          borderRadius: "24px",
+          boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.25)",
+          position: "relative",
+          border: "1px solid rgba(17, 17, 17, 0.1)",
+          fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, sans-serif",
+        }}
+      >
         <button
           type="button"
           onClick={onClose}
-          className="absolute top-4 right-4 text-[var(--color-ash)] hover:text-[var(--color-ink)] p-2 rounded-full hover:bg-[var(--color-pearl)] transition-colors"
+          style={{
+            position: "absolute",
+            top: "1.25rem",
+            right: "1.25rem",
+            color: "#6d6c6b",
+            background: "#f4f3f0",
+            border: "none",
+            borderRadius: "50%",
+            width: "32px",
+            height: "32px",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            cursor: "pointer",
+            transition: "all 0.15s ease",
+          }}
           aria-label="Tutup"
         >
           <X size={18} />
         </button>
 
-        <div className="text-xs uppercase tracking-wider font-semibold text-[#1a7f37] mb-1 flex items-center gap-1.5">
-          <span>✓ Berhasil Bergabung</span>
+        <div style={{ fontSize: "0.75rem", textTransform: "uppercase", letterSpacing: "0.08em", fontWeight: 700, color: "#059669", marginBottom: "0.5rem", display: "flex", alignItems: "center", gap: "0.35rem" }}>
+          <CheckCircle2 size={14} />
+          <span>Berhasil Bergabung</span>
         </div>
-        <h3 className="text-2xl font-normal text-[var(--color-ink)] mb-2">
+        <h3 style={{ fontSize: "1.5rem", fontWeight: 800, color: "#111111", letterSpacing: "-0.02em", margin: "0 0 0.5rem" }}>
           Ambil Kode Verifikasi Kamu
         </h3>
-        <p className="text-sm text-[var(--color-ash)] mb-5">
-          Campaign: <span className="text-[var(--color-ink)]">{campaignTitle}</span>
+        <p style={{ fontSize: "0.875rem", color: "#6d6c6b", margin: "0 0 1.25rem" }}>
+          Campaign: <strong style={{ color: "#111111" }}>{campaignTitle}</strong>
         </p>
 
         {/* Code Box */}
-        <div className="bg-[var(--color-cream-wash)] p-4 rounded-xl border border-[rgba(17,17,17,0.08)] mb-4 flex items-center justify-between">
+        <div
+          style={{
+            backgroundColor: "#f4f3f0",
+            padding: "1rem 1.25rem",
+            borderRadius: "16px",
+            border: "1px solid rgba(17,17,17,0.08)",
+            marginBottom: "1.25rem",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            gap: "1rem",
+          }}
+        >
           <div>
-            <div className="text-[11px] text-[var(--color-ash)] uppercase tracking-wider mb-0.5">
+            <div style={{ fontSize: "0.6875rem", textTransform: "uppercase", letterSpacing: "0.08em", fontWeight: 700, color: "#6d6c6b", marginBottom: "0.25rem" }}>
               Kode Unik Kamu
             </div>
-            <div className="font-mono text-xl font-semibold text-[var(--color-ink)] tracking-wide">
+            <div style={{ fontFamily: "monospace", fontSize: "1.375rem", fontWeight: 800, color: "#111111", letterSpacing: "0.05em" }}>
               {verificationCode}
             </div>
           </div>
           <button
             type="button"
             onClick={handleCopy}
-            className="btn-primary text-xs py-2 px-3.5 flex items-center gap-1.5"
+            style={{
+              padding: "0.6rem 1rem",
+              borderRadius: "10px",
+              backgroundColor: "#111111",
+              color: "#ffffff",
+              fontSize: "0.75rem",
+              fontWeight: 700,
+              border: "none",
+              cursor: "pointer",
+              display: "inline-flex",
+              alignItems: "center",
+              gap: "0.4rem",
+              boxShadow: "0 2px 6px rgba(0,0,0,0.15)",
+            }}
           >
-            {copied ? <Check size={14} /> : <Copy size={14} />}
+            {copied ? <Check size={14} color="#34d399" /> : <Copy size={14} />}
             <span>{copied ? "Tersalin!" : "Salin Kode"}</span>
           </button>
         </div>
 
         {/* Reason notice */}
-        <div className="bg-[#fff9e6] border border-[#f0df95] p-3.5 rounded-lg mb-5 text-xs text-[#6e5600] flex items-start gap-2.5">
-          <ShieldAlert size={16} className="flex-shrink-0 mt-0.5" />
+        <div
+          style={{
+            backgroundColor: "#f0fdf4",
+            border: "1px solid #bbf7d0",
+            padding: "0.875rem 1rem",
+            borderRadius: "12px",
+            marginBottom: "1.25rem",
+            fontSize: "0.75rem",
+            color: "#065f46",
+            display: "flex",
+            alignItems: "flex-start",
+            gap: "0.6rem",
+            lineHeight: 1.5,
+          }}
+        >
+          <ShieldAlert size={16} color="#059669" style={{ flexShrink: 0, marginTop: "2px" }} />
           <div>
-            <span className="font-medium">Kenapa perlu kode ini?</span> Supaya AI
-            tahu video yang kamu submit benar-benar diunggah oleh kamu. Tanpa kode
-            ini di deskripsi video, klip kamu tidak bisa diverifikasi dan tidak
-            akan dibayar.
+            <strong style={{ color: "#065f46" }}>Kenapa perlu kode ini?</strong> Supaya sistem AI
+            dapat memverifikasi bahwa klip yang disubmit benar-benar dipublikasikan oleh akun Anda. Tempelkan kode ini di deskripsi video YouTube Shorts / TikTok.
           </div>
         </div>
 
         {/* Steps */}
-        <div className="space-y-2 mb-6 text-xs text-[var(--color-ink)]">
-          <div className="font-medium text-[var(--color-ash)] uppercase tracking-wider text-[11px] mb-1">
+        <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem", marginBottom: "1.5rem", fontSize: "0.75rem", color: "#111111" }}>
+          <div style={{ fontSize: "0.6875rem", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: "#6d6c6b" }}>
             Langkah selanjutnya:
           </div>
-          <div className="flex items-start gap-2">
-            <span className="font-mono font-semibold text-[var(--color-ash)]">1.</span>
-            <span>Tonton video sumber, pilih bagian paling menarik atau lucu.</span>
+          <div style={{ display: "flex", alignItems: "flex-start", gap: "0.5rem" }}>
+            <span style={{ fontFamily: "monospace", fontWeight: 700, color: "#6d6c6b" }}>1.</span>
+            <span>Tonton video sumber, pilih segmen paling menarik atau memiliki hook kuat.</span>
           </div>
-          <div className="flex items-start gap-2">
-            <span className="font-mono font-semibold text-[var(--color-ash)]">2.</span>
-            <span>Edit jadi klip menarik (maksimal 3 menit).</span>
+          <div style={{ display: "flex", alignItems: "flex-start", gap: "0.5rem" }}>
+            <span style={{ fontFamily: "monospace", fontWeight: 700, color: "#6d6c6b" }}>2.</span>
+            <span>Edit menjadi klip vertikal 9:16 (durasi 30-90 detik).</span>
           </div>
-          <div className="flex items-start gap-2">
-            <span className="font-mono font-semibold text-[var(--color-ash)]">3.</span>
-            <span>Upload ke YouTube Shorts.</span>
+          <div style={{ display: "flex", alignItems: "flex-start", gap: "0.5rem" }}>
+            <span style={{ fontFamily: "monospace", fontWeight: 700, color: "#6d6c6b" }}>3.</span>
+            <span>Upload ke YouTube Shorts / TikTok / Reels.</span>
           </div>
-          <div className="flex items-start gap-2">
-            <span className="font-mono font-semibold text-[var(--color-ash)]">4.</span>
-            <span>Tempelkan kode <code className="bg-black/5 px-1 py-0.5 rounded">{verificationCode}</code> di deskripsi video.</span>
+          <div style={{ display: "flex", alignItems: "flex-start", gap: "0.5rem" }}>
+            <span style={{ fontFamily: "monospace", fontWeight: 700, color: "#6d6c6b" }}>4.</span>
+            <span>Tempelkan kode <code style={{ backgroundColor: "#eeedea", padding: "0.15rem 0.4rem", borderRadius: "4px", fontWeight: 700 }}>{verificationCode}</code> di caption/deskripsi video.</span>
           </div>
-          <div className="flex items-start gap-2">
-            <span className="font-mono font-semibold text-[var(--color-ash)]">5.</span>
-            <span>Kembali ke sini dan submit link YouTube Shorts kamu.</span>
+          <div style={{ display: "flex", alignItems: "flex-start", gap: "0.5rem" }}>
+            <span style={{ fontFamily: "monospace", fontWeight: 700, color: "#6d6c6b" }}>5.</span>
+            <span>Kembali ke dashboard dan submit link video Anda untuk verifikasi otomatis AI.</span>
           </div>
         </div>
 
         {/* Actions */}
-        <div className="flex flex-col sm:flex-row items-center gap-3">
+        <div style={{ display: "flex", gap: "0.75rem", flexWrap: "wrap" }}>
           <a
             href={sourceUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="btn-pearl w-full sm:w-1/2 text-center flex items-center justify-center gap-2 py-2.5"
-            style={{ textDecoration: "none" }}
+            style={{
+              flex: "1 1 140px",
+              padding: "0.75rem 1rem",
+              borderRadius: "12px",
+              backgroundColor: "#eeedea",
+              color: "#111111",
+              fontSize: "0.8125rem",
+              fontWeight: 700,
+              textDecoration: "none",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: "0.4rem",
+            }}
           >
             <Play size={14} />
-            <span>Tonton Video Sumber</span>
+            <span>Tonton Video</span>
           </a>
           <Link
             href={`/clipper/submit?campaignId=${campaignId}`}
-            className="btn-primary w-full sm:w-1/2 text-center flex items-center justify-center gap-2 py-2.5"
-            style={{ textDecoration: "none" }}
+            style={{
+              flex: "1 1 140px",
+              padding: "0.75rem 1rem",
+              borderRadius: "12px",
+              backgroundColor: "#111111",
+              color: "#ffffff",
+              fontSize: "0.8125rem",
+              fontWeight: 700,
+              textDecoration: "none",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: "0.4rem",
+              boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
+            }}
           >
-            <span>Saya Sudah Siap</span>
+            <span>Submit Link Klip</span>
             <ArrowRight size={14} />
           </Link>
         </div>

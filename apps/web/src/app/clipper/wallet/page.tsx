@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useAuth } from "@/lib/auth-context";
 import { AuthGate } from "@/components/AuthGate";
@@ -32,19 +32,7 @@ import {
 } from "lucide-react";
 import { PokoOffRampModal } from "@/components/PokoOffRampModal";
 
-const EWALLET_PROVIDERS = [
-  { id: "DANA", name: "DANA", color: "#118eea", bg: "#eef7fe" },
-  { id: "GOPAY", name: "GoPay", color: "#00aed6", bg: "#e6f8fc" },
-  { id: "OVO", name: "OVO", color: "#4c2a86", bg: "#f3effa" },
-  { id: "SHOPEEPAY", name: "ShopeePay", color: "#ee4d2d", bg: "#feeeea" },
-];
-
-const BANK_PROVIDERS = [
-  { id: "BCA", name: "Bank BCA", color: "#005baa", bg: "#e6eff7" },
-  { id: "MANDIRI", name: "Bank Mandiri", color: "#003d79", bg: "#e6ecf2" },
-  { id: "BRI", name: "Bank BRI", color: "#00529c", bg: "#e6eef5" },
-  { id: "BNI", name: "Bank BNI", color: "#f15a24", bg: "#feefe9" },
-];
+import { EWALLET_PROVIDERS, BANK_PROVIDERS } from "@/data/payment-providers";
 
 interface WithdrawalHistoryItem {
   id: string;
@@ -60,9 +48,18 @@ interface WithdrawalHistoryItem {
 export default function ClipperWalletPage() {
   const { user } = useAuth();
 
-  const [availableUsdc, setAvailableUsdc] = useState(54.2);
-  const [holdbackUsdc, setHoldbackUsdc] = useState(7.04);
-  const [totalWithdrawnUsdc, setTotalWithdrawnUsdc] = useState(48.5);
+  const [availableUsdc, setAvailableUsdc] = useState<number>(() => {
+    if (typeof window === "undefined") return 54.2;
+    return parseFloat(localStorage.getItem("demo_availableUsdc") ?? "54.2");
+  });
+  const [holdbackUsdc, setHoldbackUsdc] = useState<number>(() => {
+    if (typeof window === "undefined") return 7.04;
+    return parseFloat(localStorage.getItem("demo_holdbackUsdc") ?? "7.04");
+  });
+  const [totalWithdrawnUsdc, setTotalWithdrawnUsdc] = useState<number>(() => {
+    if (typeof window === "undefined") return 48.5;
+    return parseFloat(localStorage.getItem("demo_totalWithdrawnUsdc") ?? "48.5");
+  });
 
   const [activeTab, setActiveTab] = useState<"FIAT" | "CRYPTO" | "HISTORY">("FIAT");
   const [fiatType, setFiatType] = useState<"EWALLET" | "BANK">("EWALLET");
@@ -80,7 +77,11 @@ export default function ClipperWalletPage() {
   const [faucetToast, setFaucetToast] = useState<string | null>(null);
 
   const handleTopUpFaucet = (amount: number = 100) => {
-    setAvailableUsdc((prev) => prev + amount);
+    setAvailableUsdc((prev) => {
+      const next = prev + amount;
+      localStorage.setItem("demo_availableUsdc", String(next));
+      return next;
+    });
     setFaucetToast(`+ $${amount}.00 Demo USDT berhasil ditambahkan ke saldo!`);
     setTimeout(() => setFaucetToast(null), 3500);
   };
@@ -89,6 +90,9 @@ export default function ClipperWalletPage() {
     setAvailableUsdc(54.2);
     setHoldbackUsdc(7.04);
     setTotalWithdrawnUsdc(48.5);
+    localStorage.setItem("demo_availableUsdc", "54.2");
+    localStorage.setItem("demo_holdbackUsdc", "7.04");
+    localStorage.setItem("demo_totalWithdrawnUsdc", "48.5");
     setFaucetToast("Saldo demo direset ke default ($54.20 USDT)");
     setTimeout(() => setFaucetToast(null), 3500);
   };
@@ -146,7 +150,7 @@ export default function ClipperWalletPage() {
     }
 
     if (numAmount > availableUsdc) {
-      setErrorMsg(`Saldo tidak mencukupi. Maksimal saldo tersedia adalah $${availableUsdc.toFixed(2)} USDC.`);
+      setErrorMsg(`Saldo tidak mencukupi. Maksimal saldo tersedia adalah $${availableUsdc.toFixed(2)} USDT.`);
       return;
     }
 
@@ -182,8 +186,16 @@ export default function ClipperWalletPage() {
       };
 
       setSuccessReceipt(receipt);
-      setAvailableUsdc((prev) => Math.max(0, prev - numAmount));
-      setTotalWithdrawnUsdc((prev) => prev + numAmount);
+      setAvailableUsdc((prev) => {
+        const next = Math.max(0, prev - numAmount);
+        localStorage.setItem("demo_availableUsdc", String(next));
+        return next;
+      });
+      setTotalWithdrawnUsdc((prev) => {
+        const next = prev + numAmount;
+        localStorage.setItem("demo_totalWithdrawnUsdc", String(next));
+        return next;
+      });
 
       // Add to history
       setRecentWithdrawals((prev) => [
@@ -443,6 +455,9 @@ export default function ClipperWalletPage() {
                   </span>
                   <span
                     style={{
+                      display: "inline-flex",
+                      alignItems: "center",
+                      gap: "0.35rem",
                       fontSize: "0.6875rem",
                       fontWeight: 700,
                       backgroundColor: "rgba(16, 185, 129, 0.2)",
@@ -452,13 +467,14 @@ export default function ClipperWalletPage() {
                       border: "1px solid rgba(16, 185, 129, 0.3)",
                     }}
                   >
-                    ● Otomatis Aktif
+                    <span style={{ width: 6, height: 6, borderRadius: "50%", backgroundColor: "#34d399", display: "inline-block" }} />
+                    Otomatis Aktif
                   </span>
                 </div>
 
                 <div style={{ fontSize: "2.25rem", fontWeight: 800, letterSpacing: "-0.03em" }}>
                   ${availableUsdc.toFixed(2)}{" "}
-                  <span style={{ fontSize: "1.125rem", fontWeight: 600, color: "#34d399" }}>USDC</span>
+                  <span style={{ fontSize: "1.125rem", fontWeight: 600, color: "#34d399" }}>USDT</span>
                 </div>
 
                 <div style={{ fontSize: "0.875rem", color: "rgba(255,255,255,0.7)", marginTop: "0.25rem" }}>
@@ -561,7 +577,7 @@ export default function ClipperWalletPage() {
 
                 <div style={{ fontSize: "2.25rem", fontWeight: 800, color: "#111111", letterSpacing: "-0.03em" }}>
                   ${holdbackUsdc.toFixed(2)}{" "}
-                  <span style={{ fontSize: "1.125rem", fontWeight: 600, color: "#d97706" }}>USDC</span>
+                  <span style={{ fontSize: "1.125rem", fontWeight: 600, color: "#d97706" }}>USDT</span>
                 </div>
 
                 <div style={{ fontSize: "0.875rem", color: "#666666", marginTop: "0.25rem" }}>
@@ -577,9 +593,13 @@ export default function ClipperWalletPage() {
                   fontSize: "0.75rem",
                   color: "#d97706",
                   fontWeight: 600,
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "0.35rem",
                 }}
               >
-                ⏳ Otomatis cair setelah masa holdback 72 jam
+                <Clock size={12} />
+                <span>Otomatis cair setelah masa holdback 72 jam</span>
               </div>
             </div>
 
@@ -605,7 +625,7 @@ export default function ClipperWalletPage() {
 
                 <div style={{ fontSize: "2.25rem", fontWeight: 800, color: "#111111", letterSpacing: "-0.03em" }}>
                   ${totalWithdrawnUsdc.toFixed(2)}{" "}
-                  <span style={{ fontSize: "1.125rem", fontWeight: 600, color: "#059669" }}>USDC</span>
+                  <span style={{ fontSize: "1.125rem", fontWeight: 600, color: "#059669" }}>USDT</span>
                 </div>
 
                 <div style={{ fontSize: "0.875rem", color: "#666666", marginTop: "0.25rem" }}>
@@ -827,7 +847,7 @@ export default function ClipperWalletPage() {
                     </div>
                     <div style={{ display: "flex", justifyContent: "space-between" }}>
                       <span style={{ color: "#666" }}>Nominal USDT</span>
-                      <strong>${successReceipt.amountUsdc.toFixed(2)} USDC</strong>
+                      <strong>${successReceipt.amountUsdc.toFixed(2)} USDT</strong>
                     </div>
                     <div style={{ display: "flex", justifyContent: "space-between", paddingTop: "0.5rem", borderTop: "1px solid #eee" }}>
                       <span style={{ color: "#111", fontWeight: 700 }}>Total Diterima (IDR)</span>
@@ -889,7 +909,7 @@ export default function ClipperWalletPage() {
                                 Poko SDK Instant Off-Ramp
                               </div>
                               <div style={{ fontSize: "0.6875rem", color: "#64748b" }}>
-                                Konversi instan USDC opBNB ke Rupiah (DANA, GoPay, OVO &amp; Bank Lokal)
+                                Konversi instan USDT opBNB ke Rupiah (DANA, GoPay, OVO &amp; Bank Lokal)
                               </div>
                             </div>
                           </div>
@@ -924,7 +944,7 @@ export default function ClipperWalletPage() {
                         >
                           <span style={{ color: "#64748b" }}>Kurs Real-Time:</span>
                           <span style={{ fontWeight: 800, color: "#0f172a" }}>
-                            1 USDC = Rp {idrRate.toLocaleString("id-ID")}
+                            1 USDT = Rp {idrRate.toLocaleString("id-ID")}
                           </span>
                         </div>
                       </div>
@@ -952,9 +972,14 @@ export default function ClipperWalletPage() {
                               fontWeight: 700,
                               cursor: "pointer",
                               textAlign: "center",
+                              display: "inline-flex",
+                              alignItems: "center",
+                              justifyContent: "center",
+                              gap: "4px",
                             }}
                           >
-                            📱 DANA: 0812-9876-5432
+                            <Smartphone size={13} />
+                            <span>DANA: 0812-9876-5432</span>
                           </button>
 
                           <button
@@ -974,9 +999,14 @@ export default function ClipperWalletPage() {
                               fontWeight: 700,
                               cursor: "pointer",
                               textAlign: "center",
+                              display: "inline-flex",
+                              alignItems: "center",
+                              justifyContent: "center",
+                              gap: "4px",
                             }}
                           >
-                            🟢 GoPay: 0813-1122-3344
+                            <CheckCircle2 size={13} />
+                            <span>GoPay: 0813-1122-3344</span>
                           </button>
 
                           <button
@@ -996,9 +1026,14 @@ export default function ClipperWalletPage() {
                               fontWeight: 700,
                               cursor: "pointer",
                               textAlign: "center",
+                              display: "inline-flex",
+                              alignItems: "center",
+                              justifyContent: "center",
+                              gap: "4px",
                             }}
                           >
-                            🏦 BCA: 8830-1928-12
+                            <Building size={13} />
+                            <span>BCA: 8830-1928-12</span>
                           </button>
                         </div>
                       </div>
@@ -1032,8 +1067,9 @@ export default function ClipperWalletPage() {
                         <ArrowRight size={16} />
                       </button>
 
-                      <div style={{ textAlign: "center", fontSize: "0.6875rem", color: "#64748b" }}>
-                        🔒 Didukung oleh Poko On/Off Ramp SDK • Terkoneksi ke BI-FAST Switcher
+                      <div style={{ textAlign: "center", fontSize: "0.6875rem", color: "#64748b", display: "flex", alignItems: "center", justifyContent: "center", gap: "4px" }}>
+                        <Lock size={11} />
+                        <span>Didukung oleh Poko On/Off Ramp SDK • Terkoneksi ke BI-FAST Switcher</span>
                       </div>
                     </div>
                   )}
@@ -1041,8 +1077,9 @@ export default function ClipperWalletPage() {
                   {/* TAB 2: CRYPTO / METAMASK FORM */}
                   {activeTab === "CRYPTO" && (
                     <form onSubmit={handleWithdrawSubmit} style={{ display: "flex", flexDirection: "column", gap: "1.125rem" }}>
-                      <div style={{ padding: "0.75rem 1rem", borderRadius: "12px", backgroundColor: "#f0fdf4", border: "1px solid #bbf7d0", fontSize: "0.8125rem", color: "#166534", lineHeight: 1.4 }}>
-                        💡 Penarikan on-chain akan dikirimkan dalam bentuk <strong>USDT / USDC (BEP-20) di BNB Chain</strong> ke alamat wallet eksternal Anda.
+                      <div style={{ padding: "0.75rem 1rem", borderRadius: "12px", backgroundColor: "#f0fdf4", border: "1px solid #bbf7d0", fontSize: "0.8125rem", color: "#166534", lineHeight: 1.4, display: "flex", alignItems: "flex-start", gap: "8px" }}>
+                        <Info size={16} style={{ flexShrink: 0, marginTop: "2px" }} />
+                        <span>Penarikan on-chain akan dikirimkan dalam bentuk <strong>USDT (BEP-20) di BNB Chain</strong> ke alamat wallet eksternal Anda.</span>
                       </div>
 
                       <div>
@@ -1074,7 +1111,7 @@ export default function ClipperWalletPage() {
                       <div>
                         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "4px" }}>
                           <label style={{ fontSize: "0.75rem", fontWeight: 700, color: "#333" }}>
-                            Jumlah Penarikan (USDC)
+                            Jumlah Penarikan (USDT)
                           </label>
                           <button
                             type="button"
@@ -1206,7 +1243,7 @@ export default function ClipperWalletPage() {
                                 +Rp {w.amountIdr.toLocaleString("id-ID")}
                               </div>
                               <div style={{ fontSize: "0.6875rem", color: "#888" }}>
-                                ${w.amountUsdc.toFixed(2)} USDC
+                                ${w.amountUsdc.toFixed(2)} USDT
                               </div>
                             </div>
                           </div>
@@ -1295,11 +1332,21 @@ export default function ClipperWalletPage() {
         isOpen={showPokoModal}
         onClose={() => setShowPokoModal(false)}
         availableBalanceUsdc={availableUsdc}
+        holdbackUsdc={holdbackUsdc}
+        totalWithdrawnUsdc={totalWithdrawnUsdc}
         userWalletAddress={currentWalletAddress}
         userDisplayName={user?.displayName || "Clipper"}
         onWithdrawSuccess={(withdrawnUsdc, receiptData) => {
-          setAvailableUsdc((prev) => Math.max(0, prev - withdrawnUsdc));
-          setTotalWithdrawnUsdc((prev) => prev + withdrawnUsdc);
+          setAvailableUsdc((prev) => {
+            const next = Math.max(0, prev - withdrawnUsdc);
+            localStorage.setItem("demo_availableUsdc", String(next));
+            return next;
+          });
+          setTotalWithdrawnUsdc((prev) => {
+            const next = prev + withdrawnUsdc;
+            localStorage.setItem("demo_totalWithdrawnUsdc", String(next));
+            return next;
+          });
           setRecentWithdrawals((prev) => [
             {
               id: receiptData.orderId,

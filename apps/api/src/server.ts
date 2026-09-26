@@ -11,6 +11,13 @@ import { healthRoutes } from './routes/health.routes.js';
 import { adminRoutes } from './routes/admin.routes.js';
 import { seedDemoData } from './db/seed.js';
 
+// Enable JSON serialization of BigInt values
+if (!('toJSON' in BigInt.prototype)) {
+  (BigInt.prototype as any).toJSON = function () {
+    return this.toString();
+  };
+}
+
 export async function buildServer(): Promise<FastifyInstance> {
   const fastify = Fastify({
     logger: false,

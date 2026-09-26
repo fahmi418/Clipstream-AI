@@ -284,9 +284,9 @@ export default function AdminBlogPage() {
                       onChange={(e) => setForm((f) => ({ ...f, coverImage: e.target.value }))}
                       style={{ ...inputStyle }}
                     >
-                      <option value="/assets/blog-cover-clipper.jpg">🎬 Video Clipper (Orange)</option>
-                      <option value="/assets/blog-cover-escrow.jpg">🔒 Escrow Contract (Purple)</option>
-                      <option value="/assets/blog-cover-ai.jpg">🤖 AI Verifier (Green)</option>
+                      <option value="/assets/blog-cover-clipper.jpg">Video Clipper (Orange)</option>
+                      <option value="/assets/blog-cover-escrow.jpg">Escrow Contract (Purple)</option>
+                      <option value="/assets/blog-cover-ai.jpg">AI Verifier (Green)</option>
                     </select>
                   </div>
 

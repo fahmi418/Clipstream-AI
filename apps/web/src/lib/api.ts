@@ -419,6 +419,27 @@ export function fetchStats() {
 
 export const defaultCuratedCampaigns: Campaign[] = [
   {
+    id: "abd87056-b996-4337-a09e-abdf60b8fd3d",
+    onchainId: "5",
+    brandId: "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+    title: "Panduan AI Whisper & Gemini Vision Clipstream",
+    description:
+      "Cuplikan seputar validasi OCR dan Whisper AI Clipstream.",
+    sourceUrl: "https://www.youtube.com/watch?v=P-Z7Mj9Pifo",
+    rules: "Wajib menyertakan watermark sponsor dan tagar #BNBChain. Tanpa SARA.",
+    cpmRate: "306748",
+    totalBudget: "46012269",
+    remainingBudget: "45000000",
+    maxPayoutPerClip: "10000000",
+    minViews: 1000,
+    deadline: new Date(Date.now() + 14 * 86400000).toISOString(),
+    status: "ACTIVE",
+    clippersCount: 0,
+    clipsCount: 0,
+    txHash: "0x7a3f89e2c1409d5b8821a719c8f02938472199ac2b44910283748291023948aa",
+    createdAt: new Date().toISOString(),
+  },
+  {
     id: "camp-seed-1",
     onchainId: "1",
     brandId: "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
@@ -521,18 +542,51 @@ export async function listCampaigns(query: ListCampaignsQuery = {}): Promise<Cam
     const qs = params.toString();
     const res = await request<any>(`/api/campaigns${qs ? `?${qs}` : ""}`);
     const rawItems = Array.isArray(res) ? res : res?.items;
+    let list: Campaign[] = [];
     if (Array.isArray(rawItems) && rawItems.length > 0) {
-      return rawItems.map((item: any) => ({
+      list = rawItems.map((item: any) => ({
         ...item,
         brandId: item.brandId || item.brand?.address || item.brand?.displayName || "0x70997970C51812dc3A010C7d01b50e0d17dc79C8",
         sourceUrl: item.sourceUrl || (item.sourceVideo ? `https://www.youtube.com/watch?v=${item.sourceVideo.videoId || ""}` : ""),
         clippersCount: item.clippersCount ?? item.clipperCount ?? 0,
         clipsCount: item.clipsCount ?? item.clipCount ?? 0,
       }));
+    } else {
+      list = [...defaultCuratedCampaigns];
     }
-    return defaultCuratedCampaigns;
+
+    // Merge custom created campaigns from localStorage if any
+    if (typeof window !== "undefined") {
+      try {
+        const stored = localStorage.getItem("clipstream_created_campaigns");
+        if (stored) {
+          const customList: Campaign[] = JSON.parse(stored);
+          for (const c of customList) {
+            if (!list.some((existing) => existing.id === c.id || existing.title === c.title)) {
+              list.unshift(c);
+            }
+          }
+        }
+      } catch {}
+    }
+
+    return list;
   } catch {
-    return defaultCuratedCampaigns;
+    let list = [...defaultCuratedCampaigns];
+    if (typeof window !== "undefined") {
+      try {
+        const stored = localStorage.getItem("clipstream_created_campaigns");
+        if (stored) {
+          const customList: Campaign[] = JSON.parse(stored);
+          for (const c of customList) {
+            if (!list.some((existing) => existing.id === c.id || existing.title === c.title)) {
+              list.unshift(c);
+            }
+          }
+        }
+      } catch {}
+    }
+    return list;
   }
 }
 

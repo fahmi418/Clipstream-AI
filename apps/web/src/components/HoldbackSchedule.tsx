@@ -235,9 +235,12 @@ export function HoldbackSchedule({
                         backgroundColor: "rgba(17,17,17,0.06)",
                         color: "rgba(17,17,17,0.5)",
                         fontWeight: 600,
+                        display: "inline-flex",
+                        alignItems: "center",
+                        gap: "0.25rem",
                       }}
                     >
-                      ✓ Sudah Dicairkan
+                      <CheckCircle2 size={11} /> Sudah Dicairkan
                     </span>
                   ) : isReady ? (
                     <span
@@ -262,9 +265,12 @@ export function HoldbackSchedule({
                         color: "#b45309",
                         fontWeight: 600,
                         fontFamily: "monospace",
+                        display: "inline-flex",
+                        alignItems: "center",
+                        gap: "0.25rem",
                       }}
                     >
-                      ⏳ {countdown}
+                      <Clock size={11} /> {countdown}
                     </span>
                   )}
                 </div>

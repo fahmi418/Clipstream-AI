@@ -25,6 +25,7 @@ import {
   AlertTriangle,
   RotateCcw,
   Sparkles,
+  XCircle,
 } from "lucide-react";
 
 export default function ClipperClipDetailPage({
@@ -163,18 +164,18 @@ export default function ClipperClipDetailPage({
 
           <div className="flex items-center gap-2">
             {isApproved && (
-              <div className="badge badge-active text-xs">
-                ● Lolos Verifikasi & Aktif
+              <div className="badge badge-active text-xs flex items-center gap-1">
+                <CheckCircle2 size={12} /> Lolos Verifikasi & Aktif
               </div>
             )}
             {isFlagged && (
-              <div className="badge badge-flagged text-xs">
-                ⚠ Sedang Ditinjau Brand
+              <div className="badge badge-flagged text-xs flex items-center gap-1">
+                <AlertTriangle size={12} /> Sedang Ditinjau Brand
               </div>
             )}
             {isRejected && (
-              <div className="badge badge-rejected text-xs">
-                ✗ Belum Disetujui
+              <div className="badge badge-rejected text-xs flex items-center gap-1">
+                <XCircle size={12} /> Belum Disetujui
               </div>
             )}
           </div>

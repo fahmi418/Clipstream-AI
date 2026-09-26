@@ -51,9 +51,15 @@ export default function ClipperDashboardPage() {
   const [activeTab, setActiveTab] = useState<"ALL" | "APPROVED" | "PENDING">("ALL");
   const [walletModalOpen, setWalletModalOpen] = useState(false);
 
-  // Aggregated dynamic balances
-  const [availableUsdt, setAvailableUsdt] = useState(16.43);
-  const [holdbackUsdt, setHoldbackUsdt] = useState(7.04);
+  // Aggregated dynamic balances — synced with wallet page via localStorage
+  const [availableUsdt, setAvailableUsdt] = useState<number>(() => {
+    if (typeof window === "undefined") return 16.43;
+    return parseFloat(localStorage.getItem("demo_availableUsdc") ?? "16.43");
+  });
+  const [holdbackUsdt, setHoldbackUsdt] = useState<number>(() => {
+    if (typeof window === "undefined") return 7.04;
+    return parseFloat(localStorage.getItem("demo_holdbackUsdc") ?? "7.04");
+  });
   const [claimSuccessMessage, setClaimSuccessMessage] = useState<string | null>(null);
 
   const [holdbackItems, setHoldbackItems] = useState<HoldbackItem[]>([
@@ -153,13 +159,54 @@ export default function ClipperDashboardPage() {
         });
       }
     });
+    // localStorage is the source of truth (set by faucet/withdraw).
+    // Clip data only seeds the initial value if localStorage hasn't been set yet.
+    const storedAvailable = localStorage.getItem("demo_availableUsdc");
+    const storedHoldback = localStorage.getItem("demo_holdbackUsdc");
 
-    setAvailableUsdt(releasedSum > 0 ? Number(releasedSum.toFixed(2)) : 16.43);
-    setHoldbackUsdt(holdbackSum > 0 ? Number(holdbackSum.toFixed(2)) : 7.04);
+    if (storedAvailable !== null) {
+      setAvailableUsdt(parseFloat(storedAvailable));
+    } else {
+      const seed = releasedSum > 0 ? Number(releasedSum.toFixed(2)) : 16.43;
+      setAvailableUsdt(seed);
+      localStorage.setItem("demo_availableUsdc", String(seed));
+    }
+
+    if (storedHoldback !== null) {
+      setHoldbackUsdt(parseFloat(storedHoldback));
+    } else {
+      const seed = holdbackSum > 0 ? Number(holdbackSum.toFixed(2)) : 7.04;
+      setHoldbackUsdt(seed);
+      localStorage.setItem("demo_holdbackUsdc", String(seed));
+    }
+
     if (newHoldbacks.length > 0) {
       setHoldbackItems(newHoldbacks);
     }
+
+    // Compute and persist views/CPM stats
+    const activeClips = clipList.filter((c) => c.status === "ACTIVE" || c.status === "VERIFYING");
+    const totalV = activeClips.reduce((sum, c) => sum + (c.views ?? 0), 0);
+    const totalEarnings = releasedSum + holdbackSum;
+    const cpm = totalV > 0 ? Math.round((totalEarnings / totalV) * 1000 * 16300) : 24500;
+    localStorage.setItem("demo_totalViews", String(totalV));
+    localStorage.setItem("demo_activeClips", String(activeClips.length));
+    localStorage.setItem("demo_avgCpm", String(cpm));
   };
+
+  // Sync when wallet page makes changes (same browser, different tab)
+  useEffect(() => {
+    const onStorage = (e: StorageEvent) => {
+      if (e.key === "demo_availableUsdc" && e.newValue !== null) {
+        setAvailableUsdt(parseFloat(e.newValue));
+      }
+      if (e.key === "demo_holdbackUsdc" && e.newValue !== null) {
+        setHoldbackUsdt(parseFloat(e.newValue));
+      }
+    };
+    window.addEventListener("storage", onStorage);
+    return () => window.removeEventListener("storage", onStorage);
+  }, []);
 
   const loadClips = async () => {
     setLoading(true);
@@ -200,8 +247,16 @@ export default function ClipperDashboardPage() {
     setHoldbackItems((prev) =>
       prev.map((i) => (i.id === itemId ? { ...i, status: "CLAIMED" as const } : i))
     );
-    setAvailableUsdt((prev) => prev + item.amountUsdt);
-    setHoldbackUsdt((prev) => Math.max(0, prev - item.amountUsdt));
+    setAvailableUsdt((prev) => {
+      const next = prev + item.amountUsdt;
+      localStorage.setItem("demo_availableUsdc", String(next));
+      return next;
+    });
+    setHoldbackUsdt((prev) => {
+      const next = Math.max(0, prev - item.amountUsdt);
+      localStorage.setItem("demo_holdbackUsdc", String(next));
+      return next;
+    });
     setClaimSuccessMessage(
       `Saldo holdback sebesar ${item.amountUsdt.toFixed(2)} USDT berhasil dicairkan ke wallet!`
     );
@@ -540,10 +595,16 @@ export default function ClipperDashboardPage() {
                 fontSize: "0.75rem",
               }}
             >
-              <span style={{ color: "#d97706", fontWeight: 600 }}>
-                {holdbackItems.filter((i) => i.status === "UNLOCKED").length > 0
-                  ? "● Ada saldo siap klaim!"
-                  : "⏳ Cooldown 72 jam"}
+              <span style={{ color: "#d97706", fontWeight: 600, display: "inline-flex", alignItems: "center", gap: "0.25rem" }}>
+                {holdbackItems.filter((i) => i.status === "UNLOCKED").length > 0 ? (
+                  <>
+                    <CheckCircle2 size={12} /> Ada saldo siap klaim!
+                  </>
+                ) : (
+                  <>
+                    <Clock size={12} /> Cooldown 72 jam
+                  </>
+                )}
               </span>
               <span style={{ color: "rgba(17,17,17,0.5)" }}>
                 {holdbackItems.filter((i) => i.status !== "CLAIMED").length} klip
@@ -552,82 +613,100 @@ export default function ClipperDashboardPage() {
           </div>
 
           {/* Card 3: Total Views Terverifikasi */}
-          <div
-            style={{
-              backgroundColor: "#fbfaf9",
-              borderRadius: "18px",
-              padding: "1.25rem",
-              border: "1px solid rgba(17,17,17,0.08)",
-            }}
-          >
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "0.5rem" }}>
-              <span style={{ fontSize: "0.75rem", fontWeight: 700, color: "rgba(17,17,17,0.5)", textTransform: "uppercase" }}>
-                Views Terverifikasi AI
-              </span>
-              <Eye size={16} color="#7c3aed" />
-            </div>
-            <div style={{ fontSize: "2rem", fontWeight: 700, color: "#111" }}>
-              78,200 Views
-            </div>
-            <div style={{ fontSize: "0.8125rem", color: "rgba(17,17,17,0.6)", marginTop: "0.25rem" }}>
-              Dari 2 klip Shorts/TikTok aktif
-            </div>
-            <div
-              style={{
-                display: "inline-flex",
-                alignItems: "center",
-                gap: "0.35rem",
-                marginTop: "0.85rem",
-                fontSize: "0.6875rem",
-                fontWeight: 600,
-                color: "#7c3aed",
-                backgroundColor: "#f5f3ff",
-                padding: "0.2rem 0.5rem",
-                borderRadius: "9999px",
-              }}
-            >
-              ★ Gemini Vision OCR Verified
-            </div>
-          </div>
+          {(() => {
+            const activeClips = clips.filter((c) => c.status === "ACTIVE" || c.status === "VERIFYING");
+            const totalViews = activeClips.reduce((sum, c) => sum + (c.views ?? 0), 0);
+            return (
+              <div
+                style={{
+                  backgroundColor: "#fbfaf9",
+                  borderRadius: "18px",
+                  padding: "1.25rem",
+                  border: "1px solid rgba(17,17,17,0.08)",
+                }}
+              >
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "0.5rem" }}>
+                  <span style={{ fontSize: "0.75rem", fontWeight: 700, color: "rgba(17,17,17,0.5)", textTransform: "uppercase" }}>
+                    Views Terverifikasi AI
+                  </span>
+                  <Eye size={16} color="#7c3aed" />
+                </div>
+                <div style={{ fontSize: "2rem", fontWeight: 700, color: "#111" }}>
+                  {totalViews.toLocaleString("id-ID")} Views
+                </div>
+                <div style={{ fontSize: "0.8125rem", color: "rgba(17,17,17,0.6)", marginTop: "0.25rem" }}>
+                  Dari {activeClips.length} klip Shorts/TikTok aktif
+                </div>
+                <div
+                  style={{
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: "0.35rem",
+                    marginTop: "0.85rem",
+                    fontSize: "0.6875rem",
+                    fontWeight: 600,
+                    color: "#7c3aed",
+                    backgroundColor: "#f5f3ff",
+                    padding: "0.2rem 0.5rem",
+                    borderRadius: "9999px",
+                  }}
+                >
+                  <Sparkles size={11} /> Gemini Vision OCR Verified
+                </div>
+              </div>
+            );
+          })()}
 
           {/* Card 4: Rata-rata CPM */}
-          <div
-            style={{
-              backgroundColor: "#fbfaf9",
-              borderRadius: "18px",
-              padding: "1.25rem",
-              border: "1px solid rgba(17,17,17,0.08)",
-            }}
-          >
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "0.5rem" }}>
-              <span style={{ fontSize: "0.75rem", fontWeight: 700, color: "rgba(17,17,17,0.5)", textTransform: "uppercase" }}>
-                Estimasi Rata-rata CPM
-              </span>
-              <TrendingUp size={16} color="#e8400d" />
-            </div>
-            <div style={{ fontSize: "2rem", fontWeight: 700, color: "#111" }}>
-              Rp 24.500
-            </div>
-            <div style={{ fontSize: "0.8125rem", color: "rgba(17,17,17,0.6)", marginTop: "0.25rem" }}>
-              Per 1.000 views terverifikasi
-            </div>
-            <div
-              style={{
-                display: "inline-flex",
-                alignItems: "center",
-                gap: "0.35rem",
-                marginTop: "0.85rem",
-                fontSize: "0.6875rem",
-                fontWeight: 600,
-                color: "#e8400d",
-                backgroundColor: "#fff0ec",
-                padding: "0.2rem 0.5rem",
-                borderRadius: "9999px",
-              }}
-            >
-              ↑ 18% lebih tinggi dari platform lain
-            </div>
-          </div>
+          {(() => {
+            const activeClips = clips.filter((c) => c.status === "ACTIVE" || c.status === "VERIFYING");
+            const totalViews = activeClips.reduce((sum, c) => sum + (c.views ?? 0), 0);
+            const totalEarnings = activeClips.reduce((sum, c) => {
+              const rel = parseFloat(formatUsdt(c.releasedAmount)) || 0;
+              const hb = parseFloat(formatUsdt(c.holdbackAmount)) || 0;
+              return sum + rel + hb;
+            }, 0);
+            const cpmIdr = totalViews > 0 ? Math.round((totalEarnings / totalViews) * 1000 * 16300) : 24500;
+            return (
+              <div
+                style={{
+                  backgroundColor: "#fbfaf9",
+                  borderRadius: "18px",
+                  padding: "1.25rem",
+                  border: "1px solid rgba(17,17,17,0.08)",
+                }}
+              >
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "0.5rem" }}>
+                  <span style={{ fontSize: "0.75rem", fontWeight: 700, color: "rgba(17,17,17,0.5)", textTransform: "uppercase" }}>
+                    Estimasi Rata-rata CPM
+                  </span>
+                  <TrendingUp size={16} color="#e8400d" />
+                </div>
+                <div style={{ fontSize: "2rem", fontWeight: 700, color: "#111" }}>
+                  Rp {cpmIdr.toLocaleString("id-ID")}
+                </div>
+                <div style={{ fontSize: "0.8125rem", color: "rgba(17,17,17,0.6)", marginTop: "0.25rem" }}>
+                  Per 1.000 views terverifikasi
+                </div>
+                <div
+                  style={{
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: "0.35rem",
+                    marginTop: "0.85rem",
+                    fontSize: "0.6875rem",
+                    fontWeight: 600,
+                    color: "#e8400d",
+                    backgroundColor: "#fff0ec",
+                    padding: "0.2rem 0.5rem",
+                    borderRadius: "9999px",
+                  }}
+                >
+                  ↑ 18% lebih tinggi dari platform lain
+                </div>
+              </div>
+            );
+          })()}
         </div>
 
         {/* Interactive Holdback Schedule with Live Countdown and On-Chain Claim */}
@@ -1026,9 +1105,13 @@ export default function ClipperDashboardPage() {
                       fontSize: "0.75rem",
                       color: "#2563eb",
                       textDecoration: "underline",
+                      display: "inline-flex",
+                      alignItems: "center",
+                      gap: "0.25rem",
                     }}
                   >
-                    {selectedClip.txHash.slice(0, 10)}...{selectedClip.txHash.slice(-8)} ↗
+                    <span>{selectedClip.txHash.slice(0, 10)}...{selectedClip.txHash.slice(-8)}</span>
+                    <ExternalLink size={11} />
                   </a>
                 ) : (
                   <span style={{ fontSize: "0.75rem", color: "rgba(17,17,17,0.4)" }}>-</span>
@@ -1065,7 +1148,10 @@ export default function ClipperDashboardPage() {
         onClose={() => setWalletModalOpen(false)}
         user={user}
         availableBalanceUsdc={availableUsdt}
-        onWithdrawSuccess={(newBal) => setAvailableUsdt(newBal)}
+        onWithdrawSuccess={(newBal) => {
+          setAvailableUsdt(newBal);
+          localStorage.setItem("demo_availableUsdc", String(newBal));
+        }}
       />
       </div>
     </AuthGate>

@@ -26,16 +26,58 @@ import {
   Scissors,
   Megaphone,
   Users,
+  Rocket,
+  Star,
 } from "lucide-react";
 import { fetchStats, listCampaigns, type Stats, type Campaign } from "@/lib/api";
 import { formatUsdt, formatIdr, formatViews } from "@/lib/format";
 import { RoleSelectModal } from "@/components/RoleSelectModal";
 import { HeroCreatorRocket } from "@/components/HeroCreatorRocket";
 import { ScrollReveal } from "@/components/ScrollReveal";
+import { IconBadge } from "@/components/ui/IconBadge";
+import {
+  PERSONAS_DATA,
+  FEATURE_SECTIONS,
+  TESTIMONIALS_DATA,
+  TICKER_UPDATES,
+} from "@/data/landing-content";
 
 if (typeof window !== "undefined") {
   gsap.registerPlugin(ScrollTrigger);
 }
+
+const PERSONA_CONFIG = [
+  {
+    ...PERSONAS_DATA[0],
+    role: "Clipper",
+    icon: Scissors,
+    image: "/assets/66aca46a2e87f778fe899f3b_am_6_personas_sellers%202.avif",
+  },
+  {
+    ...PERSONAS_DATA[1],
+    role: "Brand",
+    icon: Megaphone,
+    image: "/assets/66aca46a2e87f778fe899f43_am_6_personas_enterprise.avif",
+  },
+  {
+    ...PERSONAS_DATA[2],
+    role: "Agency",
+    icon: Users,
+    image: "/assets/66aca46a2e87f778fe899f39_am_6_personas_leaders.avif",
+  },
+  {
+    ...PERSONAS_DATA[3],
+    role: "Validator",
+    icon: Bot,
+    image: "/assets/66aca46a2e87f778fe899f3d_am_6_personas_ops.avif",
+  },
+  {
+    ...PERSONAS_DATA[4],
+    role: "Ekosistem Web3",
+    icon: Layers,
+    image: "/assets/66aca84f84f3bc82100d704e_am_10_personas_marketers%202.avif",
+  },
+];
 
 const defaultLandingDemoCampaigns: Campaign[] = [
   {
@@ -375,95 +417,105 @@ function HomePageContent() {
         }
       );
 
-      // 7. Section 8: Active Campaigns Grid
-      gsap.fromTo(
-        ".gsap-campaign-card",
-        { opacity: 0, y: 30 },
-        {
-          opacity: 1,
-          y: 0,
-          duration: 0.65,
-          stagger: 0.1,
-          ease: "power3.out",
-          scrollTrigger: {
-            trigger: ".gsap-campaigns-grid",
-            start: "top 85%",
-            once: true,
-          },
-        }
-      );
+      // 7. Section 8: Active Campaigns Grid (Safe query guard)
+      if (document.querySelector(".gsap-campaign-card")) {
+        gsap.fromTo(
+          ".gsap-campaign-card",
+          { opacity: 0, y: 30 },
+          {
+            opacity: 1,
+            y: 0,
+            duration: 0.65,
+            stagger: 0.1,
+            ease: "power3.out",
+            scrollTrigger: {
+              trigger: ".gsap-campaigns-container",
+              start: "top 85%",
+              once: true,
+            },
+          }
+        );
+      }
 
       // 8. Section 9: Blog Articles Grid
-      gsap.fromTo(
-        ".gsap-blog-card",
-        { opacity: 0, y: 30 },
-        {
-          opacity: 1,
-          y: 0,
-          duration: 0.65,
-          stagger: 0.12,
-          ease: "power3.out",
-          scrollTrigger: {
-            trigger: ".gsap-blog-grid",
-            start: "top 85%",
-            once: true,
-          },
-        }
-      );
+      if (document.querySelector(".gsap-blog-card")) {
+        gsap.fromTo(
+          ".gsap-blog-card",
+          { opacity: 0, y: 30 },
+          {
+            opacity: 1,
+            y: 0,
+            duration: 0.65,
+            stagger: 0.12,
+            ease: "power3.out",
+            scrollTrigger: {
+              trigger: ".gsap-blog-grid",
+              start: "top 85%",
+              once: true,
+            },
+          }
+        );
+      }
 
       // 9. Section 10: Wall of Love Testimonial Cards
-      gsap.fromTo(
-        ".gsap-wall-card",
-        { opacity: 0, y: 30 },
-        {
-          opacity: 1,
-          y: 0,
-          duration: 0.65,
-          stagger: 0.12,
-          ease: "power3.out",
-          scrollTrigger: {
-            trigger: ".gsap-wall-grid",
-            start: "top 85%",
-            once: true,
-          },
-        }
-      );
+      if (document.querySelector(".gsap-wall-card")) {
+        gsap.fromTo(
+          ".gsap-wall-card",
+          { opacity: 0, y: 30 },
+          {
+            opacity: 1,
+            y: 0,
+            duration: 0.65,
+            stagger: 0.12,
+            ease: "power3.out",
+            scrollTrigger: {
+              trigger: ".gsap-wall-grid",
+              start: "top 85%",
+              once: true,
+            },
+          }
+        );
+      }
 
       // 10. Section 11: FAQ Accordion items
-      gsap.fromTo(
-        ".gsap-faq-item",
-        { opacity: 0, y: 20 },
-        {
-          opacity: 1,
-          y: 0,
-          duration: 0.5,
-          stagger: 0.08,
-          ease: "power3.out",
-          scrollTrigger: {
-            trigger: ".gsap-faq-list",
-            start: "top 85%",
-            once: true,
-          },
-        }
-      );
+      if (document.querySelector(".gsap-faq-item")) {
+        gsap.fromTo(
+          ".gsap-faq-item",
+          { opacity: 0, y: 20 },
+          {
+            opacity: 1,
+            y: 0,
+            duration: 0.5,
+            stagger: 0.08,
+            ease: "power3.out",
+            scrollTrigger: {
+              trigger: ".gsap-faq-list",
+              start: "top 85%",
+              once: true,
+            },
+          }
+        );
+      }
 
       // 11. Section 12: Pre-Footer Banner
-      gsap.fromTo(
-        ".gsap-footer-cta",
-        { opacity: 0, y: 35, scale: 0.96 },
-        {
-          opacity: 1,
-          y: 0,
-          scale: 1,
-          duration: 0.85,
-          ease: "power3.out",
-          scrollTrigger: {
-            trigger: ".am-footer-cta",
-            start: "top 85%",
-            once: true,
-          },
-        }
-      );
+      if (document.querySelector(".gsap-footer-cta")) {
+        gsap.fromTo(
+          ".gsap-footer-cta",
+          { opacity: 0, y: 35, scale: 0.96 },
+          {
+            opacity: 1,
+            y: 0,
+            scale: 1,
+            duration: 0.85,
+            ease: "power3.out",
+            scrollTrigger: {
+              trigger: ".gsap-footer-cta",
+              start: "top 85%",
+              once: true,
+            },
+          }
+        );
+      }
     }, mainContainerRef);
 
     return () => ctx.revert();
@@ -1250,41 +1302,7 @@ function HomePageContent() {
                       width: "max-content",
                     }}
                   >
-                    {[
-                      { color: "#06b6d4", text: "Total reward dicairkan menembus 145,000+ USDT" },
-                      { color: "#ec4899", text: "@rendy_clips mencapai status Top Tier Clipper level 5" },
-                      { color: "#3b82f6", text: "Whisper transkripsi audio multi-bahasa (ID/EN) terverifikasi" },
-                      { color: "#00d084", text: "Kampanye 'DeFi Summer' selesai dengan ROI views 340%" },
-                      { color: "#f97316", text: "Escrow otomatis mentransfer 240 USDT ke 6 clipper aktif" },
-                      { color: "#a855f7", text: "@dina_reels mendapatkan bonus engagement 65 USDT" },
-                      { color: "#eab308", text: "1,420 klip aktif bersaing di marketplace hari ini" },
-                      { color: "#10b981", text: "Smart contract timelock BSC tervalidasi 0 incident exploit" },
-                      { color: "#ff4b6e", text: "@fauzan_cut withdraw 210 USDT langsung ke wallet Web3" },
-                      { color: "#14b8a6", text: "Brand fashion meluncurkan bounty video 3,500 USDT" },
-                      { color: "#f59e0b", text: "Algoritma Gemini Vision update model deteksi overlay logo" },
-                      { color: "#6366f1", text: "Rata-rata pencairan dana hanya 14.8 detik setelah verifikasi" },
-                      { color: "#00d084", text: "Clipper komunitas mencatat rata-rata penghasilan 450 USDT/bln" },
-                      { color: "#3b82f6", text: "Verifikasi proof-of-engagement on-chain tanpa perantara agen" },
-                      { color: "#eab308", text: "@siti_creator submit klip Shorts mencapai trending #4" },
-                      { color: "#ec4899", text: "Dana escrow tersimpan aman di smart contract non-kustodian" },
-                      // Duplicate for seamless infinite loop
-                      { color: "#06b6d4", text: "Total reward dicairkan menembus 145,000+ USDT" },
-                      { color: "#ec4899", text: "@rendy_clips mencapai status Top Tier Clipper level 5" },
-                      { color: "#3b82f6", text: "Whisper transkripsi audio multi-bahasa (ID/EN) terverifikasi" },
-                      { color: "#00d084", text: "Kampanye 'DeFi Summer' selesai dengan ROI views 340%" },
-                      { color: "#f97316", text: "Escrow otomatis mentransfer 240 USDT ke 6 clipper aktif" },
-                      { color: "#a855f7", text: "@dina_reels mendapatkan bonus engagement 65 USDT" },
-                      { color: "#eab308", text: "1,420 klip aktif bersaing di marketplace hari ini" },
-                      { color: "#10b981", text: "Smart contract timelock BSC tervalidasi 0 incident exploit" },
-                      { color: "#ff4b6e", text: "@fauzan_cut withdraw 210 USDT langsung ke wallet Web3" },
-                      { color: "#14b8a6", text: "Brand fashion meluncurkan bounty video 3,500 USDT" },
-                      { color: "#f59e0b", text: "Algoritma Gemini Vision update model deteksi overlay logo" },
-                      { color: "#6366f1", text: "Rata-rata pencairan dana hanya 14.8 detik setelah verifikasi" },
-                      { color: "#00d084", text: "Clipper komunitas mencatat rata-rata penghasilan 450 USDT/bln" },
-                      { color: "#3b82f6", text: "Verifikasi proof-of-engagement on-chain tanpa perantara agen" },
-                      { color: "#eab308", text: "@siti_creator submit klip Shorts mencapai trending #4" },
-                      { color: "#ec4899", text: "Dana escrow tersimpan aman di smart contract non-kustodian" },
-                    ].map((item, idx) => (
+                    {[...TICKER_UPDATES, ...TICKER_UPDATES].map((item, idx) => (
                       <div
                         key={idx}
                         style={{
@@ -1394,11 +1412,14 @@ function HomePageContent() {
                       transition: "all 0.2s ease",
                     }}
                   >
-                    <IconComponent
-                      size={15}
+                    <IconBadge
+                      icon={IconComponent}
+                      size="xs"
+                      shape="circle"
                       style={{
+                        backgroundColor: isSelected ? "rgba(255, 255, 255, 0.15)" : `${tab.color}15`,
+                        borderColor: isSelected ? "rgba(255, 255, 255, 0.25)" : "transparent",
                         color: isSelected ? "#ffffff" : tab.color,
-                        flexShrink: 0,
                       }}
                     />
                     <span>{tab.title}</span>
@@ -1448,13 +1469,13 @@ function HomePageContent() {
                     </p>
                     <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem", paddingTop: "0.5rem" }}>
                       <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", fontSize: "0.875rem", color: "#333" }}>
-                        <span style={{ color: "#00d084", fontWeight: 800 }}>✓</span> Audio fingerprint matching transkrip sponsor otomatis
+                        <Check size={14} style={{ color: "#00d084", flexShrink: 0 }} /> Audio fingerprint matching transkrip sponsor otomatis
                       </div>
                       <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", fontSize: "0.875rem", color: "#333" }}>
-                        <span style={{ color: "#00d084", fontWeight: 800 }}>✓</span> Deteksi watermark sponsor pada detik tertentu
+                        <Check size={14} style={{ color: "#00d084", flexShrink: 0 }} /> Deteksi watermark sponsor pada detik tertentu
                       </div>
                       <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", fontSize: "0.875rem", color: "#333" }}>
-                        <span style={{ color: "#00d084", fontWeight: 800 }}>✓</span> Otomatisasi approval tanpa tim review manual
+                        <Check size={14} style={{ color: "#00d084", flexShrink: 0 }} /> Otomatisasi approval tanpa tim review manual
                       </div>
                     </div>
                   </div>
@@ -1471,7 +1492,8 @@ function HomePageContent() {
                       
                       <rect x="32" y="66" width="220" height="48" rx="6" fill="#f3f4f6" />
                       <path d="M42 90 L46 80 L50 96 L54 75 L58 102 L62 84 L66 94 L70 70 L74 105 L78 86 L82 92 L86 78 L90 98 L94 82 L98 90 L102 76 L106 100 L110 88 L114 92 L118 80 L122 96 L126 72 L130 104 L134 84 L138 90 L142 80 L146 98 L150 82 L154 94 L158 86 L162 90 L166 76 L170 102 L174 84 L178 92 L182 82 L186 96 L190 74 L194 100 L198 86 L202 92 L206 80 L210 94 L214 84 L218 90 L222 88 L226 90 L230 84 L234 90" stroke="#00d084" strokeWidth="2" strokeLinecap="round" />
-                      <text x="42" y="128" fontFamily="sans-serif" fontSize="10.5" fill="#059669" fontWeight="700">✓ Whisper Audio Mention: Terverifikasi</text>
+                      <circle cx="46" cy="125" r="3.5" fill="#059669" />
+                      <text x="56" y="128" fontFamily="sans-serif" fontSize="10.5" fill="#059669" fontWeight="700">Whisper Audio Mention: Terverifikasi</text>
 
                       <rect x="270" y="66" width="120" height="96" rx="6" fill="#f0fdf4" stroke="#86efac" strokeWidth="1" strokeDasharray="3 3" />
                       <rect x="280" y="76" width="60" height="14" rx="3" fill="#22c55e" />
@@ -1515,13 +1537,13 @@ function HomePageContent() {
                     </p>
                     <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem", paddingTop: "0.5rem" }}>
                       <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", fontSize: "0.875rem", color: "#333" }}>
-                        <span style={{ color: "#f59e0b", fontWeight: 800 }}>✓</span> Sinkronisasi API resmi dan webhook realtime
+                        <Check size={14} style={{ color: "#f59e0b", flexShrink: 0 }} /> Sinkronisasi API resmi dan webhook realtime
                       </div>
                       <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", fontSize: "0.875rem", color: "#333" }}>
-                        <span style={{ color: "#f59e0b", fontWeight: 800 }}>✓</span> Deduplikasi view antarplatform otomatis
+                        <Check size={14} style={{ color: "#f59e0b", flexShrink: 0 }} /> Deduplikasi view antarplatform otomatis
                       </div>
                       <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", fontSize: "0.875rem", color: "#333" }}>
-                        <span style={{ color: "#f59e0b", fontWeight: 800 }}>✓</span> Laporan retensi video dan engagement rate
+                        <Check size={14} style={{ color: "#f59e0b", flexShrink: 0 }} /> Laporan retensi video dan engagement rate
                       </div>
                     </div>
                   </div>
@@ -1581,13 +1603,13 @@ function HomePageContent() {
                     </p>
                     <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem", paddingTop: "0.5rem" }}>
                       <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", fontSize: "0.875rem", color: "#333" }}>
-                        <span style={{ color: "#00d084", fontWeight: 800 }}>✓</span> Kontrak timelock escrow non-custodial
+                        <Check size={14} style={{ color: "#00d084", flexShrink: 0 }} /> Kontrak timelock escrow non-custodial
                       </div>
                       <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", fontSize: "0.875rem", color: "#333" }}>
-                        <span style={{ color: "#00d084", fontWeight: 800 }}>✓</span> Rilis otomatis langsung ke alamat dompet clipper
+                        <Check size={14} style={{ color: "#00d084", flexShrink: 0 }} /> Rilis otomatis langsung ke alamat dompet clipper
                       </div>
                       <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", fontSize: "0.875rem", color: "#333" }}>
-                        <span style={{ color: "#00d084", fontWeight: 800 }}>✓</span> Perlindungan holdback 14 hari cegah penghapusan video
+                        <Check size={14} style={{ color: "#00d084", flexShrink: 0 }} /> Perlindungan holdback 14 hari cegah penghapusan video
                       </div>
                     </div>
                   </div>
@@ -1608,9 +1630,12 @@ function HomePageContent() {
 
                       <rect x="206" y="66" width="182" height="116" rx="8" fill="#ffffff" stroke="#e2e8f0" strokeWidth="1" />
                       <text x="218" y="86" fontFamily="sans-serif" fontSize="10.5" fill="#64748b" fontWeight="600">Aturan Penguncian:</text>
-                      <text x="218" y="106" fontFamily="sans-serif" fontSize="10" fill="#0f172a">✓ Target: 1M Views tercapai</text>
-                      <text x="218" y="124" fontFamily="sans-serif" fontSize="10" fill="#0f172a">✓ Anti-Fraud: Skor Sybil 0%</text>
-                      <text x="218" y="142" fontFamily="sans-serif" fontSize="10" fill="#0f172a">✓ Timelock: 14 hari rilis</text>
+                      <circle cx="224" cy="103" r="3" fill="#059669" />
+                      <text x="234" y="106" fontFamily="sans-serif" fontSize="10" fill="#0f172a">Target: 1M Views tercapai</text>
+                      <circle cx="224" cy="121" r="3" fill="#059669" />
+                      <text x="234" y="124" fontFamily="sans-serif" fontSize="10" fill="#0f172a">Anti-Fraud: Skor Sybil 0%</text>
+                      <circle cx="224" cy="139" r="3" fill="#059669" />
+                      <text x="234" y="142" fontFamily="sans-serif" fontSize="10" fill="#0f172a">Timelock: 14 hari rilis</text>
                       <text x="218" y="166" fontFamily="sans-serif" fontSize="10" fill="#059669" fontWeight="700">Pencairan Otomatis Aktif</text>
 
                       <rect x="32" y="194" width="356" height="34" rx="6" fill="#f1f5f9" />
@@ -1645,13 +1670,13 @@ function HomePageContent() {
                     </p>
                     <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem", paddingTop: "0.5rem" }}>
                       <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", fontSize: "0.875rem", color: "#333" }}>
-                        <span style={{ color: "#3b82f6", fontWeight: 800 }}>✓</span> Kalkulator proyeksi pendapatan clipper otomatis
+                        <Check size={14} style={{ color: "#3b82f6", flexShrink: 0 }} /> Kalkulator proyeksi pendapatan clipper otomatis
                       </div>
                       <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", fontSize: "0.875rem", color: "#333" }}>
-                        <span style={{ color: "#3b82f6", fontWeight: 800 }}>✓</span> Evaluasi kualitas audiens Indonesia (Tier 1 &amp; Tier 2)
+                        <Check size={14} style={{ color: "#3b82f6", flexShrink: 0 }} /> Evaluasi kualitas audiens Indonesia (Tier 1 &amp; Tier 2)
                       </div>
                       <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", fontSize: "0.875rem", color: "#333" }}>
-                        <span style={{ color: "#3b82f6", fontWeight: 800 }}>✓</span> Laporan ROI transparan untuk pengiklan brand
+                        <Check size={14} style={{ color: "#3b82f6", flexShrink: 0 }} /> Laporan ROI transparan untuk pengiklan brand
                       </div>
                     </div>
                   </div>
@@ -1730,8 +1755,8 @@ function HomePageContent() {
                         >
                           Mulai Gratis
                         </button>
-                        <div className="am-nav-btn-rocket">
-                          <span className="am-paragraph-20">🚀</span>
+                        <div className="am-nav-btn-rocket" style={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
+                          <Rocket size={18} color="#ffffff" />
                         </div>
                       </div>
                     </div>
@@ -1800,108 +1825,7 @@ function HomePageContent() {
                     width: "100%",
                   }}
                 >
-                  {[
-                    {
-                      id: 1,
-                      role: "Clipper",
-                      subtitle: "Kreator Konten & Editor Video",
-                      icon: Scissors,
-                      image: "/assets/66aca46a2e87f778fe899f3b_am_6_personas_sellers%202.avif",
-                      color: "#22c55e",
-                      bgActive: "#dcfce7",
-                      borderActive: "#22c55e",
-                      textColor: "#15803d",
-                      heading: "Fokus Bikin Klip Menarik, Bayaran Masuk Otomatis",
-                      desc: "Pilih kampanye favorit, potong klip video terbaik, pasang watermark sponsor, dan upload ke TikTok/Shorts. Begitu views naik, hadiah langsung ditransfer smart contract ke wallet kamu tanpa nunggu admin.",
-                      cta: "Mulai Jadi Clipper →",
-                      ctaHref: "/clipper",
-                      benefits: [
-                        "Reward USDT langsung cair berdasarkan views TikTok, Shorts, dan Reels",
-                        "AI Agent verifikasi audio Whisper dan visual watermark otomatis",
-                        "0% potongan platform fee — 100% alokasi reward untuk kreator",
-                      ],
-                    },
-                    {
-                      id: 2,
-                      role: "Brand / Bisnis",
-                      subtitle: "Brand, Perusahaan & Pengiklan",
-                      icon: Megaphone,
-                      image: "/assets/66aca8430056a00245b85bf7_am_7_personas_sales_leaders%202.avif",
-                      color: "#f59e0b",
-                      bgActive: "#fef3c7",
-                      borderActive: "#f59e0b",
-                      textColor: "#b45309",
-                      heading: "Dapatkan Jutaan Impresi Organik Tanpa Risiko",
-                      desc: "Kunci budget kampanye di escrow smart contract BNB Chain. Anda hanya membayar views asli yang telah divalidasi oleh AI Agent. Hemat hingga 70% budget dibanding iklan konvensional.",
-                      cta: "Buat Kampanye Pertama →",
-                      ctaHref: "/brand/new",
-                      benefits: [
-                        "Dana terkunci aman dalam timelock smart contract terverifikasi",
-                        "Dukungan multi-platform tracking dengan deduplikasi views otomatis",
-                        "Proteksi anti-sybil melindungi budget dari manipulasi bot",
-                      ],
-                    },
-                    {
-                      id: 3,
-                      role: "Agency Kreator",
-                      subtitle: "Agency Talent & Multi-Channel Network",
-                      icon: Users,
-                      image: "/assets/66aca84f860e0b6ca0cabcda_am_8_personas_founders_2%202.avif",
-                      color: "#a855f7",
-                      bgActive: "#f3e8ff",
-                      borderActive: "#a855f7",
-                      textColor: "#7e22ce",
-                      heading: "Kelola Ratusan Clipper dalam Satu Dashboard",
-                      desc: "Otomasi pembagian komisi agency dan kreator secara real-time. Tidak ada lagi rekonsiliasi manual atau invoice bermasalah di akhir bulan.",
-                      cta: "Pelajari Solusi Agency →",
-                      ctaHref: "/campaigns",
-                      benefits: [
-                        "Bagi hasil komisi otomatis langsung ke dompet sub-kreator",
-                        "Analitik live per performa campaign dan retensi klip",
-                        "Dashboard terpadu untuk monitoring puluhan akun talent",
-                      ],
-                    },
-                    {
-                      id: 4,
-                      role: "Reviewer Node",
-                      subtitle: "Validator Komunitas & Reviewer Node",
-                      icon: ShieldCheck,
-                      image: "/assets/66aca84f1064e578674a4da0_am_9_personas_revops%202.avif",
-                      color: "#0284c7",
-                      bgActive: "#e0f2fe",
-                      borderActive: "#0284c7",
-                      textColor: "#0369a1",
-                      heading: "Validasi Klip dan Dapatkan Fee Verifikasi",
-                      desc: "Bantu jaringan memvalidasi video yang ditandai disputed oleh AI dan peroleh bagian reward dari protokol tata kelola BNB Chain.",
-                      cta: "Pelajari Reviewer Node →",
-                      ctaHref: "/campaigns",
-                      benefits: [
-                        "Verifikasi second-opinion untuk klip yang terkena dispute",
-                        "Dapatkan imbal hasil staking validator on-chain",
-                        "Mendukung transparansi ekosistem Web3 video bebas kecurangan",
-                      ],
-                    },
-                    {
-                      id: 5,
-                      role: "Web3 Protocol",
-                      subtitle: "Web3 Protocols, dApps & DAO Ecosystem",
-                      icon: Layers,
-                      image: "/assets/66aca84f84f3bc82100d704e_am_10_personas_marketers%202.avif",
-                      color: "#e11d48",
-                      bgActive: "#ffe4e6",
-                      borderActive: "#e11d48",
-                      textColor: "#be123c",
-                      heading: "Integrasi Smart Contract Escrow ke dApp Anda",
-                      desc: "Gunakan kontrak terverifikasi kami untuk mendanai bounties video komunitas Anda di BNB Chain dengan audit transparan on-chain.",
-                      cta: "Lihat Repositori & Kontrak ↗",
-                      ctaHref: "https://testnet.bscscan.com",
-                      benefits: [
-                        "Smart contract escrow BNB Chain non-kustodian yang siap diintegrasikan",
-                        "REST & Webhook API untuk sinkronisasi bounty ke dApp Anda",
-                        "Audit keamanan terstandarisasi CertiK & OpenZeppelin",
-                      ],
-                    },
-                  ].map((p) => {
+                  {PERSONA_CONFIG.map((p) => {
                     const isSelected = activePersona === p.id;
                     const IconComp = p.icon;
                     return (
@@ -1932,10 +1856,19 @@ function HomePageContent() {
                             fontSize: "0.875rem",
                             display: "inline-flex",
                             alignItems: "center",
-                            gap: "0.35rem",
+                            gap: "0.5rem",
                           }}
                         >
-                          <IconComp size={15} style={{ color: isSelected ? p.textColor : p.color, flexShrink: 0 }} />
+                          <IconBadge
+                            icon={IconComp}
+                            size="xs"
+                            shape="squircle"
+                            style={{
+                              backgroundColor: isSelected ? p.badgeBg : "rgba(0, 0, 0, 0.04)",
+                              borderColor: isSelected ? p.borderActive : "transparent",
+                              color: isSelected ? p.textColor : "#6b7280",
+                            }}
+                          />
                           <span>{p.role}</span>
                         </div>
 
@@ -1955,99 +1888,18 @@ function HomePageContent() {
 
                 {/* Persona Content Panel */}
                 <div ref={personaContentRef} style={{ marginTop: "3rem", textAlign: "center" }}>
-                  {[
-                    {
-                      id: 1,
-                      subtitle: "Kreator Konten & Editor Video",
-                      color: "#22c55e",
-                      bgActive: "#dcfce7",
-                      textColor: "#15803d",
-                      heading: "Fokus Bikin Klip Menarik, Bayaran Masuk Otomatis",
-                      desc: "Pilih kampanye favorit, potong klip video terbaik, pasang watermark sponsor, dan upload ke TikTok/Shorts. Begitu views naik, hadiah langsung ditransfer smart contract ke wallet kamu tanpa nunggu admin.",
-                      cta: "Mulai Jadi Clipper →",
-                      ctaHref: "/clipper",
-                      benefits: [
-                        "Reward USDT langsung cair berdasarkan views TikTok, Shorts, dan Reels",
-                        "AI Agent verifikasi audio Whisper dan visual watermark otomatis",
-                        "0% potongan platform fee — 100% alokasi reward untuk kreator",
-                      ],
-                    },
-                    {
-                      id: 2,
-                      subtitle: "Brand, Perusahaan & Pengiklan",
-                      color: "#f59e0b",
-                      bgActive: "#fef3c7",
-                      textColor: "#b45309",
-                      heading: "Dapatkan Jutaan Impresi Organik Tanpa Risiko",
-                      desc: "Kunci budget kampanye di escrow smart contract BNB Chain. Anda hanya membayar views asli yang telah divalidasi oleh AI Agent. Hemat hingga 70% budget dibanding iklan konvensional.",
-                      cta: "Buat Kampanye Pertama →",
-                      ctaHref: "/brand/new",
-                      benefits: [
-                        "Dana terkunci aman dalam timelock smart contract terverifikasi",
-                        "Dukungan multi-platform tracking dengan deduplikasi views otomatis",
-                        "Proteksi anti-sybil melindungi budget dari manipulasi bot",
-                      ],
-                    },
-                    {
-                      id: 3,
-                      subtitle: "Agency Talent & Multi-Channel Network",
-                      color: "#a855f7",
-                      bgActive: "#f3e8ff",
-                      textColor: "#7e22ce",
-                      heading: "Kelola Ratusan Clipper dalam Satu Dashboard",
-                      desc: "Otomasi pembagian komisi agency dan kreator secara real-time. Tidak ada lagi rekonsiliasi manual atau invoice bermasalah di akhir bulan.",
-                      cta: "Pelajari Solusi Agency →",
-                      ctaHref: "/campaigns",
-                      benefits: [
-                        "Bagi hasil komisi otomatis langsung ke dompet sub-kreator",
-                        "Analitik live per performa campaign dan retensi klip",
-                        "Dashboard terpadu untuk monitoring puluhan akun talent",
-                      ],
-                    },
-                    {
-                      id: 4,
-                      subtitle: "Validator Komunitas & Reviewer Node",
-                      color: "#0284c7",
-                      bgActive: "#e0f2fe",
-                      textColor: "#0369a1",
-                      heading: "Validasi Klip dan Dapatkan Fee Verifikasi",
-                      desc: "Bantu jaringan memvalidasi video yang ditandai disputed oleh AI dan peroleh bagian reward dari protokol tata kelola BNB Chain.",
-                      cta: "Pelajari Reviewer Node →",
-                      ctaHref: "/campaigns",
-                      benefits: [
-                        "Verifikasi second-opinion untuk klip yang terkena dispute",
-                        "Dapatkan imbal hasil staking validator on-chain",
-                        "Mendukung transparansi ekosistem Web3 video bebas kecurangan",
-                      ],
-                    },
-                    {
-                      id: 5,
-                      subtitle: "Web3 Protocols, dApps & DAO Ecosystem",
-                      color: "#e11d48",
-                      bgActive: "#ffe4e6",
-                      textColor: "#be123c",
-                      heading: "Integrasi Smart Contract Escrow ke dApp Anda",
-                      desc: "Gunakan kontrak terverifikasi kami untuk mendanai bounties video komunitas Anda di BNB Chain dengan audit transparan on-chain.",
-                      cta: "Lihat Repositori & Kontrak ↗",
-                      ctaHref: "https://testnet.bscscan.com",
-                      benefits: [
-                        "Smart contract escrow BNB Chain non-kustodian yang siap diintegrasikan",
-                        "REST & Webhook API untuk sinkronisasi bounty ke dApp Anda",
-                        "Audit keamanan terstandarisasi CertiK & OpenZeppelin",
-                      ],
-                    },
-                  ].map((p) => {
-                    if (activePersona !== p.id) return null;
+                  {(() => {
+                    const currentPersona = PERSONA_CONFIG.find((p) => p.id === activePersona) || PERSONA_CONFIG[0];
                     return (
-                      <div key={p.id} style={{ display: "block", maxWidth: "48rem", margin: "0 auto" }}>
+                      <div key={currentPersona.id} style={{ display: "block", maxWidth: "48rem", margin: "0 auto" }}>
                         <div
                           style={{
                             display: "inline-flex",
                             alignItems: "center",
                             padding: "0.3rem 0.875rem",
                             borderRadius: "9999px",
-                            backgroundColor: p.bgActive,
-                            color: p.textColor,
+                            backgroundColor: currentPersona.bgActive,
+                            color: currentPersona.textColor,
                             fontSize: "0.75rem",
                             fontWeight: 700,
                             letterSpacing: "0.5px",
@@ -2055,48 +1907,50 @@ function HomePageContent() {
                             textTransform: "uppercase",
                           }}
                         >
-                          {p.subtitle}
+                          {currentPersona.subtitle}
                         </div>
                         <h3 className="am-heading-28" style={{ marginBottom: "0.875rem", fontSize: "clamp(1.35rem, 4vw, 1.875rem)", fontWeight: 700, lineHeight: 1.25 }}>
-                          {p.heading}
+                          {currentPersona.heading}
                         </h3>
                         <p className="am-paragraph-16 am-opacity-60" style={{ fontSize: "1rem", lineHeight: 1.6, maxWidth: "42rem", margin: "0 auto" }}>
-                          {p.desc}
+                          {currentPersona.desc}
                         </p>
 
                         <div style={{ display: "flex", flexDirection: "column", gap: "0.625rem", marginTop: "1.5rem", alignItems: "center" }}>
-                          {p.benefits.map((b, bi) => (
+                          {currentPersona.benefits.map((b, bi) => (
                             <div key={bi} style={{ display: "inline-flex", alignItems: "center", gap: "0.5rem", fontSize: "0.875rem", color: "#374151" }}>
-                              <span style={{ color: p.color, fontWeight: 800 }}>✓</span>
+                              <Check size={14} style={{ color: currentPersona.color, flexShrink: 0 }} />
                               <span>{b}</span>
                             </div>
                           ))}
                         </div>
 
                         <div style={{ marginTop: "2rem" }}>
-                          {p.ctaHref.startsWith("http") ? (
+                          {currentPersona.ctaHref.startsWith("http") ? (
                             <a
-                              href={p.ctaHref}
+                              href={currentPersona.ctaHref}
                               target="_blank"
                               rel="noreferrer"
                               className="am-nav-btn is-secondary"
                               style={{ display: "inline-flex", alignItems: "center", gap: "0.35rem" }}
                             >
-                              {p.cta}
+                              <span>{currentPersona.cta}</span>
+                              <ExternalLink size={14} />
                             </a>
                           ) : (
                             <Link
-                              href={p.ctaHref}
+                              href={currentPersona.ctaHref}
                               className="am-nav-btn is-secondary"
                               style={{ display: "inline-flex", alignItems: "center", gap: "0.35rem" }}
                             >
-                              {p.cta}
+                              <span>{currentPersona.cta}</span>
+                              <ArrowRight size={14} />
                             </Link>
                           )}
                         </div>
                       </div>
                     );
-                  })}
+                  })()}
                 </div>
               </div>
             </div>
@@ -2455,74 +2309,52 @@ function HomePageContent() {
             </div>
 
             <div className="am-customers-wall-of-love-grid gsap-wall-grid" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: "1.25rem" }}>
-              {/* Testimonial Card 1 */}
-              <div className="am-customers-wall-of-love-card gsap-wall-card" style={{ backgroundColor: "#1e1d1c", padding: "1.5rem", borderRadius: "14px", border: "1px solid rgba(255,255,255,0.08)", display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
-                <div>
-                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "0.75rem" }}>
-                    <div style={{ display: "flex", gap: "2px", color: "#f59e0b", fontSize: "0.875rem" }}>
-                      ★★★★★
+              {TESTIMONIALS_DATA.map((item) => (
+                <div
+                  key={item.id}
+                  className="am-customers-wall-of-love-card gsap-wall-card"
+                  style={{
+                    backgroundColor: "#1e1d1c",
+                    padding: "1.5rem",
+                    borderRadius: "14px",
+                    border: "1px solid rgba(255,255,255,0.08)",
+                    display: "flex",
+                    flexDirection: "column",
+                    justifyContent: "space-between",
+                  }}
+                >
+                  <div>
+                    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "0.75rem" }}>
+                      <div style={{ display: "flex", gap: "3px", color: "#f59e0b" }}>
+                        {[...Array(item.rating)].map((_, i) => (
+                          <Star key={i} size={14} fill="#f59e0b" strokeWidth={0} />
+                        ))}
+                      </div>
+                      <span
+                        style={{
+                          fontSize: "0.6875rem",
+                          fontWeight: 700,
+                          color: item.tagColor,
+                          backgroundColor: item.tagBg,
+                          padding: "2px 8px",
+                          borderRadius: "9999px",
+                        }}
+                      >
+                        {item.tag}
+                      </span>
                     </div>
-                    <span style={{ fontSize: "0.6875rem", fontWeight: 700, color: "#00d084", backgroundColor: "rgba(0, 208, 132, 0.12)", padding: "2px 8px", borderRadius: "9999px" }}>
-                      Verified Clipper
-                    </span>
+                    <p className="am-paragraph-16 am-is-white am-opacity-80" style={{ fontSize: "0.9375rem", lineHeight: 1.6, marginBottom: "1.25rem" }}>
+                      &ldquo;{item.quote}&rdquo;
+                    </p>
                   </div>
-                  <p className="am-paragraph-16 am-is-white am-opacity-80" style={{ fontSize: "0.9375rem", lineHeight: 1.6, marginBottom: "1.25rem" }}>
-                    &ldquo;Dulu sering banget ditipu sama brand yang kabur setelah video FYP. Di ClipStream AI, uangnya udah dikunci di smart contract. Begitu tembus target, USDT langsung masuk dompet!&rdquo;
-                  </p>
-                </div>
-                <div className="am-customer-stories-testimonial-details">
-                  <div className="am-paragraph-14 am-is-white">
-                    <div style={{ fontWeight: 600 }}>Budi Santoso</div>
-                    <div className="am-opacity-60" style={{ fontSize: "0.75rem" }}>Clipper TikTok • 850k Views</div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Testimonial Card 2 */}
-              <div className="am-customers-wall-of-love-card gsap-wall-card" style={{ backgroundColor: "#1e1d1c", padding: "1.5rem", borderRadius: "14px", border: "1px solid rgba(255,255,255,0.08)", display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
-                <div>
-                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "0.75rem" }}>
-                    <div style={{ display: "flex", gap: "2px", color: "#f59e0b", fontSize: "0.875rem" }}>
-                      ★★★★★
+                  <div className="am-customer-stories-testimonial-details">
+                    <div className="am-paragraph-14 am-is-white">
+                      <div style={{ fontWeight: 600 }}>{item.author}</div>
+                      <div className="am-opacity-60" style={{ fontSize: "0.75rem" }}>{item.role}</div>
                     </div>
-                    <span style={{ fontSize: "0.6875rem", fontWeight: 700, color: "#00d084", backgroundColor: "rgba(0, 208, 132, 0.12)", padding: "2px 8px", borderRadius: "9999px" }}>
-                      Verified Clipper
-                    </span>
-                  </div>
-                  <p className="am-paragraph-16 am-is-white am-opacity-80" style={{ fontSize: "0.9375rem", lineHeight: 1.6, marginBottom: "1.25rem" }}>
-                    &ldquo;Verifikasinya beneran otomatis. Saya submit URL Shorts malam hari, paginya cek wallet udah ada transferan 180 USDT. Nggak perlu chat admin sama sekali.&rdquo;
-                  </p>
-                </div>
-                <div className="am-customer-stories-testimonial-details">
-                  <div className="am-paragraph-14 am-is-white">
-                    <div style={{ fontWeight: 600 }}>Rian Pratama</div>
-                    <div className="am-opacity-60" style={{ fontSize: "0.75rem" }}>Content Creator • YouTube Shorts</div>
                   </div>
                 </div>
-              </div>
-
-              {/* Testimonial Card 3 */}
-              <div className="am-customers-wall-of-love-card gsap-wall-card" style={{ backgroundColor: "#1e1d1c", padding: "1.5rem", borderRadius: "14px", border: "1px solid rgba(255,255,255,0.08)", display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
-                <div>
-                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "0.75rem" }}>
-                    <div style={{ display: "flex", gap: "2px", color: "#f59e0b", fontSize: "0.875rem" }}>
-                      ★★★★★
-                    </div>
-                    <span style={{ fontSize: "0.6875rem", fontWeight: 700, color: "#38bdf8", backgroundColor: "rgba(56, 189, 248, 0.12)", padding: "2px 8px", borderRadius: "9999px" }}>
-                      Verified Brand
-                    </span>
-                  </div>
-                  <p className="am-paragraph-16 am-is-white am-opacity-80" style={{ fontSize: "0.9375rem", lineHeight: 1.6, marginBottom: "1.25rem" }}>
-                    &ldquo;Kami pasang bounty 2.000 USDT untuk promo produk baru. Dapat 50+ video dari clipper dengan total 1,8 juta views dalam 1 minggu. CPM jauh lebih murah dari Meta Ads!&rdquo;
-                  </p>
-                </div>
-                <div className="am-customer-stories-testimonial-details">
-                  <div className="am-paragraph-14 am-is-white">
-                    <div style={{ fontWeight: 600 }}>Jessica Hartono</div>
-                    <div className="am-opacity-60" style={{ fontSize: "0.75rem" }}>Marketing Lead, Brand D2C</div>
-                  </div>
-                </div>
-              </div>
+              ))}
             </div>
           </div>
         </div>
@@ -2556,7 +2388,7 @@ function HomePageContent() {
                 },
                 {
                   q: "Bagaimana sistem perhitungan rate CPM di ClipStream AI?",
-                  a: "Rate CPM ditentukan langsung oleh brand sponsor (berkisar Rp 15.000 - Rp 35.000 per 1.000 views terverifikasi). Sistem membaca performa views secara transparan lewat YouTube Data API dan TikTok crawler.",
+                  a: "Rate CPM ditentukan langsung oleh brand sponsor (berkisar antara Rp 15.000 hingga Rp 35.000 per 1.000 views terverifikasi). Sistem membaca performa views secara transparan lewat YouTube Data API dan TikTok crawler.",
                 },
                 {
                   q: "Apakah ada potongan biaya platform (platform fee)?",

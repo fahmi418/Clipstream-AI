@@ -40,7 +40,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="id" className={inter.variable}>
+    <html lang="id" className={inter.variable} suppressHydrationWarning>
       <head>
         <link
           rel="stylesheet"
@@ -71,7 +71,7 @@ export default function RootLayout({
           }}
         />
       </head>
-      <body className="am-body min-h-screen flex flex-col bg-[#f6f5f3] text-[#111] antialiased">
+      <body className="am-body min-h-screen flex flex-col bg-[#f6f5f3] text-[#111] antialiased" suppressHydrationWarning>
         <div className="am-page-wrapper flex flex-col min-h-screen">
           <Providers>
             <Nav />

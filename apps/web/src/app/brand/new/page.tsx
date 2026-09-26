@@ -21,6 +21,7 @@ import {
   Check,
   ExternalLink,
   Megaphone,
+  AlertCircle,
 } from "lucide-react";
 import Link from "next/link";
 import { AuthGate } from "@/components/AuthGate";
@@ -345,14 +346,44 @@ export default function BrandNewCampaignPage() {
         deadline: new Date(deadline).toISOString(),
       };
       const camp = await createCampaign(payload);
-      setCreatedCampaignId(camp.id);
+      const campId = (camp as any).campaignId || (camp as any).id;
+      setCreatedCampaignId(campId);
       const onchainNum = Math.floor(Math.random() * 9000 + 1000).toString();
       setCreatedOnchainId(onchainNum);
       try {
-        await finalizeCampaign(camp.id, {
+        await finalizeCampaign(campId, {
           onchainId: onchainNum,
           txHash: "0x7a3f89e2c1409d5b8821a719c8f02938472199ac2b44910283748291023948aa",
         });
+
+        // Persist to local cache for instant UI availability
+        if (typeof window !== "undefined") {
+          try {
+            const stored = localStorage.getItem("clipstream_created_campaigns");
+            const list = stored ? JSON.parse(stored) : [];
+            list.unshift({
+              id: campId,
+              onchainId: onchainNum,
+              brandId: user?.walletAddress || "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+              title,
+              description,
+              sourceUrl,
+              rules,
+              cpmRate: cpmUsdtWei.toString(),
+              totalBudget: totalUsdtWei.toString(),
+              remainingBudget: totalUsdtWei.toString(),
+              maxPayoutPerClip: capUsdtWei.toString(),
+              minViews,
+              deadline: new Date(deadline).toISOString(),
+              status: "ACTIVE",
+              clippersCount: 0,
+              clipsCount: 0,
+              txHash: "0x7a3f89e2c1409d5b8821a719c8f02938472199ac2b44910283748291023948aa",
+              createdAt: new Date().toISOString(),
+            });
+            localStorage.setItem("clipstream_created_campaigns", JSON.stringify(list));
+          } catch {}
+        }
       } catch (finalizeErr) {
         console.warn("Finalize warning:", finalizeErr);
       }
@@ -444,7 +475,7 @@ export default function BrandNewCampaignPage() {
                 gap: "8px",
               }}
             >
-              <span>⚠</span>
+              <AlertCircle size={16} />
               <span>{error}</span>
             </div>
           )}
@@ -619,7 +650,7 @@ export default function BrandNewCampaignPage() {
                 <div style={{ width: "56px", height: "56px", borderRadius: "16px", background: "#ecfdf5", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 1.5rem" }}>
                   <CheckCircle2 size={28} style={{ color: "#059669" }} />
                 </div>
-                <h2 style={{ fontSize: "1.5rem", fontWeight: 700, color: "#111", letterSpacing: "-0.03em", margin: "0 0 0.375rem" }}>Campaign Aktif! 🎉</h2>
+                <h2 style={{ fontSize: "1.5rem", fontWeight: 700, color: "#111", letterSpacing: "-0.03em", margin: "0 0 0.375rem" }}>Campaign Aktif!</h2>
                 <p style={{ fontSize: "0.875rem", color: "rgba(17,17,17,0.5)", margin: "0 0 2rem" }}>Smart contract #{createdOnchainId ?? "1042"} telah aktif di BNB Chain Testnet.</p>
                 <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "10px", padding: "12px 16px", background: "#f6f5f3", border: "1px solid rgba(17,17,17,0.08)", borderRadius: "10px", marginBottom: "1.5rem", textAlign: "left" }}>
                   <span style={{ fontFamily: "monospace", fontSize: "0.8125rem", color: "#111", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>clipstream.xyz/campaigns/{createdCampaignId ?? "42"}</span>

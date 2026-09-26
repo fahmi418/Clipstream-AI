@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { listCampaigns, type Campaign } from "@/lib/api";
+import { listCampaigns, fetchStats, type Campaign, type Stats } from "@/lib/api";
 import {
   formatCpm,
   formatIdr,
@@ -10,6 +10,7 @@ import {
   formatViews,
   formatRelativeDate,
   formatDate,
+  usdtWeiToFloat,
 } from "@/lib/format";
 import { useAuth } from "@/lib/auth-context";
 import { AuthGate } from "@/components/AuthGate";
@@ -80,16 +81,25 @@ const defaultBrandCampaigns: Campaign[] = [
 export default function BrandCampaignsPage() {
   const { user } = useAuth();
   const [campaigns, setCampaigns] = useState<Campaign[]>(defaultBrandCampaigns);
+  const [stats, setStats] = useState<Stats | null>(null);
   const [loading, setLoading] = useState(false);
 
   const fetchBrandCampaigns = async () => {
     setLoading(true);
     try {
-      const data = await listCampaigns();
-      if (data && data.length > 0) {
-        setCampaigns(data);
+      const [campRes, statsRes] = await Promise.allSettled([
+        listCampaigns(),
+        fetchStats(),
+      ]);
+
+      if (campRes.status === "fulfilled" && campRes.value && campRes.value.length > 0) {
+        setCampaigns(campRes.value);
       } else {
         setCampaigns(defaultBrandCampaigns);
+      }
+
+      if (statsRes.status === "fulfilled" && statsRes.value) {
+        setStats(statsRes.value);
       }
     } catch {
       setCampaigns(defaultBrandCampaigns);
@@ -106,10 +116,21 @@ export default function BrandCampaignsPage() {
     (acc, c) => acc + BigInt(c.totalBudget ?? 0),
     BigInt(0)
   );
-  const totalClips = campaigns.reduce(
+  const totalClips = stats?.totalClips ?? campaigns.reduce(
     (acc, c) => acc + (c.clipsCount ?? 0),
     0
   );
+  const totalClippers = campaigns.reduce(
+    (acc, c) => acc + (c.clippersCount ?? 0),
+    0
+  );
+  const totalViews = stats?.totalViewsVerified ?? 40000;
+
+  // Average CPM calculation across active campaigns
+  const avgCpmWei = campaigns.length > 0
+    ? campaigns.reduce((acc, c) => acc + BigInt(c.cpmRate ?? 0), BigInt(0)) / BigInt(campaigns.length)
+    : BigInt(0);
+  const avgCpmIdr = usdtWeiToFloat(avgCpmWei) * 16300;
 
   return (
     <AuthGate
@@ -298,10 +319,10 @@ export default function BrandCampaignsPage() {
               <Scissors size={16} color="#d97706" />
             </div>
             <div style={{ fontSize: "2rem", fontWeight: 700, color: "#111" }}>
-              {totalClips > 0 ? totalClips : 110} Klip
+              {totalClips} Klip
             </div>
             <div style={{ fontSize: "0.8125rem", color: "rgba(17,17,17,0.6)", marginTop: "0.25rem" }}>
-              Dihasilkan dari 42 video editor
+              Dihasilkan dari {totalClippers > 0 ? totalClippers : 1} video editor
             </div>
             <div
               style={{
@@ -317,7 +338,7 @@ export default function BrandCampaignsPage() {
                 borderRadius: "9999px",
               }}
             >
-              ★ 99.8% Verifikasi Otomatis AI
+              <Sparkles size={12} /> 99.8% Verifikasi Otomatis AI
             </div>
           </div>
 
@@ -337,7 +358,7 @@ export default function BrandCampaignsPage() {
               <Eye size={16} color="#7c3aed" />
             </div>
             <div style={{ fontSize: "2rem", fontWeight: 700, color: "#111" }}>
-              342,100 Views
+              {totalViews.toLocaleString("id-ID")} Views
             </div>
             <div style={{ fontSize: "0.8125rem", color: "rgba(17,17,17,0.6)", marginTop: "0.25rem" }}>
               Distribusi organik Shorts &amp; TikTok
@@ -376,7 +397,7 @@ export default function BrandCampaignsPage() {
               <TrendingUp size={16} color="#e8400d" />
             </div>
             <div style={{ fontSize: "2rem", fontWeight: 700, color: "#111" }}>
-              Rp 18.200
+              Rp {Math.round(avgCpmIdr || 18200).toLocaleString("id-ID")}
             </div>
             <div style={{ fontSize: "0.8125rem", color: "rgba(17,17,17,0.6)", marginTop: "0.25rem" }}>
               Rata-rata CPM per 1.000 views
@@ -395,7 +416,7 @@ export default function BrandCampaignsPage() {
                 borderRadius: "9999px",
               }}
             >
-              ★ Hemat 24% vs In-Feed Ads
+              <TrendingUp size={12} /> Hemat 24% vs In-Feed Ads
             </div>
           </div>
         </div>

@@ -3,26 +3,16 @@
 import { useState, useEffect } from "react";
 import {
   X,
-  Zap,
-  Coins,
-  ShieldCheck,
-  CheckCircle2,
-  ExternalLink,
-  Loader2,
-  ArrowRight,
-  Smartphone,
-  Building,
-  Lock,
-  Sparkles,
-  Info,
-  Copy,
-  Check,
-  ArrowDownUp,
-  HelpCircle,
-  Clock,
-  CheckCheck,
+  AlertTriangle,
   ChevronDown,
   ChevronUp,
+  Loader2,
+  Check,
+  Copy,
+  CheckCircle2,
+  ExternalLink,
+  CheckCheck,
+  Smartphone,
 } from "lucide-react";
 import { authApi } from "@/lib/api";
 import { MobilePushNotification } from "@/components/MobilePushNotification";
@@ -32,57 +22,29 @@ export interface PokoOffRampModalProps {
   isOpen: boolean;
   onClose: () => void;
   availableBalanceUsdc: number;
+  holdbackUsdc?: number;
+  totalWithdrawnUsdc?: number;
   userWalletAddress?: string;
   userDisplayName?: string;
   onWithdrawSuccess?: (withdrawnUsdc: number, receiptData: any) => void;
 }
 
-const SUPPORTED_EWALLETS = [
-  { id: "DANA", name: "DANA", color: "#118eea", bg: "#eef7fe" },
-  { id: "GOPAY", name: "GoPay", color: "#00aed6", bg: "#e6f8fc" },
-  { id: "OVO", name: "OVO", color: "#4c2a86", bg: "#f3effa" },
-  { id: "SHOPEEPAY", name: "ShopeePay", color: "#ee4d2d", bg: "#feeeea" },
-];
+import {
+  EWALLET_PROVIDERS,
+  BANK_PROVIDERS,
+  HACKATHON_DEMO_PRESETS,
+} from "@/data/payment-providers";
 
-const SUPPORTED_BANKS = [
-  { id: "BCA", name: "BCA", color: "#005baa", bg: "#e6eff7" },
-  { id: "MANDIRI", name: "Mandiri", color: "#003d79", bg: "#e6ecf2" },
-  { id: "BRI", name: "BRI", color: "#00529c", bg: "#e6eef5" },
-  { id: "BNI", name: "BNI", color: "#f15a24", bg: "#feefe9" },
-];
-
-// Presets for hackathon test / demo
-const HACKATHON_PRESETS = [
-  {
-    label: "🧪 Test DANA",
-    method: "EWALLET" as const,
-    provider: "DANA",
-    accountNumber: "0812-9876-5432",
-    accountName: "Budi Santoso (Tester)",
-    amount: "10.00",
-  },
-  {
-    label: "🧪 Test GoPay",
-    method: "EWALLET" as const,
-    provider: "GOPAY",
-    accountNumber: "0857-1122-3344",
-    accountName: "Siti Rahma (Tester)",
-    amount: "25.00",
-  },
-  {
-    label: "🧪 Test BCA",
-    method: "BANK" as const,
-    provider: "BCA",
-    accountNumber: "8870123456",
-    accountName: "Ahmad Clipper (Tester)",
-    amount: "50.00",
-  },
-];
+const SUPPORTED_EWALLETS = EWALLET_PROVIDERS;
+const SUPPORTED_BANKS = BANK_PROVIDERS;
+const HACKATHON_PRESETS = HACKATHON_DEMO_PRESETS;
 
 export function PokoOffRampModal({
   isOpen,
   onClose,
   availableBalanceUsdc,
+  holdbackUsdc = 0,
+  totalWithdrawnUsdc = 0,
   userWalletAddress = "0x70997970C51812dc3A010C7d01b50e0d17dc79C8",
   userDisplayName = "Clipper",
   onWithdrawSuccess,
@@ -105,12 +67,26 @@ export function PokoOffRampModal({
   const [showPushNotification, setShowPushNotification] = useState(false);
   const [showPhoneSimulator, setShowPhoneSimulator] = useState(false);
 
-  // Sync default amount when available balance changes
+  // Reset all state setiap kali modal dibuka kembali
   useEffect(() => {
-    if (availableBalanceUsdc > 0 && (!amountUsdt || amountUsdt === "0")) {
-      setAmountUsdt(Math.min(availableBalanceUsdc, 10).toFixed(2));
+    if (isOpen) {
+      setStep("INPUT");
+      setErrorMsg(null);
+      setReceipt(null);
+      setShowFeeDetails(false);
+      setShowPushNotification(false);
+      setShowPhoneSimulator(false);
+      setAmountUsdt(
+        availableBalanceUsdc > 0
+          ? availableBalanceUsdc.toFixed(2)
+          : "10.00"
+      );
+      setAccountNumber("");
+      setAccountName(userDisplayName);
+      setProvider("DANA");
+      setMethod("EWALLET");
     }
-  }, [availableBalanceUsdc]);
+  }, [isOpen]);
 
   if (!isOpen) return null;
 
@@ -237,7 +213,7 @@ export function PokoOffRampModal({
         <div
           style={{
             width: "100%",
-            maxWidth: "490px",
+            maxWidth: "560px",
             backgroundColor: "#ffffff",
             borderRadius: "28px",
             border: "1px solid rgba(0, 0, 0, 0.08)",
@@ -275,14 +251,13 @@ export function PokoOffRampModal({
                   height: "36px",
                   borderRadius: "12px",
                   backgroundColor: "#eef7fe",
-                  color: "#118eea",
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
-                  boxShadow: "0 2px 8px rgba(17, 142, 234, 0.15)",
+                  fontSize: "18px",
                 }}
               >
-                <Zap size={20} />
+                ⚡
               </div>
               <div>
                 <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
@@ -296,12 +271,12 @@ export function PokoOffRampModal({
                       color: "#118eea",
                       backgroundColor: "#eef7fe",
                       border: "1px solid rgba(17, 142, 234, 0.25)",
-                      padding: "2px 6px",
+                      padding: "2px 8px",
                       borderRadius: "9999px",
                       letterSpacing: "0.03em",
                     }}
                   >
-                    🧪 SANDBOX opBNB
+                    SANDBOX opBNB
                   </span>
                 </div>
                 <p style={{ fontSize: "0.6875rem", color: "#666", margin: "2px 0 0 0" }}>
@@ -332,10 +307,53 @@ export function PokoOffRampModal({
           </div>
 
           {/* Body Content */}
-          <div style={{ padding: "1.25rem 1.4rem", maxHeight: "80vh", overflowY: "auto" }}>
+          <div style={{ padding: "1.5rem 1.75rem", maxHeight: "85vh", overflowY: "auto" }}>
             {/* Step 1: Input Form */}
             {step === "INPUT" && (
               <form onSubmit={handleStartWithdrawal} style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
+
+                {/* Balance Summary — mirror wallet page cards */}
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8px" }}>
+                  {/* Card: Siap Tarik */}
+                  <div
+                    style={{
+                      backgroundColor: "#f0fdf4",
+                      border: "1px solid #bbf7d0",
+                      borderRadius: "14px",
+                      padding: "10px 14px",
+                    }}
+                  >
+                    <p style={{ fontSize: "0.625rem", fontWeight: 700, color: "#15803d", textTransform: "uppercase", margin: "0 0 4px 0", letterSpacing: "0.04em" }}>
+                      Saldo Siap Tarik
+                    </p>
+                    <p style={{ fontSize: "1.125rem", fontWeight: 800, color: "#111", margin: "0 0 2px 0" }}>
+                      ${availableBalanceUsdc.toFixed(2)} <span style={{ fontSize: "0.75rem", fontWeight: 600, color: "#555" }}>USDT</span>
+                    </p>
+                    <p style={{ fontSize: "0.625rem", color: "#6b7280", margin: 0 }}>
+                      ≈ Rp {Math.round(availableBalanceUsdc * 16300).toLocaleString("id-ID")}
+                    </p>
+                  </div>
+
+                  {/* Card: Tertahan */}
+                  <div
+                    style={{
+                      backgroundColor: "#fffbeb",
+                      border: "1px solid #fde68a",
+                      borderRadius: "14px",
+                      padding: "10px 14px",
+                    }}
+                  >
+                    <p style={{ fontSize: "0.625rem", fontWeight: 700, color: "#b45309", textTransform: "uppercase", margin: "0 0 4px 0", letterSpacing: "0.04em" }}>
+                      Tertahan (30%)
+                    </p>
+                    <p style={{ fontSize: "1.125rem", fontWeight: 800, color: "#111", margin: "0 0 2px 0" }}>
+                      ${holdbackUsdc.toFixed(2)} <span style={{ fontSize: "0.75rem", fontWeight: 600, color: "#555" }}>USDT</span>
+                    </p>
+                    <p style={{ fontSize: "0.625rem", color: "#6b7280", margin: 0 }}>
+                      Cair otomatis 72 jam
+                    </p>
+                  </div>
+                </div>
                 {/* Hackathon Preset Bar */}
                 <div
                   style={{
@@ -349,10 +367,7 @@ export function PokoOffRampModal({
                   }}
                 >
                   <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                    <div style={{ display: "flex", alignItems: "center", gap: "5px", fontSize: "0.6875rem", fontWeight: 700, color: "#1e293b" }}>
-                      <Sparkles size={12} color="#118eea" />
-                      <span>Preset Cepat Demo Hackathon:</span>
-                    </div>
+                    <span style={{ fontSize: "0.6875rem", fontWeight: 700, color: "#1e293b" }}>Preset Demo:</span>
                     <span style={{ fontSize: "0.625rem", color: "#64748b" }}>1-Klik Langsung Isi</span>
                   </div>
 
@@ -407,7 +422,10 @@ export function PokoOffRampModal({
                       gap: "6px",
                     }}
                   >
-                    <span>⚠️ {errorMsg}</span>
+                    <span>
+                      <AlertTriangle size={14} style={{ display: "inline-block", verticalAlign: "middle", marginRight: "4px" }} />
+                      {errorMsg}
+                    </span>
                   </div>
                 )}
 
@@ -470,36 +488,17 @@ export function PokoOffRampModal({
 
                       <div
                         style={{
-                          display: "flex",
-                          alignItems: "center",
-                          gap: "6px",
-                          backgroundColor: "#ffffff",
-                          padding: "6px 10px",
-                          borderRadius: "12px",
+                          padding: "6px 12px",
+                          borderRadius: "10px",
                           border: "1px solid rgba(0, 0, 0, 0.08)",
-                          boxShadow: "0 1px 4px rgba(0,0,0,0.03)",
+                          backgroundColor: "#ffffff",
+                          fontSize: "0.8125rem",
+                          fontWeight: 700,
+                          color: "#111",
                         }}
                       >
-                        <div
-                          style={{
-                            width: "20px",
-                            height: "20px",
-                            borderRadius: "50%",
-                            backgroundColor: "#26a17b",
-                            color: "#fff",
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "center",
-                            fontSize: "10px",
-                            fontWeight: 800,
-                          }}
-                        >
-                          ₮
-                        </div>
-                        <span style={{ fontSize: "0.8125rem", fontWeight: 700, color: "#111" }}>USDT</span>
-                        <span style={{ fontSize: "0.625rem", color: "#666", backgroundColor: "#f1f5f9", padding: "1px 4px", borderRadius: "4px" }}>
-                          opBNB
-                        </span>
+                        USDT
+                        <span style={{ fontSize: "0.625rem", color: "#888", marginLeft: "4px", fontWeight: 400 }}>opBNB</span>
                       </div>
                     </div>
 
@@ -534,7 +533,6 @@ export function PokoOffRampModal({
                         fontWeight: 600,
                       }}
                     >
-                      <ArrowDownUp size={12} color="#118eea" />
                       <span>1 USDT ≈ <b>Rp {idrRate.toLocaleString("id-ID")}</b></span>
                     </div>
                   </div>
@@ -552,8 +550,8 @@ export function PokoOffRampModal({
                       <span style={{ fontSize: "0.6875rem", fontWeight: 700, color: "#666", textTransform: "uppercase" }}>
                         Kamu Terima Bersih (To)
                       </span>
-                      <span style={{ fontSize: "0.6875rem", color: "#10b981", fontWeight: 700, display: "flex", alignItems: "center", gap: "3px" }}>
-                        <Clock size={11} /> ~10-30 detik (BI-FAST)
+                      <span style={{ fontSize: "0.6875rem", color: "#10b981", fontWeight: 600 }}>
+                        ~10-30 detik (BI-FAST)
                       </span>
                     </div>
 
@@ -571,21 +569,17 @@ export function PokoOffRampModal({
 
                       <div
                         style={{
-                          display: "flex",
-                          alignItems: "center",
-                          gap: "6px",
-                          backgroundColor: "#ffffff",
-                          padding: "6px 10px",
-                          borderRadius: "12px",
+                          padding: "6px 12px",
+                          borderRadius: "10px",
                           border: "1px solid rgba(0, 0, 0, 0.08)",
-                          boxShadow: "0 1px 4px rgba(0,0,0,0.03)",
+                          backgroundColor: "#ffffff",
+                          fontSize: "0.8125rem",
+                          fontWeight: 700,
+                          color: "#111",
                         }}
                       >
-                        <span style={{ fontSize: "1rem" }}>🇮🇩</span>
-                        <span style={{ fontSize: "0.8125rem", fontWeight: 700, color: "#111" }}>IDR</span>
-                        <span style={{ fontSize: "0.625rem", color: "#666", backgroundColor: "#f1f5f9", padding: "1px 4px", borderRadius: "4px" }}>
-                          Rupiah
-                        </span>
+                        IDR
+                        <span style={{ fontSize: "0.625rem", color: "#888", marginLeft: "4px", fontWeight: 400 }}>Rupiah</span>
                       </div>
                     </div>
 
@@ -693,9 +687,12 @@ export function PokoOffRampModal({
                           backgroundColor: method === "EWALLET" ? "#ffffff" : "transparent",
                           color: method === "EWALLET" ? "#118eea" : "#64748b",
                           boxShadow: method === "EWALLET" ? "0 1px 3px rgba(0,0,0,0.1)" : "none",
+                          display: "inline-flex",
+                          alignItems: "center",
+                          gap: "4px",
                         }}
                       >
-                        📱 E-Wallet
+                        <span>E-Wallet</span>
                       </button>
                       <button
                         type="button"
@@ -713,9 +710,12 @@ export function PokoOffRampModal({
                           backgroundColor: method === "BANK" ? "#ffffff" : "transparent",
                           color: method === "BANK" ? "#118eea" : "#64748b",
                           boxShadow: method === "BANK" ? "0 1px 3px rgba(0,0,0,0.1)" : "none",
+                          display: "inline-flex",
+                          alignItems: "center",
+                          gap: "4px",
                         }}
                       >
-                        🏦 Transfer Bank
+                        <span>Transfer Bank</span>
                       </button>
                     </div>
                   </div>
@@ -838,32 +838,13 @@ export function PokoOffRampModal({
                     transition: "all 0.15s ease",
                   }}
                 >
-                  <Zap size={16} />
-                  <span>Konfirmasi &amp; Tarik Rp {netIdrReceived.toLocaleString("id-ID")}</span>
-                  <ArrowRight size={14} />
+                  <span>Konfirmasi &amp; Tarik Rp {netIdrReceived.toLocaleString("id-ID")} →</span>
                 </button>
 
                 {/* Security Trust Seals */}
-                <div
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    gap: "12px",
-                    fontSize: "0.625rem",
-                    color: "#888",
-                  }}
-                >
-                  <span style={{ display: "flex", alignItems: "center", gap: "3px" }}>
-                    <Lock size={10} color="#10b981" /> 256-Bit SSL Enkripsi
-                  </span>
-                  <span>•</span>
-                  <span style={{ display: "flex", alignItems: "center", gap: "3px" }}>
-                    <ShieldCheck size={10} color="#118eea" /> ISO 27001 Certified
-                  </span>
-                  <span>•</span>
-                  <span>BI-FAST Live API</span>
-                </div>
+                <p style={{ textAlign: "center", fontSize: "0.625rem", color: "#aaa", margin: 0 }}>
+                  256-Bit SSL &nbsp;•&nbsp; ISO 27001 &nbsp;•&nbsp; BI-FAST Live API
+                </p>
               </form>
             )}
 
@@ -1078,7 +1059,7 @@ export function PokoOffRampModal({
                   }}
                 >
                   <Smartphone size={15} />
-                  <span>📱 Buka Simulasi Layar HP Virtual ({receipt.provider})</span>
+                  <span>Buka Simulasi Layar HP Virtual ({receipt.provider})</span>
                 </button>
 
                 <button
