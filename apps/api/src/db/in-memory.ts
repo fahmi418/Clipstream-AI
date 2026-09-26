@@ -169,11 +169,17 @@ export class InMemoryDatabaseRepository implements IDatabaseRepository {
 
   // Campaigns
   async createCampaign(
-    campaignData: Omit<CampaignEntity, 'id' | 'createdAt'>
+    campaignData: Omit<CampaignEntity, 'id' | 'createdAt'> & { id?: string }
   ): Promise<CampaignEntity> {
     const newCampaign: CampaignEntity = {
-      id: randomUUID(),
       ...campaignData,
+      id: campaignData.id || randomUUID(),
+      description: campaignData.description ?? null,
+      remainingBudget: campaignData.remainingBudget ?? campaignData.totalBudget,
+      status: campaignData.status || 'ACTIVE',
+      onchainId: campaignData.onchainId ?? null,
+      createTxHash: campaignData.createTxHash ?? null,
+      activatedAt: campaignData.activatedAt ?? new Date(),
       createdAt: new Date(),
     };
     this.campaigns.set(newCampaign.id, newCampaign);
@@ -181,7 +187,23 @@ export class InMemoryDatabaseRepository implements IDatabaseRepository {
   }
 
   async getCampaignById(id: string): Promise<CampaignEntity | null> {
-    return this.campaigns.get(id) || null;
+    if (this.campaigns.has(id)) return this.campaigns.get(id)!;
+
+    // Check by onchainId
+    for (const c of this.campaigns.values()) {
+      if (c.onchainId !== null && c.onchainId.toString() === id) return c;
+      if (c.id === `camp-seed-${id}` || `camp-seed-${c.onchainId}` === id) return c;
+    }
+
+    // Strip camp-seed- if present
+    if (id.startsWith('camp-seed-')) {
+      const stripped = id.replace('camp-seed-', '');
+      for (const c of this.campaigns.values()) {
+        if (c.onchainId !== null && c.onchainId.toString() === stripped) return c;
+      }
+    }
+
+    return null;
   }
 
   async getCampaignByOnchainId(onchainId: bigint): Promise<CampaignEntity | null> {
@@ -257,11 +279,11 @@ export class InMemoryDatabaseRepository implements IDatabaseRepository {
   }
 
   // Clips
-  async createClip(clipData: Omit<ClipEntity, 'id' | 'submittedAt'>): Promise<ClipEntity> {
+  async createClip(clipData: Omit<ClipEntity, 'id' | 'submittedAt'> & { id?: string; submittedAt?: Date }): Promise<ClipEntity> {
     const newClip: ClipEntity = {
-      id: randomUUID(),
       ...clipData,
-      submittedAt: new Date(),
+      id: clipData.id || randomUUID(),
+      submittedAt: clipData.submittedAt || new Date(),
     };
     this.clips.set(newClip.id, newClip);
     return newClip;

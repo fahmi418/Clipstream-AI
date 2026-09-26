@@ -9,7 +9,7 @@ import { getQueueManager } from '../queue.js';
 import { requireAuth } from '../plugins/auth.js';
 
 const SubmitClipSchema = z.object({
-  campaignId: z.string().uuid(),
+  campaignId: z.string().min(1),
   url: z.string().url(),
 });
 
@@ -40,6 +40,17 @@ export function setVerifyWorker(worker: VerifyClipWorker): void {
 export const clipRoutes: FastifyPluginAsync = async (fastify) => {
   const getService = () =>
     new ClipService(getDatabaseRepository(), getChainService());
+
+  fastify.get(
+    '/api/clips/me',
+    { preHandler: requireAuth },
+    async (request, reply) => {
+      const user = request.user!;
+      const repo = getDatabaseRepository();
+      const clips = await repo.listClipsByClipper(user.id);
+      return reply.status(200).send({ ok: true, data: clips });
+    }
+  );
 
   fastify.post(
     '/api/clips',

@@ -129,10 +129,13 @@ export default function CampaignsPage() {
 
   const filteredCampaigns = campaigns.filter((c) => {
     if (!searchQuery.trim()) return true;
-    const q = searchQuery.toLowerCase();
+    const q = searchQuery.toLowerCase().trim();
     return (
       c.title.toLowerCase().includes(q) ||
-      (c.description && c.description.toLowerCase().includes(q))
+      (c.description && c.description.toLowerCase().includes(q)) ||
+      (c.rules && c.rules.toLowerCase().includes(q)) ||
+      (c.id && c.id.toLowerCase().includes(q)) ||
+      (c.brandId && c.brandId.toLowerCase().includes(q))
     );
   });
 

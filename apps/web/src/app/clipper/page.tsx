@@ -7,6 +7,8 @@ import { usePrivy } from "@privy-io/react-auth";
 import { AuthGate } from "@/components/AuthGate";
 import {
   type Clip,
+  getUserClips,
+  defaultCuratedCampaigns,
 } from "@/lib/api";
 import {
   formatUsdt,
@@ -126,8 +128,66 @@ export default function ClipperDashboardPage() {
     },
   ];
 
+  const recomputeFinancials = (clipList: Clip[]) => {
+    let releasedSum = 0;
+    let holdbackSum = 0;
+    const newHoldbacks: HoldbackItem[] = [];
+
+    clipList.forEach((c, idx) => {
+      const rel = parseFloat(formatUsdt(c.releasedAmount)) || 0;
+      const hb = parseFloat(formatUsdt(c.holdbackAmount)) || 0;
+      releasedSum += rel;
+      holdbackSum += hb;
+
+      if (hb > 0) {
+        const unlockDate = c.holdbackUnlockAt ? new Date(c.holdbackUnlockAt) : new Date(Date.now() + 2 * 86400000);
+        const isUnlocked = unlockDate.getTime() <= Date.now();
+        const camp = defaultCuratedCampaigns.find((cmp) => cmp.id === c.campaignId);
+        newHoldbacks.push({
+          id: `hb-${c.id}`,
+          clipId: c.id,
+          clipTitle: camp?.title || `Campaign Clip #${idx + 1}`,
+          amountUsdt: hb,
+          unlockAt: unlockDate,
+          status: isUnlocked ? "UNLOCKED" : "LOCKED",
+        });
+      }
+    });
+
+    setAvailableUsdt(releasedSum > 0 ? Number(releasedSum.toFixed(2)) : 16.43);
+    setHoldbackUsdt(holdbackSum > 0 ? Number(holdbackSum.toFixed(2)) : 7.04);
+    if (newHoldbacks.length > 0) {
+      setHoldbackItems(newHoldbacks);
+    }
+  };
+
+  const loadClips = async () => {
+    setLoading(true);
+    try {
+      const userClips = await getUserClips();
+      if (userClips && userClips.length > 0) {
+        const map = new Map<string, Clip>();
+        for (const c of userClips) map.set(c.id, c);
+        for (const c of mockClips) {
+          if (!map.has(c.id)) map.set(c.id, c);
+        }
+        const merged = Array.from(map.values());
+        setClips(merged);
+        recomputeFinancials(merged);
+      } else {
+        setClips(mockClips);
+        recomputeFinancials(mockClips);
+      }
+    } catch {
+      setClips(mockClips);
+      recomputeFinancials(mockClips);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    setClips(mockClips);
+    loadClips();
   }, []);
 
   const handleClaimHoldbackItem = async (itemId: string): Promise<string> => {
@@ -620,7 +680,7 @@ export default function ClipperDashboardPage() {
                     color: activeTab === "ALL" ? "#111" : "rgba(17,17,17,0.6)",
                   }}
                 >
-                  Semua Klip
+                  Semua Klip ({clips.length})
                 </button>
                 <button
                   type="button"
@@ -636,13 +696,29 @@ export default function ClipperDashboardPage() {
                     color: activeTab === "APPROVED" ? "#111" : "rgba(17,17,17,0.6)",
                   }}
                 >
-                  Disetujui
+                  Disetujui ({clips.filter((c) => c.status === "ACTIVE" || c.status === "SETTLED").length})
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setActiveTab("PENDING")}
+                  style={{
+                    padding: "0.3rem 0.75rem",
+                    borderRadius: "9999px",
+                    fontSize: "0.75rem",
+                    fontWeight: 600,
+                    border: "none",
+                    cursor: "pointer",
+                    backgroundColor: activeTab === "PENDING" ? "#ffffff" : "transparent",
+                    color: activeTab === "PENDING" ? "#111" : "rgba(17,17,17,0.6)",
+                  }}
+                >
+                  Proses ({clips.filter((c) => c.status === "VERIFYING" || c.status === "PENDING_VIEWS" || c.status === "SUBMITTED").length})
                 </button>
               </div>
 
               <button
                 type="button"
-                onClick={() => setClips([...mockClips])}
+                onClick={() => loadClips()}
                 style={{
                   padding: "0.45rem",
                   borderRadius: "50%",
@@ -656,136 +732,204 @@ export default function ClipperDashboardPage() {
                 }}
                 title="Muat Ulang"
               >
-                <RotateCcw size={14} />
+                <RotateCcw size={14} className={loading ? "animate-spin" : ""} />
               </button>
             </div>
           </div>
 
           {/* Clips List Cards */}
           <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
-            {clips.map((clip) => (
-              <div
-                key={clip.id}
-                style={{
-                  backgroundColor: "#ffffff",
-                  borderRadius: "18px",
-                  padding: "1.25rem 1.5rem",
-                  border: "1px solid rgba(17,17,17,0.08)",
-                  boxShadow: "0 4px 15px rgba(0,0,0,0.03)",
-                  display: "flex",
-                  flexDirection: "row",
-                  alignItems: "center",
-                  justifyContent: "space-between",
-                  flexWrap: "wrap",
-                  gap: "1.25rem",
-                  transition: "border-color 0.2s ease",
-                }}
-                className="hover:border-neutral-400"
-              >
-                {/* Left: Thumbnail & Details */}
-                <div style={{ display: "flex", alignItems: "center", gap: "1.25rem", flex: "1 1 260px", minWidth: 0 }}>
-                  <div
-                    style={{
-                      width: "80px",
-                      height: "56px",
-                      borderRadius: "10px",
-                      backgroundColor: "#161514",
-                      position: "relative",
-                      overflow: "hidden",
-                      flexShrink: 0,
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                    }}
-                  >
-                    <Play size={18} fill="#ffffff" color="#ffffff" style={{ marginLeft: "2px" }} />
-                  </div>
+            {clips
+              .filter((clip) => {
+                if (activeTab === "APPROVED") return clip.status === "ACTIVE" || clip.status === "SETTLED";
+                if (activeTab === "PENDING") return clip.status === "VERIFYING" || clip.status === "PENDING_VIEWS" || clip.status === "SUBMITTED";
+                return true;
+              })
+              .map((clip) => {
+                const isApproved = clip.status === "ACTIVE" || clip.status === "SETTLED";
+                const isVerifying = clip.status === "VERIFYING" || clip.status === "SUBMITTED";
+                const isPendingViews = clip.status === "PENDING_VIEWS";
 
-                  <div style={{ minWidth: 0, flex: 1 }}>
-                    <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "0.25rem", flexWrap: "wrap" }}>
-                      <span
+                return (
+                  <div
+                    key={clip.id}
+                    style={{
+                      backgroundColor: "#ffffff",
+                      borderRadius: "18px",
+                      padding: "1.25rem 1.5rem",
+                      border: "1px solid rgba(17,17,17,0.08)",
+                      boxShadow: "0 4px 15px rgba(0,0,0,0.03)",
+                      display: "flex",
+                      flexDirection: "row",
+                      alignItems: "center",
+                      justifyContent: "space-between",
+                      flexWrap: "wrap",
+                      gap: "1.25rem",
+                      transition: "border-color 0.2s ease",
+                    }}
+                    className="hover:border-neutral-400"
+                  >
+                    {/* Left: Thumbnail & Details */}
+                    <div style={{ display: "flex", alignItems: "center", gap: "1.25rem", flex: "1 1 260px", minWidth: 0 }}>
+                      <div
                         style={{
-                          fontSize: "0.6875rem",
-                          fontWeight: 700,
-                          color: "#059669",
-                          backgroundColor: "#ecfdf5",
-                          padding: "0.2rem 0.5rem",
-                          borderRadius: "9999px",
-                          display: "inline-flex",
+                          width: "80px",
+                          height: "56px",
+                          borderRadius: "10px",
+                          backgroundColor: "#161514",
+                          position: "relative",
+                          overflow: "hidden",
+                          flexShrink: 0,
+                          display: "flex",
                           alignItems: "center",
-                          gap: "0.25rem",
+                          justifyContent: "center",
                         }}
                       >
-                        <span style={{ width: "5px", height: "5px", borderRadius: "50%", backgroundColor: "#059669" }} />
-                        Disetujui
-                      </span>
-                      <span style={{ fontSize: "0.75rem", color: "rgba(17,17,17,0.5)" }}>
-                        Kecocokan Audio {Math.round((clip.matchScore ?? 0.87) * 100)}%
-                      </span>
+                        <Play size={18} fill="#ffffff" color="#ffffff" style={{ marginLeft: "2px" }} />
+                      </div>
+
+                      <div style={{ minWidth: 0, flex: 1 }}>
+                        <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "0.25rem", flexWrap: "wrap" }}>
+                          {isApproved ? (
+                            <span
+                              style={{
+                                fontSize: "0.6875rem",
+                                fontWeight: 700,
+                                color: "#059669",
+                                backgroundColor: "#ecfdf5",
+                                padding: "0.2rem 0.5rem",
+                                borderRadius: "9999px",
+                                display: "inline-flex",
+                                alignItems: "center",
+                                gap: "0.25rem",
+                              }}
+                            >
+                              <span style={{ width: "5px", height: "5px", borderRadius: "50%", backgroundColor: "#059669" }} />
+                              Disetujui
+                            </span>
+                          ) : isVerifying ? (
+                            <span
+                              style={{
+                                fontSize: "0.6875rem",
+                                fontWeight: 700,
+                                color: "#2563eb",
+                                backgroundColor: "#eff6ff",
+                                padding: "0.2rem 0.5rem",
+                                borderRadius: "9999px",
+                                display: "inline-flex",
+                                alignItems: "center",
+                                gap: "0.25rem",
+                              }}
+                            >
+                              <span style={{ width: "5px", height: "5px", borderRadius: "50%", backgroundColor: "#2563eb" }} />
+                              Verifikasi AI
+                            </span>
+                          ) : isPendingViews ? (
+                            <span
+                              style={{
+                                fontSize: "0.6875rem",
+                                fontWeight: 700,
+                                color: "#d97706",
+                                backgroundColor: "#fffbeb",
+                                padding: "0.2rem 0.5rem",
+                                borderRadius: "9999px",
+                                display: "inline-flex",
+                                alignItems: "center",
+                                gap: "0.25rem",
+                              }}
+                            >
+                              <span style={{ width: "5px", height: "5px", borderRadius: "50%", backgroundColor: "#d97706" }} />
+                              Menunggu Views
+                            </span>
+                          ) : (
+                            <span
+                              style={{
+                                fontSize: "0.6875rem",
+                                fontWeight: 700,
+                                color: "#dc2626",
+                                backgroundColor: "#fef2f2",
+                                padding: "0.2rem 0.5rem",
+                                borderRadius: "9999px",
+                                display: "inline-flex",
+                                alignItems: "center",
+                                gap: "0.25rem",
+                              }}
+                            >
+                              <span style={{ width: "5px", height: "5px", borderRadius: "50%", backgroundColor: "#dc2626" }} />
+                              Ditolak
+                            </span>
+                          )}
+
+                          {clip.matchScore ? (
+                            <span style={{ fontSize: "0.75rem", color: "rgba(17,17,17,0.5)" }}>
+                              Kecocokan Audio {Math.round(clip.matchScore * 100)}%
+                            </span>
+                          ) : null}
+                        </div>
+
+                        <a
+                          href={clip.url}
+                          target="_blank"
+                          rel="noreferrer"
+                          style={{
+                            fontSize: "0.875rem",
+                            fontWeight: 600,
+                            color: "#111",
+                            textDecoration: "none",
+                            display: "inline-flex",
+                            alignItems: "center",
+                            gap: "0.25rem",
+                            maxWidth: "100%",
+                          }}
+                          className="hover:underline"
+                        >
+                          <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", maxWidth: "min(320px, 60vw)" }}>{clip.url}</span>
+                          <ExternalLink size={12} color="rgba(17,17,17,0.5)" style={{ flexShrink: 0 }} />
+                        </a>
+
+                        <div style={{ fontSize: "0.75rem", color: "rgba(17,17,17,0.5)", marginTop: "2px" }}>
+                          {formatViews(clip.views)} views • Disubmit {formatRelativeDate(clip.submittedAt)}
+                        </div>
+                      </div>
                     </div>
 
-                    <a
-                      href={clip.url}
-                      target="_blank"
-                      rel="noreferrer"
-                      style={{
-                        fontSize: "0.875rem",
-                        fontWeight: 600,
-                        color: "#111",
-                        textDecoration: "none",
-                        display: "inline-flex",
-                        alignItems: "center",
-                        gap: "0.25rem",
-                        maxWidth: "100%",
-                      }}
-                      className="hover:underline"
-                    >
-                      <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", maxWidth: "min(320px, 60vw)" }}>{clip.url}</span>
-                      <ExternalLink size={12} color="rgba(17,17,17,0.5)" style={{ flexShrink: 0 }} />
-                    </a>
+                    {/* Right: Payout & Actions */}
+                    <div style={{ display: "flex", alignItems: "center", gap: "1rem", flexWrap: "wrap", justifyContent: "space-between" }}>
+                      <div>
+                        <div style={{ fontSize: "1.125rem", fontWeight: 700, color: "#111" }}>
+                          +{formatUsdt(clip.releasedAmount)} USDT
+                        </div>
+                        <div style={{ fontSize: "0.75rem", color: "rgba(17,17,17,0.5)" }}>
+                          ≈ {formatIdr(clip.releasedAmount)}
+                        </div>
+                      </div>
 
-                    <div style={{ fontSize: "0.75rem", color: "rgba(17,17,17,0.5)", marginTop: "2px" }}>
-                      {formatViews(clip.views)} views • Disubmit {formatRelativeDate(clip.submittedAt)}
+                      <button
+                        type="button"
+                        onClick={() => setSelectedClip(clip)}
+                        style={{
+                          display: "inline-flex",
+                          alignItems: "center",
+                          gap: "0.35rem",
+                          padding: "0.45rem 0.875rem",
+                          borderRadius: "9999px",
+                          backgroundColor: "#f4f3f0",
+                          border: "none",
+                          color: "#111",
+                          fontSize: "0.8125rem",
+                          fontWeight: 600,
+                          cursor: "pointer",
+                          transition: "background-color 0.15s ease",
+                        }}
+                        className="hover:bg-neutral-200"
+                      >
+                        <span>Rincian Payout</span>
+                        <ArrowRight size={13} />
+                      </button>
                     </div>
                   </div>
-                </div>
-
-                {/* Right: Payout & Actions */}
-                <div style={{ display: "flex", alignItems: "center", gap: "1rem", flexWrap: "wrap", justifyContent: "space-between" }}>
-                  <div>
-                    <div style={{ fontSize: "1.125rem", fontWeight: 700, color: "#111" }}>
-                      +{formatUsdt(clip.releasedAmount)} USDT
-                    </div>
-                    <div style={{ fontSize: "0.75rem", color: "rgba(17,17,17,0.5)" }}>
-                      ≈ {formatIdr(clip.releasedAmount)}
-                    </div>
-                  </div>
-
-                  <button
-                    type="button"
-                    onClick={() => setSelectedClip(clip)}
-                    style={{
-                      display: "inline-flex",
-                      alignItems: "center",
-                      gap: "0.35rem",
-                      padding: "0.45rem 0.875rem",
-                      borderRadius: "9999px",
-                      backgroundColor: "#f4f3f0",
-                      border: "none",
-                      color: "#111",
-                      fontSize: "0.8125rem",
-                      fontWeight: 600,
-                      cursor: "pointer",
-                      transition: "background-color 0.15s ease",
-                    }}
-                    className="hover:bg-neutral-200"
-                  >
-                    <span>Rincian Payout</span>
-                    <ArrowRight size={13} />
-                  </button>
-                </div>
-              </div>
-            ))}
+                );
+              })}
           </div>
         </div>
       </div>

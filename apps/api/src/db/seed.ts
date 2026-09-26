@@ -1,8 +1,10 @@
 import { keccak256, encodePacked } from 'viem';
+import bcrypt from 'bcryptjs';
 import { getDatabaseRepository } from './client.js';
 
 export async function seedDemoData(): Promise<void> {
   const repo = getDatabaseRepository();
+  const demoPasswordHash = await bcrypt.hash('password123', 10);
 
   // 1. Create Brands & Clippers
   const brandUser = await repo.upsertUser({
@@ -10,6 +12,17 @@ export async function seedDemoData(): Promise<void> {
     walletAddress: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
     displayName: 'Tech Podcast Studio',
     email: 'brand@podcastbincang.id',
+    passwordHash: demoPasswordHash,
+    role: 'BRAND',
+  });
+
+  await repo.upsertUser({
+    privyDid: 'did:privy:brand-clipstream-ai',
+    walletAddress: '0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC',
+    displayName: 'Brand Demo Sponsor',
+    email: 'brand@clipstream.ai',
+    passwordHash: demoPasswordHash,
+    role: 'BRAND',
   });
 
   const clipperUser = await repo.upsertUser({
@@ -17,6 +30,26 @@ export async function seedDemoData(): Promise<void> {
     walletAddress: '0x70997970C51812dc3A010C7d01b50e0d17dc79C8',
     displayName: 'Budi Clipper Indo',
     email: 'budi@clipper.id',
+    passwordHash: demoPasswordHash,
+    role: 'CLIPPER',
+  });
+
+  await repo.upsertUser({
+    privyDid: 'did:privy:clipper-clipstream-ai',
+    walletAddress: '0x90F79bf6EB2c4f870365E785982E1f101E93b906',
+    displayName: 'Clipper Demo Pro',
+    email: 'clipper@clipstream.ai',
+    passwordHash: demoPasswordHash,
+    role: 'CLIPPER',
+  });
+
+  await repo.upsertUser({
+    privyDid: 'did:privy:admin-clipstream-ai',
+    walletAddress: '0x15d34AAf54267DB7D7c367839AAf71A00a2C6A65',
+    displayName: 'Clipstream SuperAdmin',
+    email: 'admin@clipstream.ai',
+    passwordHash: demoPasswordHash,
+    role: 'ADMIN',
   });
 
   // 2. Source Videos
@@ -44,18 +77,22 @@ export async function seedDemoData(): Promise<void> {
     transcriptStatus: 'READY',
   });
 
-  // 3. Campaign 1: Podcast (Native BNB / Escrow)
+  // 3. Campaign 1: BNB Chain Spotlight
   const campaign1 = await repo.createCampaign({
+    id: 'camp-seed-1',
     onchainId: 1n,
     brandId: brandUser.id,
     sourceVideoId: srcVideo1.id,
-    title: 'Podcast Bincang Teknologi — Episode 42',
+    title: 'BNB Chain Ecosystem Spotlight',
+    description:
+      'Highlight inovasi dApps dan proyek Web3 unggulan di BNB Chain. Fokus pada kecepatan transaksi, ekosistem DeFi, dan efisiensi gas fee.',
     rules:
-      'Klip harus memotong dari episode ini. Tanpa SARA. Tanpa klaim medis atau finansial. Judul tidak boleh clickbait yang tidak sesuai isi.',
+      'Wajib menyertakan watermark sponsor dan tagar #BNBChain. Durasi klip minimal 30 detik. Tanpa SARA.',
     tokenAddress: '0x0000000000000000000000000000000000000000', // Native BNB
-    cpmRate: 300000n,
-    totalBudget: 50000000n,
-    maxPayoutPerClip: 15000000n,
+    cpmRate: 1748466n,
+    totalBudget: 1500000000n,
+    remainingBudget: 1120000000n,
+    maxPayoutPerClip: 250000000n,
     minViews: 1000,
     deadline: new Date(Date.now() + 14 * 86400_000),
     sourceHash: '0x3333333333333333333333333333333333333333333333333333333333333333',
@@ -65,20 +102,24 @@ export async function seedDemoData(): Promise<void> {
     activatedAt: new Date(),
   });
 
-  // 4. Campaign 2: Brand F&B (BEP-20 / Stablecoin)
+  // 4. Campaign 2: DeFi DEX Launch
   const campaign2 = await repo.createCampaign({
+    id: 'camp-seed-2',
     onchainId: 2n,
     brandId: brandUser.id,
     sourceVideoId: srcVideo2.id,
-    title: 'Kopi Nusantara — Kampanye Rasa Baru',
+    title: 'DeFi DEX Launch Campaign',
+    description:
+      'Promosikan peluncuran DEX generasi terbaru di BNB Chain dengan fitur gasless swap dan yield farming terdesentralisasi.',
     rules:
-      'Tanpa perbandingan dengan merek kompetitor. Tanpa klaim kesehatan. Wajib menyebut nama produk dengan benar.',
+      'Highlight fitur auto-routing dan keamanan kontrak audit. Tanpa klaim keuntungan finansial berlebihan.',
     tokenAddress: '0x55d398326f99059fF775485246999027B3197955', // BEP-20
-    cpmRate: 500000n,
-    totalBudget: 30000000n,
-    maxPayoutPerClip: 10000000n,
-    minViews: 2000,
-    deadline: new Date(Date.now() + 10 * 86400_000),
+    cpmRate: 1503067n,
+    totalBudget: 800000000n,
+    remainingBudget: 640000000n,
+    maxPayoutPerClip: 150000000n,
+    minViews: 1000,
+    deadline: new Date(Date.now() + 9 * 86400_000),
     sourceHash: '0x5555555555555555555555555555555555555555555555555555555555555555',
     rulesHash: '0x6666666666666666666666666666666666666666666666666666666666666666',
     status: 'ACTIVE',
@@ -86,9 +127,59 @@ export async function seedDemoData(): Promise<void> {
     activatedAt: new Date(),
   });
 
+  // Campaign 3: AI Agent Trading Hackathon
+  const campaign3 = await repo.createCampaign({
+    id: 'camp-seed-3',
+    onchainId: 3n,
+    brandId: brandUser.id,
+    sourceVideoId: srcVideo1.id,
+    title: 'AI Agent Trading Hackathon Teaser',
+    description:
+      'Bagikan cuplikan highlight tim dan ide autonomous agent terbaik di ajang AI Agent Hackathon 2026. Fokus pada integrasi Web3 & LLM.',
+    rules: 'Gunakan visual resolusi 1080p, audio jernih, dan watermark akun clipper terpasang.',
+    tokenAddress: '0x0000000000000000000000000000000000000000',
+    cpmRate: 1963190n,
+    totalBudget: 2000000000n,
+    remainingBudget: 1650000000n,
+    maxPayoutPerClip: 350000000n,
+    minViews: 1500,
+    deadline: new Date(Date.now() + 18 * 86400_000),
+    sourceHash: '0x3333333333333333333333333333333333333333333333333333333333333333',
+    rulesHash: '0x7777777777777777777777777777777777777777777777777777777777777777',
+    status: 'ACTIVE',
+    createTxHash: '0xccccdddd0000111122223333444455556666777788889999aaaabbbbccccdddd',
+    activatedAt: new Date(),
+  });
+
+  // Campaign 4: Web3 Creator Showcase
+  const campaign4 = await repo.createCampaign({
+    id: 'camp-seed-4',
+    onchainId: 4n,
+    brandId: brandUser.id,
+    sourceVideoId: srcVideo2.id,
+    title: 'Web3 Creator Showcase: Panduan Smart Contract BNB Chain',
+    description:
+      'Edukasi developer pemula cara deploy contract Solidity dan escrow dengan gas fee murah. Klip harus fokus pada kemudahan ekosistem BNB.',
+    rules: 'Highlight biaya gas murah dan kecepatan konfirmasi di BNB Chain.',
+    tokenAddress: '0x55d398326f99059fF775485246999027B3197955',
+    cpmRate: 1595092n,
+    totalBudget: 1200000000n,
+    remainingBudget: 900000000n,
+    maxPayoutPerClip: 200000000n,
+    minViews: 1000,
+    deadline: new Date(Date.now() + 21 * 86400_000),
+    sourceHash: '0x5555555555555555555555555555555555555555555555555555555555555555',
+    rulesHash: '0x8888888888888888888888888888888888888888888888888888888888888888',
+    status: 'ACTIVE',
+    createTxHash: '0xdddd0000111122223333444455556666777788889999aaaabbbbccccddddeeee',
+    activatedAt: new Date(),
+  });
+
   // 5. Participants
   await repo.joinCampaign(campaign1.id, clipperUser.id, 'CS-1-a9f3c1');
   await repo.joinCampaign(campaign2.id, clipperUser.id, 'CS-2-b8e2d4');
+  await repo.joinCampaign(campaign3.id, clipperUser.id, 'CS-3-c7d1e5');
+  await repo.joinCampaign(campaign4.id, clipperUser.id, 'CS-4-d6c0f6');
 
   // 6. Demo Clips (SCHEMA §12)
   // Klip A: ACTIVE, sudah dibayar (Happy path)
@@ -223,7 +314,11 @@ export async function seedDemoData(): Promise<void> {
   });
 }
 
-if (process.env.NODE_ENV !== 'test' && !process.env.VITEST) {
+if (
+  import.meta.url === `file://${process.argv[1]?.replace(/\\/g, '/')}` ||
+  process.argv[1]?.endsWith('seed.js') ||
+  process.argv[1]?.endsWith('seed.ts')
+) {
   seedDemoData()
     .then(() => {
       console.log('Seed demo data created successfully.');

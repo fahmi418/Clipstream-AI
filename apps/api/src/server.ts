@@ -9,6 +9,7 @@ import { clipperRoutes } from './routes/clippers.routes.js';
 import { statsRoutes } from './routes/stats.routes.js';
 import { healthRoutes } from './routes/health.routes.js';
 import { adminRoutes } from './routes/admin.routes.js';
+import { seedDemoData } from './db/seed.js';
 
 export async function buildServer(): Promise<FastifyInstance> {
   const fastify = Fastify({
@@ -24,6 +25,15 @@ export async function buildServer(): Promise<FastifyInstance> {
   await fastify.register(authPlugin);
 
   fastify.setErrorHandler(errorHandler);
+
+  // Auto-seed in-memory demo data in non-test mode
+  if (process.env.NODE_ENV !== 'test' && !process.env.VITEST) {
+    try {
+      await seedDemoData();
+    } catch {
+      // Ignore if already seeded
+    }
+  }
 
   // Routes
   await fastify.register(healthRoutes);

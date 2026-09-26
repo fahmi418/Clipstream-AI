@@ -352,9 +352,33 @@ function LoginFormContent() {
                   Ekstensi Web3 wallet tidak terdeteksi. Silakan masukkan alamat wallet EVM publik Anda di bawah:
                 </div>
                 <div>
-                  <label className="block text-xs font-bold text-[#333333] mb-1.5">
-                    Alamat Wallet EVM (0x...)
-                  </label>
+                  <div className="flex items-center justify-between mb-1.5">
+                    <label className="block text-xs font-bold text-[#333333]">
+                      Alamat Wallet EVM (0x...)
+                    </label>
+                    <div className="flex items-center gap-1.5">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setSelectedRole("CLIPPER");
+                          setManualWallet("0x70997970C51812dc3A010C7d01b50e0d17dc79C8");
+                        }}
+                        className="text-[10px] text-[#e8400d] font-bold bg-[#fff8f5] px-2 py-0.5 rounded border border-[#e8400d]/20 hover:bg-[#fff0eb] cursor-pointer"
+                      >
+                        + Clipper Demo
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setSelectedRole("BRAND");
+                          setManualWallet("0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266");
+                        }}
+                        className="text-[10px] text-[#2563eb] font-bold bg-[#f0f6ff] px-2 py-0.5 rounded border border-[#2563eb]/20 hover:bg-[#e6f0fe] cursor-pointer"
+                      >
+                        + Brand Demo
+                      </button>
+                    </div>
+                  </div>
                   <input
                     type="text"
                     placeholder="0x70997970C51812dc3A010C7d01b50e0d17dc79C8"
@@ -384,6 +408,93 @@ function LoginFormContent() {
         {/* Tab 2: Email & Password Login */}
         {activeTab === "email" && (
           <form onSubmit={handleEmailLogin} style={{ display: "flex", flexDirection: "column", gap: "0.875rem" }}>
+            {/* 1-Click Demo Accounts Selector */}
+            <div
+              style={{
+                backgroundColor: "#f8fafc",
+                borderRadius: "12px",
+                padding: "10px 12px",
+                border: "1px solid rgba(0, 0, 0, 0.08)",
+                marginBottom: "2px",
+              }}
+            >
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "6px" }}>
+                <span style={{ fontSize: "0.6875rem", fontWeight: 700, color: "#64748b", textTransform: "uppercase", letterSpacing: "0.5px" }}>
+                  ⚡ Akun Demo Siap Pakai (1-Klik)
+                </span>
+                <span style={{ fontSize: "0.625rem", color: "#059669", fontWeight: 700, backgroundColor: "#ecfdf5", padding: "1px 6px", borderRadius: "9999px" }}>
+                  Auto-Fill
+                </span>
+              </div>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "6px" }}>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setEmail("budi@clipper.id");
+                    setPassword("password123");
+                  }}
+                  style={{
+                    padding: "6px 4px",
+                    borderRadius: "8px",
+                    backgroundColor: email === "budi@clipper.id" ? "#fff8f5" : "#ffffff",
+                    border: email === "budi@clipper.id" ? "1px solid #e8400d" : "1px solid rgba(0,0,0,0.1)",
+                    color: email === "budi@clipper.id" ? "#e8400d" : "#334155",
+                    fontSize: "0.6875rem",
+                    fontWeight: 700,
+                    cursor: "pointer",
+                    textAlign: "center",
+                    transition: "all 0.15s ease",
+                  }}
+                >
+                  ✂️ Clipper
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    setEmail("brand@podcastbincang.id");
+                    setPassword("password123");
+                  }}
+                  style={{
+                    padding: "6px 4px",
+                    borderRadius: "8px",
+                    backgroundColor: email === "brand@podcastbincang.id" ? "#f0f6ff" : "#ffffff",
+                    border: email === "brand@podcastbincang.id" ? "1px solid #2563eb" : "1px solid rgba(0,0,0,0.1)",
+                    color: email === "brand@podcastbincang.id" ? "#2563eb" : "#334155",
+                    fontSize: "0.6875rem",
+                    fontWeight: 700,
+                    cursor: "pointer",
+                    textAlign: "center",
+                    transition: "all 0.15s ease",
+                  }}
+                >
+                  📢 Brand
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    setEmail("admin@clipstream.ai");
+                    setPassword("password123");
+                  }}
+                  style={{
+                    padding: "6px 4px",
+                    borderRadius: "8px",
+                    backgroundColor: email === "admin@clipstream.ai" ? "#faf5ff" : "#ffffff",
+                    border: email === "admin@clipstream.ai" ? "1px solid #9333ea" : "1px solid rgba(0,0,0,0.1)",
+                    color: email === "admin@clipstream.ai" ? "#9333ea" : "#334155",
+                    fontSize: "0.6875rem",
+                    fontWeight: 700,
+                    cursor: "pointer",
+                    textAlign: "center",
+                    transition: "all 0.15s ease",
+                  }}
+                >
+                  🛡️ Admin
+                </button>
+              </div>
+            </div>
+
             <div>
               <label style={{ display: "block", fontSize: "0.75rem", fontWeight: 700, color: "#333333", marginBottom: "4px" }}>
                 Alamat Email

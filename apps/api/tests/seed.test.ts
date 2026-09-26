@@ -13,13 +13,13 @@ describe('Demo Seed Data — SCHEMA §12 Compliance', () => {
     const repo = getDatabaseRepository();
 
     const campaigns = await repo.listCampaigns();
-    expect(campaigns.length).toBe(2);
+    expect(campaigns.length).toBe(4);
 
-    const camp1 = campaigns.find((c) => c.title.includes('Podcast Bincang Teknologi'));
+    const camp1 = campaigns.find((c) => c.title.includes('Podcast Bincang Teknologi') || c.id === 'camp-seed-1');
     expect(camp1).toBeDefined();
     expect(camp1?.tokenAddress).toBe('0x0000000000000000000000000000000000000000'); // Native BNB
 
-    const camp2 = campaigns.find((c) => c.title.includes('Kopi Nusantara'));
+    const camp2 = campaigns.find((c) => c.title.includes('Kopi Nusantara') || c.id === 'camp-seed-2');
     expect(camp2).toBeDefined();
 
     const clips1 = await repo.listClipsByCampaign(camp1!.id);

@@ -29,10 +29,12 @@ export interface CampaignEntity {
   brandId: string;
   sourceVideoId: string;
   title: string;
+  description?: string | null;
   rules: string;
   tokenAddress: string;
   cpmRate: bigint;
   totalBudget: bigint;
+  remainingBudget?: bigint | null;
   maxPayoutPerClip: bigint;
   minViews: number;
   deadline: Date;
@@ -212,7 +214,7 @@ export interface IDatabaseRepository {
   getSourceChunks(sourceVideoId: string): Promise<SourceChunkEntity[]>;
 
   // Campaigns
-  createCampaign(campaign: Omit<CampaignEntity, 'id' | 'createdAt'>): Promise<CampaignEntity>;
+  createCampaign(campaign: Omit<CampaignEntity, 'id' | 'createdAt'> & { id?: string }): Promise<CampaignEntity>;
   getCampaignById(id: string): Promise<CampaignEntity | null>;
   getCampaignByOnchainId(onchainId: bigint): Promise<CampaignEntity | null>;
   listCampaigns(filter?: {
@@ -239,7 +241,7 @@ export interface IDatabaseRepository {
   countParticipants(campaignId: string): Promise<number>;
 
   // Clips
-  createClip(clip: Omit<ClipEntity, 'id' | 'submittedAt'>): Promise<ClipEntity>;
+  createClip(clip: Omit<ClipEntity, 'id' | 'submittedAt'> & { id?: string; submittedAt?: Date }): Promise<ClipEntity>;
   getClipById(id: string): Promise<ClipEntity | null>;
   getClipByVideoHash(hash: `0x${string}`): Promise<ClipEntity | null>;
   listClipsByCampaign(campaignId: string): Promise<ClipEntity[]>;
