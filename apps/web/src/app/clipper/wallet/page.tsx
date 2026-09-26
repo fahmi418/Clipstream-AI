@@ -28,6 +28,7 @@ import {
   ChevronRight,
   Info,
   Zap,
+  RotateCcw,
 } from "lucide-react";
 import { PokoOffRampModal } from "@/components/PokoOffRampModal";
 
@@ -59,7 +60,7 @@ interface WithdrawalHistoryItem {
 export default function ClipperWalletPage() {
   const { user } = useAuth();
 
-  const [availableUsdc, setAvailableUsdc] = useState(16.43);
+  const [availableUsdc, setAvailableUsdc] = useState(54.2);
   const [holdbackUsdc, setHoldbackUsdc] = useState(7.04);
   const [totalWithdrawnUsdc, setTotalWithdrawnUsdc] = useState(48.5);
 
@@ -69,13 +70,28 @@ export default function ClipperWalletPage() {
 
   const [accountNumber, setAccountNumber] = useState("");
   const [accountName, setAccountName] = useState(user?.displayName || "");
-  const [amountInput, setAmountInput] = useState<string>("16.43");
+  const [amountInput, setAmountInput] = useState<string>("20.00");
   const [cryptoAddress, setCryptoAddress] = useState("");
 
   const [copiedAddress, setCopiedAddress] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [showPokoModal, setShowPokoModal] = useState(false);
+  const [faucetToast, setFaucetToast] = useState<string | null>(null);
+
+  const handleTopUpFaucet = (amount: number = 100) => {
+    setAvailableUsdc((prev) => prev + amount);
+    setFaucetToast(`+ $${amount}.00 Demo USDT berhasil ditambahkan ke saldo!`);
+    setTimeout(() => setFaucetToast(null), 3500);
+  };
+
+  const handleResetDemoBalance = () => {
+    setAvailableUsdc(54.2);
+    setHoldbackUsdc(7.04);
+    setTotalWithdrawnUsdc(48.5);
+    setFaucetToast("Saldo demo direset ke default ($54.20 USDT)");
+    setTimeout(() => setFaucetToast(null), 3500);
+  };
 
   const [recentWithdrawals, setRecentWithdrawals] = useState<WithdrawalHistoryItem[]>([
     {
@@ -264,6 +280,137 @@ export default function ClipperWalletPage() {
               Tarik reward video klip kamu langsung ke DANA, GoPay, OVO, ShopeePay, Rekening Bank, atau Web3 Wallet.
             </p>
           </div>
+
+          {/* Hackathon Sandbox Faucet Control Bar */}
+          <div
+            style={{
+              backgroundColor: "linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%)",
+              borderRadius: "16px",
+              padding: "12px 18px",
+              border: "1px solid rgba(17, 142, 234, 0.25)",
+              marginBottom: "1.5rem",
+              display: "flex",
+              flexWrap: "wrap",
+              alignItems: "center",
+              justifyContent: "space-between",
+              gap: "12px",
+              boxShadow: "0 2px 10px rgba(0, 0, 0, 0.02)",
+            }}
+          >
+            <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+              <div
+                style={{
+                  width: "32px",
+                  height: "32px",
+                  borderRadius: "10px",
+                  backgroundColor: "#eef7fe",
+                  color: "#118eea",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  flexShrink: 0,
+                }}
+              >
+                <Sparkles size={16} />
+              </div>
+              <div>
+                <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                  <span style={{ fontSize: "0.8125rem", fontWeight: 800, color: "#0f172a" }}>
+                    Hackathon Sandbox Environment
+                  </span>
+                  <span
+                    style={{
+                      fontSize: "0.5625rem",
+                      fontWeight: 800,
+                      color: "#118eea",
+                      backgroundColor: "#eef7fe",
+                      padding: "1px 6px",
+                      borderRadius: "9999px",
+                      border: "1px solid rgba(17, 142, 234, 0.3)",
+                    }}
+                  >
+                    opBNB TESTNET
+                  </span>
+                </div>
+                <div style={{ fontSize: "0.6875rem", color: "#64748b" }}>
+                  Simulasi penarikan Poko Off-Ramp aktif. Coba transaksi berkali-kali menggunakan tombol Faucet.
+                </div>
+              </div>
+            </div>
+
+            {/* Faucet Controls */}
+            <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+              <button
+                type="button"
+                onClick={() => handleTopUpFaucet(100)}
+                style={{
+                  padding: "7px 14px",
+                  borderRadius: "10px",
+                  background: "linear-gradient(135deg, #10b981 0%, #059669 100%)",
+                  color: "#ffffff",
+                  border: "none",
+                  fontSize: "0.75rem",
+                  fontWeight: 700,
+                  cursor: "pointer",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "6px",
+                  boxShadow: "0 2px 8px rgba(16, 185, 129, 0.25)",
+                  transition: "transform 0.15s ease",
+                }}
+                onMouseOver={(e) => (e.currentTarget.style.transform = "translateY(-1px)")}
+                onMouseOut={(e) => (e.currentTarget.style.transform = "translateY(0)")}
+              >
+                <Coins size={14} />
+                <span>+ Faucet $100 Demo USDT</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={handleResetDemoBalance}
+                title="Reset saldo ke default"
+                style={{
+                  padding: "7px 10px",
+                  borderRadius: "10px",
+                  backgroundColor: "#ffffff",
+                  color: "#64748b",
+                  border: "1px solid rgba(0, 0, 0, 0.1)",
+                  fontSize: "0.75rem",
+                  fontWeight: 600,
+                  cursor: "pointer",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "4px",
+                }}
+              >
+                <RotateCcw size={13} />
+                <span>Reset</span>
+              </button>
+            </div>
+          </div>
+
+          {/* Faucet Toast Feedback */}
+          {faucetToast && (
+            <div
+              style={{
+                marginBottom: "1rem",
+                padding: "8px 14px",
+                borderRadius: "10px",
+                backgroundColor: "#ecfdf5",
+                border: "1px solid #a7f3d0",
+                color: "#065f46",
+                fontSize: "0.75rem",
+                fontWeight: 600,
+                display: "flex",
+                alignItems: "center",
+                gap: "8px",
+                animation: "fadeIn 0.3s ease",
+              }}
+            >
+              <CheckCircle2 size={15} color="#10b981" />
+              <span>{faucetToast}</span>
+            </div>
+          )}
 
           {/* Top 3 Financial Summary Bento Grid */}
           <div
