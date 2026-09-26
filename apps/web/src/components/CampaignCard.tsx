@@ -179,7 +179,7 @@ export function CampaignCard({ campaign }: CampaignCardProps) {
               marginBottom: "0.35rem",
             }}
           >
-            Sponsor: {truncateAddress(campaign.brandId)}
+            Sponsor: {truncateAddress(campaign.brandId || (campaign as any).brand?.address || (campaign as any).brand?.displayName || "0x70997970C51812dc3A010C7d01b50e0d17dc79C8")}
           </div>
 
           {/* Title */}

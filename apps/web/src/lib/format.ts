@@ -102,7 +102,8 @@ export function formatDate(date: string | Date): string {
 
 // ── Address truncation ─────────────────────────────────────────────────
 
-export function truncateAddress(address: string): string {
+export function truncateAddress(address?: string | null): string {
+  if (!address || typeof address !== "string") return "";
   if (address.length < 10) return address;
   return `${address.slice(0, 6)}…${address.slice(-4)}`;
 }
@@ -111,11 +112,13 @@ export function truncateAddress(address: string): string {
 
 const EXPLORER_BASE = process.env.NEXT_PUBLIC_EXPLORER_URL ?? "https://testnet.bscscan.com";
 
-export function txExplorerUrl(txHash: string): string {
+export function txExplorerUrl(txHash?: string | null): string {
+  if (!txHash) return EXPLORER_BASE;
   return `${EXPLORER_BASE}/tx/${txHash}`;
 }
 
-export function addressExplorerUrl(address: string): string {
+export function addressExplorerUrl(address?: string | null): string {
+  if (!address) return EXPLORER_BASE;
   return `${EXPLORER_BASE}/address/${address}`;
 }
 

@@ -520,8 +520,16 @@ export async function listCampaigns(query: ListCampaignsQuery = {}): Promise<Cam
     if (query.limit) params.set("limit", String(query.limit));
     const qs = params.toString();
     const res = await request<any>(`/api/campaigns${qs ? `?${qs}` : ""}`);
-    const items = Array.isArray(res) ? res : res?.items;
-    if (Array.isArray(items) && items.length > 0) return items;
+    const rawItems = Array.isArray(res) ? res : res?.items;
+    if (Array.isArray(rawItems) && rawItems.length > 0) {
+      return rawItems.map((item: any) => ({
+        ...item,
+        brandId: item.brandId || item.brand?.address || item.brand?.displayName || "0x70997970C51812dc3A010C7d01b50e0d17dc79C8",
+        sourceUrl: item.sourceUrl || (item.sourceVideo ? `https://www.youtube.com/watch?v=${item.sourceVideo.videoId || ""}` : ""),
+        clippersCount: item.clippersCount ?? item.clipperCount ?? 0,
+        clipsCount: item.clipsCount ?? item.clipCount ?? 0,
+      }));
+    }
     return defaultCuratedCampaigns;
   } catch {
     return defaultCuratedCampaigns;
@@ -530,8 +538,16 @@ export async function listCampaigns(query: ListCampaignsQuery = {}): Promise<Cam
 
 export async function getCampaign(id: string): Promise<Campaign> {
   try {
-    const data = await request<Campaign>(`/api/campaigns/${id}`);
-    if (data && data.id) return data;
+    const data = await request<any>(`/api/campaigns/${id}`);
+    if (data && data.id) {
+      return {
+        ...data,
+        brandId: data.brandId || data.brand?.address || data.brand?.displayName || "0x70997970C51812dc3A010C7d01b50e0d17dc79C8",
+        sourceUrl: data.sourceUrl || (data.sourceVideo ? `https://www.youtube.com/watch?v=${data.sourceVideo.videoId || ""}` : ""),
+        clippersCount: data.clippersCount ?? data.clipperCount ?? 0,
+        clipsCount: data.clipsCount ?? data.clipCount ?? 0,
+      };
+    }
   } catch {
     // API request failed or 404, fallback gracefully
   }
