@@ -55,8 +55,8 @@ export async function seedDemoData(): Promise<void> {
   // 2. Source Videos
   const srcVideo1 = await repo.createSourceVideo({
     platform: 'youtube',
-    videoId: 'L_LUpnjgPso',
-    videoIdHash: keccak256(encodePacked(['string', 'string'], ['youtube', 'L_LUpnjgPso'])),
+    videoId: 'SSo_EIwHSd4',
+    videoIdHash: keccak256(encodePacked(['string', 'string'], ['youtube', 'SSo_EIwHSd4'])),
     title: 'BNB Chain Deep Dive: Kecepatan, Skalabilitas & Arsitektur Smart Contract',
     durationSec: 2400,
     transcript:
@@ -67,8 +67,8 @@ export async function seedDemoData(): Promise<void> {
 
   const srcVideo2 = await repo.createSourceVideo({
     platform: 'youtube',
-    videoId: 'y881t8ilMyc',
-    videoIdHash: keccak256(encodePacked(['string', 'string'], ['youtube', 'y881t8ilMyc'])),
+    videoId: 'jxLkbJozKbY',
+    videoIdHash: keccak256(encodePacked(['string', 'string'], ['youtube', 'jxLkbJozKbY'])),
     title: 'DeFi DEX Architecture: Gasless Swaps, AMM Routing & Security Audits',
     durationSec: 1800,
     transcript:

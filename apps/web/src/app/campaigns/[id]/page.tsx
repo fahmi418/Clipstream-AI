@@ -174,24 +174,31 @@ export default function CampaignDetailPage({
     );
   }
 
-  // Extract clean YouTube embed ID or use reliable public Web3 demo video
+  // Extract clean YouTube embed ID or use verified public Web3 demo video
   const rawUrl = campaign.sourceUrl || "";
   const ytMatch = rawUrl.match(
     /(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|shorts\/|watch\?.+&v=))([\w-]{11})/
   );
   const parsedId = ytMatch ? ytMatch[1] : null;
 
-  // Clean fallback if source was seeded with mock identifier like srcVideo001 or srcVideo002
-  const embedVideoId =
-    parsedId && parsedId.length === 11 && !parsedId.startsWith("srcVideo")
-      ? parsedId
-      : campaign.id === "camp-seed-1"
-      ? "L_LUpnjgPso" // BNB Chain Deep Dive
-      : campaign.id === "camp-seed-2"
-      ? "y881t8ilMyc" // DeFi DEX Architecture
-      : "jfKfPfyJRdk"; // Creator & Web3
+  // Filter out broken / restricted legacy test IDs so player never shows "Video is unavailable"
+  const isBrokenId =
+    !parsedId ||
+    parsedId === "L_LUpnjgPso" ||
+    parsedId === "y881t8ilMyc" ||
+    parsedId.startsWith("srcVideo");
 
-  const embedUrl = `https://www.youtube.com/embed/${embedVideoId}?rel=0&modestbranding=1`;
+  const embedVideoId = !isBrokenId
+    ? parsedId!
+    : campaign.id === "camp-seed-1"
+    ? "SSo_EIwHSd4" // How Blockchain Works (Simply Explained) - 100% embeddable
+    : campaign.id === "camp-seed-2"
+    ? "jxLkbJozKbY" // What is Ethereum & Smart Contracts (99Bitcoins) - 100% embeddable
+    : campaign.id === "camp-seed-3"
+    ? "M576WGiDBdQ" // Solidity & Smart Contract Course (freeCodeCamp) - 100% embeddable
+    : "gyMwXuJrbJQ"; // Full Stack Web3 Development (freeCodeCamp) - 100% embeddable
+
+  const embedUrl = `https://www.youtube-nocookie.com/embed/${embedVideoId}?rel=0&modestbranding=1&enablejsapi=1`;
   const watchUrl = `https://www.youtube.com/watch?v=${embedVideoId}`;
 
   const remainingWei = BigInt(campaign.remainingBudget ?? campaign.totalBudget);
@@ -305,28 +312,28 @@ export default function CampaignDetailPage({
           <div className="lg:col-span-8 space-y-6">
 
             {/* Video Player Card */}
-            <div className="card bg-black rounded-2xl overflow-hidden border border-[rgba(17,17,17,0.1)] shadow-md">
+            <div className="card bg-black rounded-2xl overflow-hidden border border-[rgba(17,17,17,0.12)] shadow-md">
               <div className="aspect-video w-full relative bg-neutral-950">
                 <iframe
                   src={embedUrl}
                   title={campaign.title}
                   className="w-full h-full border-0"
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                   allowFullScreen
                 />
               </div>
 
               {/* Video Info Bar below video */}
-              <div className="bg-[#191919] px-4 py-3 text-white flex flex-wrap items-center justify-between gap-3 text-xs">
+              <div className="bg-[#181818] px-4 py-3 text-white flex flex-wrap items-center justify-between gap-3 text-xs border-t border-neutral-800">
                 <div className="flex items-center gap-3">
-                  <span className="flex items-center gap-1.5 text-neutral-300">
+                  <span className="flex items-center gap-1.5 text-neutral-200 font-medium">
                     <Video size={14} className="text-emerald-400" />
                     <span>Video Sumber Resmi</span>
                   </span>
                   <span className="text-neutral-600">•</span>
-                  <span className="text-neutral-400">Durasi: ~30-40 Menit</span>
+                  <span className="text-neutral-400">Durasi: ~20-30 Menit</span>
                   <span className="text-neutral-600">•</span>
-                  <span className="px-2 py-0.5 rounded bg-neutral-800 text-emerald-400 font-mono text-[11px]">
+                  <span className="px-2 py-0.5 rounded bg-neutral-800 text-emerald-400 font-mono text-[11px] font-semibold">
                     Whisper AI 100% Indexed
                   </span>
                 </div>
@@ -335,7 +342,7 @@ export default function CampaignDetailPage({
                   href={watchUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-neutral-300 hover:text-white inline-flex items-center gap-1.5 hover:underline transition-colors ml-auto"
+                  className="text-neutral-200 hover:text-white inline-flex items-center gap-1.5 hover:underline transition-colors ml-auto font-medium"
                 >
                   <span>Buka di YouTube</span>
                   <ExternalLink size={12} />
@@ -343,58 +350,58 @@ export default function CampaignDetailPage({
               </div>
             </div>
 
-            {/* Interactive Tabs Header */}
+            {/* Interactive Segmented Tabs Header */}
             <div className="card bg-white rounded-2xl border border-[rgba(17,17,17,0.08)] shadow-sm overflow-hidden">
-              <div className="flex border-b border-[rgba(17,17,17,0.08)] overflow-x-auto bg-[var(--color-cream-wash)]">
+              <div className="p-2 border-b border-[rgba(17,17,17,0.08)] bg-[#f4f3f0] flex flex-wrap gap-1.5 sm:gap-2">
                 <button
                   type="button"
                   onClick={() => setActiveTab("rules")}
-                  className={`py-3.5 px-5 text-xs font-semibold inline-flex items-center gap-2 whitespace-nowrap transition-colors border-b-2 ${
+                  className={`py-2 px-3.5 rounded-xl text-xs font-semibold inline-flex items-center gap-2 transition-all cursor-pointer ${
                     activeTab === "rules"
-                      ? "border-[var(--color-ink)] text-[var(--color-ink)] bg-white"
-                      : "border-transparent text-[var(--color-ash)] hover:text-[var(--color-ink)]"
+                      ? "bg-white text-[var(--color-ink)] shadow-sm border border-[rgba(17,17,17,0.1)]"
+                      : "text-[var(--color-ash)] hover:text-[var(--color-ink)] hover:bg-white/60"
                   }`}
                 >
-                  <FileText size={15} />
+                  <FileText size={14} className={activeTab === "rules" ? "text-[var(--color-ink)]" : "text-[var(--color-ash)]"} />
                   <span>Pedoman & Aturan Smart Contract</span>
                 </button>
 
                 <button
                   type="button"
                   onClick={() => setActiveTab("moments")}
-                  className={`py-3.5 px-5 text-xs font-semibold inline-flex items-center gap-2 whitespace-nowrap transition-colors border-b-2 ${
+                  className={`py-2 px-3.5 rounded-xl text-xs font-semibold inline-flex items-center gap-2 transition-all cursor-pointer ${
                     activeTab === "moments"
-                      ? "border-[var(--color-ink)] text-[var(--color-ink)] bg-white"
-                      : "border-transparent text-[var(--color-ash)] hover:text-[var(--color-ink)]"
+                      ? "bg-white text-[var(--color-ink)] shadow-sm border border-[rgba(17,17,17,0.1)]"
+                      : "text-[var(--color-ash)] hover:text-[var(--color-ink)] hover:bg-white/60"
                   }`}
                 >
-                  <Sparkles size={15} className="text-amber-500" />
+                  <Sparkles size={14} className="text-amber-500" />
                   <span>Momen Viral & Transkrip AI</span>
                 </button>
 
                 <button
                   type="button"
                   onClick={() => setActiveTab("ai")}
-                  className={`py-3.5 px-5 text-xs font-semibold inline-flex items-center gap-2 whitespace-nowrap transition-colors border-b-2 ${
+                  className={`py-2 px-3.5 rounded-xl text-xs font-semibold inline-flex items-center gap-2 transition-all cursor-pointer ${
                     activeTab === "ai"
-                      ? "border-[var(--color-ink)] text-[var(--color-ink)] bg-white"
-                      : "border-transparent text-[var(--color-ash)] hover:text-[var(--color-ink)]"
+                      ? "bg-white text-[var(--color-ink)] shadow-sm border border-[rgba(17,17,17,0.1)]"
+                      : "text-[var(--color-ash)] hover:text-[var(--color-ink)] hover:bg-white/60"
                   }`}
                 >
-                  <Cpu size={15} />
+                  <Cpu size={14} className={activeTab === "ai" ? "text-blue-600" : "text-[var(--color-ash)]"} />
                   <span>7 Tahap Verifikasi AI</span>
                 </button>
 
                 <button
                   type="button"
                   onClick={() => setActiveTab("leaderboard")}
-                  className={`py-3.5 px-5 text-xs font-semibold inline-flex items-center gap-2 whitespace-nowrap transition-colors border-b-2 ${
+                  className={`py-2 px-3.5 rounded-xl text-xs font-semibold inline-flex items-center gap-2 transition-all cursor-pointer ${
                     activeTab === "leaderboard"
-                      ? "border-[var(--color-ink)] text-[var(--color-ink)] bg-white"
-                      : "border-transparent text-[var(--color-ash)] hover:text-[var(--color-ink)]"
+                      ? "bg-white text-[var(--color-ink)] shadow-sm border border-[rgba(17,17,17,0.1)]"
+                      : "text-[var(--color-ash)] hover:text-[var(--color-ink)] hover:bg-white/60"
                   }`}
                 >
-                  <Trophy size={15} className="text-amber-500" />
+                  <Trophy size={14} className="text-amber-500" />
                   <span>Leaderboard ({clips.length})</span>
                 </button>
               </div>
