@@ -17,8 +17,10 @@ import {
   Loader2,
   AlertCircle,
   TrendingUp,
+  Zap,
 } from "lucide-react";
 import { authApi, type User } from "@/lib/api";
+import { PokoOffRampModal } from "@/components/PokoOffRampModal";
 
 interface ClipperWalletModalProps {
   isOpen: boolean;
@@ -61,6 +63,7 @@ export function ClipperWalletModal({
   const [copiedAddress, setCopiedCode] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [showPokoModal, setShowPokoModal] = useState(false);
   const [successReceipt, setSuccessReceipt] = useState<{
     id: string;
     amountUsdc: number;
@@ -329,6 +332,33 @@ export function ClipperWalletModal({
               </button>
             </div>
           </div>
+
+          {/* Poko Instant Off-Ramp CTA (Option B) */}
+          <button
+            type="button"
+            onClick={() => setShowPokoModal(true)}
+            style={{
+              width: "100%",
+              padding: "10px 14px",
+              borderRadius: "12px",
+              background: "linear-gradient(135deg, #118eea 0%, #00aed6 100%)",
+              color: "#ffffff",
+              border: "none",
+              fontSize: "0.8125rem",
+              fontWeight: 700,
+              cursor: "pointer",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: "8px",
+              marginBottom: "1.25rem",
+              boxShadow: "0 4px 14px rgba(17, 142, 234, 0.25)",
+            }}
+          >
+            <Zap size={15} />
+            <span>Tarik Instan ke DANA / Bank via Poko (1-Klik)</span>
+            <ArrowRight size={14} />
+          </button>
 
           {/* Success Receipt State */}
           {successReceipt ? (
@@ -895,6 +925,18 @@ export function ClipperWalletModal({
           )}
         </div>
       </div>
+
+      {/* Poko Off-Ramp SDK Modal (Option B) */}
+      <PokoOffRampModal
+        isOpen={showPokoModal}
+        onClose={() => setShowPokoModal(false)}
+        availableBalanceUsdc={availableBalanceUsdc}
+        userWalletAddress={currentWalletAddress}
+        userDisplayName={user?.displayName || "Clipper"}
+        onWithdrawSuccess={(withdrawnUsdc) => {
+          onWithdrawSuccess?.(Math.max(0, availableBalanceUsdc - withdrawnUsdc));
+        }}
+      />
     </div>
   );
 }

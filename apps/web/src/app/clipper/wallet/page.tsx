@@ -27,7 +27,9 @@ import {
   Clock,
   ChevronRight,
   Info,
+  Zap,
 } from "lucide-react";
+import { PokoOffRampModal } from "@/components/PokoOffRampModal";
 
 const EWALLET_PROVIDERS = [
   { id: "DANA", name: "DANA", color: "#118eea", bg: "#eef7fe" },
@@ -73,6 +75,7 @@ export default function ClipperWalletPage() {
   const [copiedAddress, setCopiedAddress] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [showPokoModal, setShowPokoModal] = useState(false);
 
   const [recentWithdrawals, setRecentWithdrawals] = useState<WithdrawalHistoryItem[]>([
     {
@@ -359,6 +362,34 @@ export default function ClipperWalletPage() {
                   <span>{copiedAddress ? "Tersalin" : "Salin"}</span>
                 </button>
               </div>
+
+              {/* Poko Instant Off-Ramp CTA (Option B) */}
+              <button
+                type="button"
+                onClick={() => setShowPokoModal(true)}
+                style={{
+                  marginTop: "1rem",
+                  width: "100%",
+                  padding: "10px 14px",
+                  borderRadius: "12px",
+                  background: "linear-gradient(135deg, #118eea 0%, #00aed6 100%)",
+                  color: "#ffffff",
+                  border: "none",
+                  fontSize: "0.8125rem",
+                  fontWeight: 700,
+                  cursor: "pointer",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  gap: "8px",
+                  boxShadow: "0 4px 14px rgba(17, 142, 234, 0.3)",
+                  transition: "transform 0.15s ease",
+                }}
+              >
+                <Zap size={15} />
+                <span>Tarik Instan ke DANA / Bank (Poko SDK)</span>
+                <ArrowRight size={14} />
+              </button>
             </div>
 
             {/* Card 2: Saldo Tertahan (Holdback 30%) */}
@@ -474,6 +505,69 @@ export default function ClipperWalletPage() {
                 boxShadow: "0 4px 20px rgba(0, 0, 0, 0.03)",
               }}
             >
+              {/* Poko Featured Banner */}
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  gap: "12px",
+                  padding: "12px 16px",
+                  borderRadius: "14px",
+                  background: "linear-gradient(135deg, #eef7fe 0%, #e6f8fc 100%)",
+                  border: "1px solid rgba(17, 142, 234, 0.2)",
+                  marginBottom: "1.25rem",
+                }}
+              >
+                <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                  <div
+                    style={{
+                      width: "32px",
+                      height: "32px",
+                      borderRadius: "8px",
+                      backgroundColor: "#118eea",
+                      color: "#fff",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      flexShrink: 0,
+                    }}
+                  >
+                    <Zap size={16} />
+                  </div>
+                  <div>
+                    <div style={{ fontSize: "0.8125rem", fontWeight: 700, color: "#111" }}>
+                      Pencairan Instan Web3 via Poko
+                    </div>
+                    <div style={{ fontSize: "0.6875rem", color: "#555" }}>
+                      DANA, GoPay, OVO, QRIS &amp; Bank transfer dalam hitungan detik
+                    </div>
+                  </div>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => setShowPokoModal(true)}
+                  style={{
+                    padding: "6px 12px",
+                    borderRadius: "8px",
+                    backgroundColor: "#118eea",
+                    color: "#fff",
+                    border: "none",
+                    fontSize: "0.75rem",
+                    fontWeight: 700,
+                    cursor: "pointer",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "4px",
+                    flexShrink: 0,
+                  }}
+                >
+                  <span>Buka Poko</span>
+                  <ArrowRight size={12} />
+                </button>
+              </div>
+
               {/* Tab Selector */}
               <div
                 style={{
@@ -1154,6 +1248,32 @@ export default function ClipperWalletPage() {
           </div>
         </div>
       </div>
+
+      {/* Poko Off-Ramp SDK Modal (Option B) */}
+      <PokoOffRampModal
+        isOpen={showPokoModal}
+        onClose={() => setShowPokoModal(false)}
+        availableBalanceUsdc={availableUsdc}
+        userWalletAddress={currentWalletAddress}
+        userDisplayName={user?.displayName || "Clipper"}
+        onWithdrawSuccess={(withdrawnUsdc, receiptData) => {
+          setAvailableUsdc((prev) => Math.max(0, prev - withdrawnUsdc));
+          setTotalWithdrawnUsdc((prev) => prev + withdrawnUsdc);
+          setRecentWithdrawals((prev) => [
+            {
+              id: receiptData.orderId,
+              provider: receiptData.provider,
+              accountNumber: receiptData.accountNumber,
+              amountUsdc: withdrawnUsdc,
+              amountIdr: receiptData.netIdrReceived,
+              date: "Baru saja (Poko)",
+              status: "COMPLETED",
+              type: "EWALLET",
+            },
+            ...prev,
+          ]);
+        }}
+      />
     </AuthGate>
   );
 }

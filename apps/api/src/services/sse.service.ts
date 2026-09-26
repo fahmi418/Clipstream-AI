@@ -4,33 +4,33 @@ import type { ClipStatus, StageStatus } from '@clipstream/shared';
 export type VerificationEvent =
   | { type: 'stage_start'; stage: string; label: string; at: string }
   | {
-      type: 'stage_complete';
-      stage: string;
-      status: StageStatus;
-      score: number | null;
-      label: string;
-      reason: string | null;
-      at: string;
-    }
+    type: 'stage_complete';
+    stage: string;
+    status: StageStatus;
+    score: number | null;
+    label: string;
+    reason: string | null;
+    at: string;
+  }
   | {
-      type: 'payout';
-      grossPayout?: string;
-      platformFee?: string;
-      platformFeeBps?: number;
-      releasedAmount: string;
-      holdbackAmount: string;
-      holdbackUnlockAt: string;
-      txHash: string;
-      explorerUrl: string;
-      at: string;
-    }
+    type: 'payout';
+    grossPayout?: string;
+    platformFee?: string;
+    platformFeeBps?: number;
+    releasedAmount: string;
+    holdbackAmount: string;
+    holdbackUnlockAt: string;
+    txHash: string;
+    explorerUrl: string;
+    at: string;
+  }
   | {
-      type: 'rejected';
-      code: string;
-      reason: string;
-      suggestion: string;
-      at: string;
-    }
+    type: 'rejected';
+    code: string;
+    reason: string;
+    suggestion: string;
+    at: string;
+  }
   | { type: 'deferred'; nextCheckAt: string; reason: string; at: string }
   | { type: 'error'; message: string; at: string }
   | { type: 'done'; finalStatus: ClipStatus; at: string };
