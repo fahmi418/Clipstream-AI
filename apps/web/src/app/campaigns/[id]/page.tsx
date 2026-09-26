@@ -45,6 +45,7 @@ import {
   HelpCircle,
   Hash,
   Coins,
+  XCircle,
 } from "lucide-react";
 import Link from "next/link";
 
@@ -133,13 +134,15 @@ export default function CampaignDetailPage({
 
   if (loading) {
     return (
-      <div className="am-container" style={{ maxWidth: "78rem", margin: "0 auto", padding: "7.5rem 1.5rem 4rem" }}>
-        <div className="space-y-6">
-          <div className="h-6 w-40 skeleton rounded-md" />
-          <div className="h-10 w-96 skeleton rounded-md" />
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-            <div className="lg:col-span-8 h-[28rem] skeleton rounded-2xl" />
-            <div className="lg:col-span-4 h-[28rem] skeleton rounded-2xl" />
+      <div style={{ backgroundColor: "#f6f5f3", minHeight: "100vh", paddingTop: "6.5rem", paddingBottom: "5rem" }}>
+        <div className="am-container" style={{ maxWidth: "76rem", margin: "0 auto", padding: "0 1.5rem" }}>
+          <div style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}>
+            <div style={{ height: "1.5rem", width: "10rem", backgroundColor: "#e8e7e4", borderRadius: "8px" }} />
+            <div style={{ height: "2.5rem", width: "24rem", backgroundColor: "#e8e7e4", borderRadius: "10px" }} />
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))", gap: "2rem" }}>
+              <div style={{ height: "28rem", backgroundColor: "#e8e7e4", borderRadius: "20px" }} />
+              <div style={{ height: "28rem", backgroundColor: "#e8e7e4", borderRadius: "20px" }} />
+            </div>
           </div>
         </div>
       </div>
@@ -148,25 +151,55 @@ export default function CampaignDetailPage({
 
   if (!campaign) {
     return (
-      <div className="am-container" style={{ maxWidth: "78rem", margin: "0 auto", padding: "7.5rem 1.5rem 4rem" }}>
-        <div className="text-center py-20 bg-white rounded-2xl border border-[rgba(17,17,17,0.08)] space-y-4 max-w-xl mx-auto p-8 shadow-sm">
-          <div className="w-12 h-12 rounded-full bg-[var(--color-pearl)] flex items-center justify-center mx-auto text-[var(--color-ash)]">
-            <AlertCircle size={24} />
-          </div>
-          <h2 className="text-2xl font-semibold text-[var(--color-ink)]">
-            Campaign Tidak Ditemukan
-          </h2>
-          <p className="text-sm text-[var(--color-ash)] leading-relaxed">
-            Campaign yang kamu cari mungkin belum dipublikasikan atau telah dipindahkan.
-          </p>
-          <div className="pt-2">
+      <div style={{ backgroundColor: "#f6f5f3", minHeight: "100vh", paddingTop: "7.5rem", paddingBottom: "5rem" }}>
+        <div className="am-container" style={{ maxWidth: "42rem", margin: "0 auto", padding: "0 1.5rem", textAlign: "center" }}>
+          <div
+            style={{
+              backgroundColor: "#ffffff",
+              borderRadius: "24px",
+              border: "1px solid rgba(17,17,17,0.08)",
+              padding: "3rem 2rem",
+              boxShadow: "0 4px 20px -2px rgba(17,17,17,0.04)",
+            }}
+          >
+            <div
+              style={{
+                width: "3.5rem",
+                height: "3.5rem",
+                borderRadius: "50%",
+                backgroundColor: "#f4f3f0",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                margin: "0 auto 1.5rem",
+                color: "#6d6c6b",
+              }}
+            >
+              <AlertCircle size={28} />
+            </div>
+            <h2 style={{ fontSize: "1.75rem", fontWeight: 700, color: "#111111", marginBottom: "0.75rem" }}>
+              Campaign Tidak Ditemukan
+            </h2>
+            <p style={{ fontSize: "0.95rem", color: "#6d6c6b", lineHeight: 1.6, marginBottom: "2rem" }}>
+              Campaign yang kamu cari mungkin telah berakhir atau ID tidak sesuai. Silakan jelajahi campaign aktif lainnya.
+            </p>
             <Link
               href="/campaigns"
-              className="btn-primary py-2.5 px-5 text-xs inline-flex items-center gap-2"
-              style={{ textDecoration: "none" }}
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "0.5rem",
+                padding: "0.75rem 1.5rem",
+                borderRadius: "12px",
+                backgroundColor: "#111111",
+                color: "#ffffff",
+                fontSize: "0.875rem",
+                fontWeight: 600,
+                textDecoration: "none",
+              }}
             >
-              <ArrowLeft size={14} />
-              <span>Kembali ke Daftar Campaign</span>
+              <ArrowLeft size={16} />
+              <span>Kembali ke Katalog Campaign</span>
             </Link>
           </div>
         </div>
@@ -211,472 +244,763 @@ export default function CampaignDetailPage({
   const viralMoments = [
     {
       time: "00:45 - 01:30",
-      title: "Hook: Masalah Gas Fee & Solusi Gasless Swap",
-      desc: "Bagian pembuka yang menjelaskan bagaimana pengguna sering terjebak biaya transaksi tinggi di DEX konvensional.",
+      title: "Hook: Mengapa Gas Fee Sering Tinggi & Solusi Gasless Swap",
+      desc: "Bagian pembuka yang menjelaskan bagaimana pengguna sering terjebak biaya transaksi tinggi di DEX konvensional dan bagaimana solusi BNB Chain mengatasinya.",
       potential: "Sangat Tinggi (Viral Hook)",
     },
     {
       time: "04:12 - 05:05",
-      title: "Fitur Unggulan: Auto-Routing AMM di BNB Chain",
-      desc: "Penjelasan teknis animasi bagaimana router menemukan harga swap termurah lintas liquidity pool secara instan.",
+      title: "Fitur Unggulan: Auto-Routing AMM di Ekosistem BNB Chain",
+      desc: "Penjelasan teknis animasi bagaimana router menemukan harga swap termurah lintas liquidity pool secara instan dengan slippage minimal.",
       potential: "Tinggi (Edukasi Finansial)",
     },
     {
       time: "09:20 - 10:10",
-      title: "Keamanan: Kontrak Tervalidasi & Anti-Rugpull",
-      desc: "Sorotan hasil audit independen dan transparansi smart contract tanpa backdoors.",
+      title: "Keamanan: Kontrak Tervalidasi & Anti-Rugpull Escrow",
+      desc: "Sorotan hasil audit independen dan transparansi smart contract tanpa celah manipulasi admin sepihak.",
       potential: "Tinggi (Trust Building)",
     },
     {
       time: "15:40 - 16:30",
-      title: "Call-to-Action: Cara Mulai Menggunakan DEX",
-      desc: "Langkah mudah menghubungkan wallet dan mulai trading tanpa biaya gas tersembunyi.",
+      title: "Call-to-Action: Cara Mulai Menggunakan DEX & Mendapat Reward",
+      desc: "Langkah mudah menghubungkan wallet dan mulai memanfaatkan swap terdesentralisasi tanpa ribet.",
       potential: "Sangat Tinggi (Conversion)",
     },
   ];
 
   return (
-    <div className="am-container" style={{ maxWidth: "78rem", margin: "0 auto", padding: "6.5rem 1.5rem 5rem" }}>
-      <div className="space-y-8">
+    <div
+      style={{
+        backgroundColor: "#f6f5f3",
+        minHeight: "100vh",
+        paddingTop: "6.5rem",
+        paddingBottom: "5rem",
+        fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, sans-serif",
+      }}
+    >
+      <div className="am-container" style={{ maxWidth: "76rem", margin: "0 auto", padding: "0 1.5rem" }}>
+        <div style={{ display: "flex", flexDirection: "column", gap: "2rem" }}>
 
-        {/* ── BREADCRUMB & ACTION BAR ────────────────────────── */}
-        <div className="flex flex-wrap items-center justify-between gap-4 border-b border-[rgba(17,17,17,0.06)] pb-4">
-          <Link
-            href="/campaigns"
-            className="text-xs font-medium text-[var(--color-ash)] hover:text-[var(--color-ink)] inline-flex items-center gap-1.5 transition-colors"
-            style={{ textDecoration: "none" }}
+          {/* ── BREADCRUMB & ACTION BAR ────────────────────────── */}
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              flexWrap: "wrap",
+              gap: "1rem",
+              paddingBottom: "1.25rem",
+              borderBottom: "1px solid rgba(17,17,17,0.08)",
+            }}
           >
-            <ArrowLeft size={14} />
-            <span>Semua Campaign</span>
-          </Link>
-
-          <div className="flex items-center gap-2.5">
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-[#e6f4ea] text-[#137333] border border-[#ceead6]">
-              <span className="w-1.5 h-1.5 rounded-full bg-[#137333] animate-pulse" />
-              Campaign Aktif
-            </span>
-            <RulesLockBadge
-              onchainId={campaign.onchainId}
-              txHash={campaign.txHash}
-            />
-            <button
-              type="button"
-              onClick={handleShare}
-              className="btn-ghost text-xs py-1 px-3 flex items-center gap-1.5 border border-[rgba(17,17,17,0.1)] rounded-lg hover:bg-white"
-            >
-              <Share2 size={13} />
-              <span>{copiedLink ? "Link Tersalin!" : "Bagikan"}</span>
-            </button>
-          </div>
-        </div>
-
-        {/* ── HERO CAMPAIGN TITLE & METADATA ──────────────────── */}
-        <div className="space-y-3">
-          <div className="flex flex-wrap items-center gap-2 text-xs text-[var(--color-ash)]">
-            <span className="px-2 py-0.5 rounded bg-[var(--color-pearl)] text-[var(--color-ink)] font-medium">
-              BNB Smart Chain
-            </span>
-            <span>•</span>
-            <button
-              type="button"
-              onClick={() => {
-                navigator.clipboard.writeText(campaign.brandId);
-                setCopiedAddress(true);
-                setTimeout(() => setCopiedAddress(false), 2000);
+            <Link
+              href="/campaigns"
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "0.5rem",
+                fontSize: "0.8125rem",
+                fontWeight: 600,
+                color: "#555552",
+                textDecoration: "none",
+                padding: "0.4rem 0.85rem",
+                borderRadius: "9999px",
+                backgroundColor: "#ffffff",
+                border: "1px solid rgba(17,17,17,0.08)",
+                transition: "all 0.15s ease",
               }}
-              className="hover:text-[var(--color-ink)] inline-flex items-center gap-1 transition-colors"
-              title="Salin Address Brand"
             >
-              <span>Brand: <strong>{truncateAddress(campaign.brandId)}</strong></span>
-              {copiedAddress ? <Check size={12} className="text-[#137333]" /> : <Copy size={12} />}
-            </button>
-            <span>•</span>
-            <span>Dibuat {formatDate(campaign.createdAt)}</span>
+              <ArrowLeft size={14} />
+              <span>Semua Campaign</span>
+            </Link>
+
+            <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", flexWrap: "wrap" }}>
+              <span
+                style={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: "0.4rem",
+                  padding: "0.35rem 0.85rem",
+                  borderRadius: "9999px",
+                  fontSize: "0.75rem",
+                  fontWeight: 700,
+                  backgroundColor: "#ecfdf5",
+                  color: "#059669",
+                  border: "1px solid rgba(5,150,105,0.25)",
+                }}
+              >
+                <span
+                  style={{
+                    width: "6px",
+                    height: "6px",
+                    borderRadius: "50%",
+                    backgroundColor: "#059669",
+                    display: "inline-block",
+                  }}
+                />
+                Campaign Aktif
+              </span>
+
+              <RulesLockBadge
+                onchainId={campaign.onchainId}
+                txHash={campaign.txHash}
+              />
+
+              <button
+                type="button"
+                onClick={handleShare}
+                style={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: "0.4rem",
+                  padding: "0.35rem 0.85rem",
+                  borderRadius: "9999px",
+                  fontSize: "0.75rem",
+                  fontWeight: 600,
+                  backgroundColor: "#ffffff",
+                  color: "#111111",
+                  border: "1px solid rgba(17,17,17,0.1)",
+                  cursor: "pointer",
+                }}
+              >
+                <Share2 size={13} />
+                <span>{copiedLink ? "Link Tersalin!" : "Bagikan"}</span>
+              </button>
+            </div>
           </div>
 
-          <h1 className="text-3xl sm:text-4xl font-bold text-[var(--color-ink)] tracking-tight leading-tight">
-            {campaign.title}
-          </h1>
-
-          {campaign.description && (
-            <p className="text-sm sm:text-base text-[var(--color-ash)] leading-relaxed max-w-4xl">
-              {campaign.description}
-            </p>
-          )}
-        </div>
-
-        {/* ── MAIN TWO-COLUMN GRID ───────────────────────────── */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-
-          {/* ── LEFT COLUMN: VIDEO SHOWCASE & TABS (7 COLS) ─── */}
-          <div className="lg:col-span-8 space-y-6">
-
-            {/* Video Player Card */}
-            <div className="card bg-black rounded-2xl overflow-hidden border border-[rgba(17,17,17,0.12)] shadow-md">
-              <div className="aspect-video w-full relative bg-neutral-950">
-                <iframe
-                  src={embedUrl}
-                  title={campaign.title}
-                  className="w-full h-full border-0"
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                  allowFullScreen
-                />
-              </div>
-
-              {/* Video Info Bar below video */}
-              <div className="bg-[#181818] px-4 py-3 text-white flex flex-wrap items-center justify-between gap-3 text-xs border-t border-neutral-800">
-                <div className="flex items-center gap-3">
-                  <span className="flex items-center gap-1.5 text-neutral-200 font-medium">
-                    <Video size={14} className="text-emerald-400" />
-                    <span>Video Sumber Resmi</span>
-                  </span>
-                  <span className="text-neutral-600">•</span>
-                  <span className="text-neutral-400">Durasi: ~20-30 Menit</span>
-                  <span className="text-neutral-600">•</span>
-                  <span className="px-2 py-0.5 rounded bg-neutral-800 text-emerald-400 font-mono text-[11px] font-semibold">
-                    Whisper AI 100% Indexed
-                  </span>
-                </div>
-
-                <a
-                  href={watchUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-neutral-200 hover:text-white inline-flex items-center gap-1.5 hover:underline transition-colors ml-auto font-medium"
-                >
-                  <span>Buka di YouTube</span>
-                  <ExternalLink size={12} />
-                </a>
-              </div>
+          {/* ── HERO CAMPAIGN TITLE & METADATA ──────────────────── */}
+          <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", flexWrap: "wrap", fontSize: "0.8125rem", color: "#6d6c6b" }}>
+              <span
+                style={{
+                  padding: "0.2rem 0.6rem",
+                  borderRadius: "6px",
+                  backgroundColor: "#ffffff",
+                  border: "1px solid rgba(17,17,17,0.08)",
+                  fontWeight: 600,
+                  color: "#111111",
+                }}
+              >
+                BNB Smart Chain (BEP-20)
+              </span>
+              <span>•</span>
+              <button
+                type="button"
+                onClick={() => {
+                  navigator.clipboard.writeText(campaign.brandId);
+                  setCopiedAddress(true);
+                  setTimeout(() => setCopiedAddress(false), 2000);
+                }}
+                style={{
+                  background: "none",
+                  border: "none",
+                  padding: 0,
+                  fontSize: "inherit",
+                  color: "inherit",
+                  cursor: "pointer",
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: "0.35rem",
+                }}
+                title="Salin Address Brand"
+              >
+                <span>Brand: <strong style={{ color: "#111111" }}>{truncateAddress(campaign.brandId)}</strong></span>
+                {copiedAddress ? <Check size={12} color="#059669" /> : <Copy size={12} />}
+              </button>
+              <span>•</span>
+              <span>Dibuat {formatDate(campaign.createdAt)}</span>
             </div>
 
-            {/* Interactive Segmented Tabs Header */}
-            <div className="card bg-white rounded-2xl border border-[rgba(17,17,17,0.08)] shadow-sm overflow-hidden">
-              <div className="p-2 border-b border-[rgba(17,17,17,0.08)] bg-[#f4f3f0] flex flex-wrap gap-1.5 sm:gap-2">
-                <button
-                  type="button"
-                  onClick={() => setActiveTab("rules")}
-                  className={`py-2 px-3.5 rounded-xl text-xs font-semibold inline-flex items-center gap-2 transition-all cursor-pointer ${
-                    activeTab === "rules"
-                      ? "bg-white text-[var(--color-ink)] shadow-sm border border-[rgba(17,17,17,0.1)]"
-                      : "text-[var(--color-ash)] hover:text-[var(--color-ink)] hover:bg-white/60"
-                  }`}
-                >
-                  <FileText size={14} className={activeTab === "rules" ? "text-[var(--color-ink)]" : "text-[var(--color-ash)]"} />
-                  <span>Pedoman & Aturan Smart Contract</span>
-                </button>
+            <h1
+              style={{
+                fontSize: "clamp(2rem, 3.5vw, 2.75rem)",
+                fontWeight: 800,
+                color: "#111111",
+                letterSpacing: "-0.03em",
+                lineHeight: 1.15,
+                margin: 0,
+              }}
+            >
+              {campaign.title}
+            </h1>
 
-                <button
-                  type="button"
-                  onClick={() => setActiveTab("moments")}
-                  className={`py-2 px-3.5 rounded-xl text-xs font-semibold inline-flex items-center gap-2 transition-all cursor-pointer ${
-                    activeTab === "moments"
-                      ? "bg-white text-[var(--color-ink)] shadow-sm border border-[rgba(17,17,17,0.1)]"
-                      : "text-[var(--color-ash)] hover:text-[var(--color-ink)] hover:bg-white/60"
-                  }`}
-                >
-                  <Sparkles size={14} className="text-amber-500" />
-                  <span>Momen Viral & Transkrip AI</span>
-                </button>
+            {campaign.description && (
+              <p
+                style={{
+                  fontSize: "1.05rem",
+                  color: "#555552",
+                  lineHeight: 1.6,
+                  maxWidth: "52rem",
+                  margin: 0,
+                }}
+              >
+                {campaign.description}
+              </p>
+            )}
+          </div>
 
-                <button
-                  type="button"
-                  onClick={() => setActiveTab("ai")}
-                  className={`py-2 px-3.5 rounded-xl text-xs font-semibold inline-flex items-center gap-2 transition-all cursor-pointer ${
-                    activeTab === "ai"
-                      ? "bg-white text-[var(--color-ink)] shadow-sm border border-[rgba(17,17,17,0.1)]"
-                      : "text-[var(--color-ash)] hover:text-[var(--color-ink)] hover:bg-white/60"
-                  }`}
-                >
-                  <Cpu size={14} className={activeTab === "ai" ? "text-blue-600" : "text-[var(--color-ash)]"} />
-                  <span>7 Tahap Verifikasi AI</span>
-                </button>
+          {/* ── MAIN TWO-COLUMN GRID ───────────────────────────── */}
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))",
+              gap: "2rem",
+              alignItems: "start",
+            }}
+          >
 
-                <button
-                  type="button"
-                  onClick={() => setActiveTab("leaderboard")}
-                  className={`py-2 px-3.5 rounded-xl text-xs font-semibold inline-flex items-center gap-2 transition-all cursor-pointer ${
-                    activeTab === "leaderboard"
-                      ? "bg-white text-[var(--color-ink)] shadow-sm border border-[rgba(17,17,17,0.1)]"
-                      : "text-[var(--color-ash)] hover:text-[var(--color-ink)] hover:bg-white/60"
-                  }`}
+            {/* ── LEFT COLUMN: VIDEO SHOWCASE & TABS (65%) ─── */}
+            <div style={{ display: "flex", flexDirection: "column", gap: "1.75rem", gridColumn: "span 2" }}>
+
+              {/* Video Player Card */}
+              <div
+                style={{
+                  backgroundColor: "#000000",
+                  borderRadius: "20px",
+                  overflow: "hidden",
+                  border: "1px solid rgba(17,17,17,0.12)",
+                  boxShadow: "0 10px 30px -5px rgba(0,0,0,0.15)",
+                }}
+              >
+                <div style={{ position: "relative", width: "100%", paddingBottom: "56.25%", backgroundColor: "#0a0a0a" }}>
+                  <iframe
+                    src={embedUrl}
+                    title={campaign.title}
+                    style={{
+                      position: "absolute",
+                      top: 0,
+                      left: 0,
+                      width: "100%",
+                      height: "100%",
+                      border: 0,
+                    }}
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                    allowFullScreen
+                  />
+                </div>
+
+                {/* Video Info Bar below video */}
+                <div
+                  style={{
+                    backgroundColor: "#141414",
+                    padding: "0.85rem 1.25rem",
+                    color: "#ffffff",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    flexWrap: "wrap",
+                    gap: "0.75rem",
+                    fontSize: "0.75rem",
+                    borderTop: "1px solid #222222",
+                  }}
                 >
-                  <Trophy size={14} className="text-amber-500" />
-                  <span>Leaderboard ({clips.length})</span>
-                </button>
+                  <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", flexWrap: "wrap" }}>
+                    <span style={{ display: "inline-flex", alignItems: "center", gap: "0.4rem", color: "#e5e5e5", fontWeight: 600 }}>
+                      <Video size={14} color="#10b981" />
+                      <span>Video Sumber Resmi</span>
+                    </span>
+                    <span style={{ color: "#555555" }}>•</span>
+                    <span style={{ color: "#a3a3a3" }}>Durasi: ~20-30 Menit</span>
+                    <span style={{ color: "#555555" }}>•</span>
+                    <span
+                      style={{
+                        padding: "0.2rem 0.5rem",
+                        borderRadius: "4px",
+                        backgroundColor: "#262626",
+                        color: "#34d399",
+                        fontFamily: "monospace",
+                        fontSize: "0.6875rem",
+                        fontWeight: 700,
+                      }}
+                    >
+                      Whisper AI 100% Indexed
+                    </span>
+                  </div>
+
+                  <a
+                    href={watchUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    style={{
+                      color: "#e5e5e5",
+                      textDecoration: "none",
+                      display: "inline-flex",
+                      alignItems: "center",
+                      gap: "0.35rem",
+                      fontWeight: 600,
+                    }}
+                  >
+                    <span>Buka Video Asli di YouTube</span>
+                    <ExternalLink size={12} />
+                  </a>
+                </div>
               </div>
 
-              {/* Tab Contents */}
-              <div className="p-6">
+              {/* ── INTERACTIVE SEGMENTED PILL TABS CARD ─────────────── */}
+              <div
+                style={{
+                  backgroundColor: "#ffffff",
+                  borderRadius: "20px",
+                  border: "1px solid rgba(17,17,17,0.08)",
+                  boxShadow: "0 4px 20px -2px rgba(17,17,17,0.03)",
+                  overflow: "hidden",
+                }}
+              >
+                {/* Segmented Pill Navigation Bar */}
+                <div
+                  style={{
+                    backgroundColor: "#eeedea",
+                    margin: "1rem",
+                    padding: "5px",
+                    borderRadius: "16px",
+                    display: "flex",
+                    flexWrap: "wrap",
+                    gap: "6px",
+                  }}
+                >
+                  <button
+                    type="button"
+                    onClick={() => setActiveTab("rules")}
+                    style={{
+                      flex: "1 1 auto",
+                      minWidth: "140px",
+                      padding: "0.6rem 1rem",
+                      borderRadius: "12px",
+                      border: activeTab === "rules" ? "1px solid rgba(17,17,17,0.08)" : "none",
+                      backgroundColor: activeTab === "rules" ? "#ffffff" : "transparent",
+                      color: activeTab === "rules" ? "#111111" : "#6d6c6b",
+                      boxShadow: activeTab === "rules" ? "0 2px 8px rgba(0,0,0,0.06)" : "none",
+                      fontSize: "0.8125rem",
+                      fontWeight: activeTab === "rules" ? 700 : 500,
+                      display: "inline-flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      gap: "0.5rem",
+                      cursor: "pointer",
+                      transition: "all 0.15s ease",
+                    }}
+                  >
+                    <FileText size={14} color={activeTab === "rules" ? "#111111" : "#6d6c6b"} />
+                    <span>Pedoman & Aturan</span>
+                  </button>
 
-                {/* TAB 1: RULES & GUIDELINES */}
-                {activeTab === "rules" && (
-                  <div className="space-y-6">
-                    <div className="bg-[#f0f9f4] border border-[#cbebd6] rounded-xl p-4 flex items-start gap-3">
-                      <ShieldCheck size={20} className="text-[#137333] flex-shrink-0 mt-0.5" />
-                      <div className="space-y-1 text-xs">
-                        <div className="font-semibold text-[#137333]">
-                          Aturan Dikunci Permanen di Smart Contract BNB Chain #{campaign.onchainId ?? "2"}
+                  <button
+                    type="button"
+                    onClick={() => setActiveTab("moments")}
+                    style={{
+                      flex: "1 1 auto",
+                      minWidth: "140px",
+                      padding: "0.6rem 1rem",
+                      borderRadius: "12px",
+                      border: activeTab === "moments" ? "1px solid rgba(17,17,17,0.08)" : "none",
+                      backgroundColor: activeTab === "moments" ? "#ffffff" : "transparent",
+                      color: activeTab === "moments" ? "#111111" : "#6d6c6b",
+                      boxShadow: activeTab === "moments" ? "0 2px 8px rgba(0,0,0,0.06)" : "none",
+                      fontSize: "0.8125rem",
+                      fontWeight: activeTab === "moments" ? 700 : 500,
+                      display: "inline-flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      gap: "0.5rem",
+                      cursor: "pointer",
+                      transition: "all 0.15s ease",
+                    }}
+                  >
+                    <Sparkles size={14} color="#d97706" />
+                    <span>Momen Viral AI</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setActiveTab("ai")}
+                    style={{
+                      flex: "1 1 auto",
+                      minWidth: "140px",
+                      padding: "0.6rem 1rem",
+                      borderRadius: "12px",
+                      border: activeTab === "ai" ? "1px solid rgba(17,17,17,0.08)" : "none",
+                      backgroundColor: activeTab === "ai" ? "#ffffff" : "transparent",
+                      color: activeTab === "ai" ? "#111111" : "#6d6c6b",
+                      boxShadow: activeTab === "ai" ? "0 2px 8px rgba(0,0,0,0.06)" : "none",
+                      fontSize: "0.8125rem",
+                      fontWeight: activeTab === "ai" ? 700 : 500,
+                      display: "inline-flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      gap: "0.5rem",
+                      cursor: "pointer",
+                      transition: "all 0.15s ease",
+                    }}
+                  >
+                    <Cpu size={14} color={activeTab === "ai" ? "#2563eb" : "#6d6c6b"} />
+                    <span>7 Tahap AI</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setActiveTab("leaderboard")}
+                    style={{
+                      flex: "1 1 auto",
+                      minWidth: "140px",
+                      padding: "0.6rem 1rem",
+                      borderRadius: "12px",
+                      border: activeTab === "leaderboard" ? "1px solid rgba(17,17,17,0.08)" : "none",
+                      backgroundColor: activeTab === "leaderboard" ? "#ffffff" : "transparent",
+                      color: activeTab === "leaderboard" ? "#111111" : "#6d6c6b",
+                      boxShadow: activeTab === "leaderboard" ? "0 2px 8px rgba(0,0,0,0.06)" : "none",
+                      fontSize: "0.8125rem",
+                      fontWeight: activeTab === "leaderboard" ? 700 : 500,
+                      display: "inline-flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      gap: "0.5rem",
+                      cursor: "pointer",
+                      transition: "all 0.15s ease",
+                    }}
+                  >
+                    <Trophy size={14} color="#d97706" />
+                    <span>Leaderboard ({clips.length})</span>
+                  </button>
+                </div>
+
+                {/* Tab Contents Area */}
+                <div style={{ padding: "0 1.5rem 1.75rem" }}>
+
+                  {/* TAB 1: RULES & GUIDELINES */}
+                  {activeTab === "rules" && (
+                    <div style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}>
+                      {/* Escrow Guarantee Pill Card */}
+                      <div
+                        style={{
+                          backgroundColor: "#f0fdf4",
+                          border: "1px solid #bbf7d0",
+                          borderRadius: "14px",
+                          padding: "1rem 1.25rem",
+                          display: "flex",
+                          alignItems: "flex-start",
+                          gap: "0.75rem",
+                        }}
+                      >
+                        <ShieldCheck size={20} color="#059669" style={{ flexShrink: 0, marginTop: "2px" }} />
+                        <div style={{ fontSize: "0.8125rem" }}>
+                          <div style={{ fontWeight: 700, color: "#065f46", marginBottom: "0.25rem" }}>
+                            Aturan Dikunci Permanen di Smart Contract BNB Chain #{campaign.onchainId ?? "2"}
+                          </div>
+                          <p style={{ color: "#047857", lineHeight: 1.5, margin: 0 }}>
+                            Brand telah mendepositkan budget ke escrow smart contract. Rubrik penilaian dikunci menggunakan cryptographic hash sehingga brand tidak dapat membatalkan atau mengubah syarat pembayaran secara sepihak.
+                          </p>
                         </div>
-                        <p className="text-[var(--color-ash)] leading-relaxed">
-                          Brand mentransfer budget ke kontrak escrow. Rubrik penilaian dikunci menggunakan cryptographic hash sehingga brand tidak dapat mengubah aturan sepihak ataupun menolak pembayaran klip yang memenuhi syarat.
+                      </div>
+
+                      {/* Instructions from Brand */}
+                      <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
+                        <h4 style={{ fontSize: "0.75rem", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.05em", color: "#6d6c6b", margin: 0 }}>
+                          Instruksi & Rubrik Dari Brand
+                        </h4>
+                        <div
+                          style={{
+                            padding: "1.25rem",
+                            backgroundColor: "#fbfaf8",
+                            borderRadius: "14px",
+                            fontSize: "0.9375rem",
+                            lineHeight: 1.6,
+                            color: "#111111",
+                            whiteSpace: "pre-line",
+                            border: "1px solid rgba(17,17,17,0.06)",
+                          }}
+                        >
+                          {campaign.rules}
+                        </div>
+                      </div>
+
+                      {/* Do's & Don'ts Checklist */}
+                      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: "1rem" }}>
+                        <div
+                          style={{
+                            padding: "1.25rem",
+                            borderRadius: "14px",
+                            border: "1px solid #d1fae5",
+                            backgroundColor: "#f0fdf4",
+                            display: "flex",
+                            flexDirection: "column",
+                            gap: "0.75rem",
+                          }}
+                        >
+                          <div style={{ fontWeight: 700, color: "#065f46", display: "flex", alignItems: "center", gap: "0.5rem", fontSize: "0.8125rem" }}>
+                            <CheckCircle2 size={16} color="#059669" />
+                            <span>Wajib Dilakukan (Lolos Verifikasi)</span>
+                          </div>
+                          <ul style={{ margin: 0, paddingLeft: 0, listStyle: "none", display: "flex", flexDirection: "column", gap: "0.5rem", fontSize: "0.75rem", color: "#047857" }}>
+                            <li style={{ display: "flex", alignItems: "center", gap: "0.4rem" }}>
+                              <Check size={13} color="#059669" />
+                              <span>Durasi klip antara 30 detik s/d 90 detik</span>
+                            </li>
+                            <li style={{ display: "flex", alignItems: "center", gap: "0.4rem" }}>
+                              <Check size={13} color="#059669" />
+                              <span>Sisipkan kode verifikasi unik di caption/deskripsi</span>
+                            </li>
+                            <li style={{ display: "flex", alignItems: "center", gap: "0.4rem" }}>
+                              <Check size={13} color="#059669" />
+                              <span>Format vertikal 9:16 (YouTube Shorts / TikTok / Reels)</span>
+                            </li>
+                            <li style={{ display: "flex", alignItems: "center", gap: "0.4rem" }}>
+                              <Check size={13} color="#059669" />
+                              <span>Resolusi visual jelas minimal 720p / 1080p</span>
+                            </li>
+                          </ul>
+                        </div>
+
+                        <div
+                          style={{
+                            padding: "1.25rem",
+                            borderRadius: "14px",
+                            border: "1px solid #ffe4e6",
+                            backgroundColor: "#fff1f2",
+                            display: "flex",
+                            flexDirection: "column",
+                            gap: "0.75rem",
+                          }}
+                        >
+                          <div style={{ fontWeight: 700, color: "#9f1239", display: "flex", alignItems: "center", gap: "0.5rem", fontSize: "0.8125rem" }}>
+                            <XCircle size={16} color="#e11d48" />
+                            <span>Dilarang Keras (Otomatis Ditolak)</span>
+                          </div>
+                          <ul style={{ margin: 0, paddingLeft: 0, listStyle: "none", display: "flex", flexDirection: "column", gap: "0.5rem", fontSize: "0.75rem", color: "#be123c" }}>
+                            <li style={{ display: "flex", alignItems: "center", gap: "0.4rem" }}>
+                              <XCircle size={13} color="#e11d48" />
+                              <span>Reupload mentah video orang lain (Anti-Sybil Anomaly)</span>
+                            </li>
+                            <li style={{ display: "flex", alignItems: "center", gap: "0.4rem" }}>
+                              <XCircle size={13} color="#e11d48" />
+                              <span>Bot views atau manipulasi traffic palsu</span>
+                            </li>
+                            <li style={{ display: "flex", alignItems: "center", gap: "0.4rem" }}>
+                              <XCircle size={13} color="#e11d48" />
+                              <span>Klaim keuntungan finansial berlebihan / SARA</span>
+                            </li>
+                            <li style={{ display: "flex", alignItems: "center", gap: "0.4rem" }}>
+                              <XCircle size={13} color="#e11d48" />
+                              <span>Menghapus video sebelum periode holdback selesai</span>
+                            </li>
+                          </ul>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* TAB 2: VIRAL MOMENTS & TRANSCRIPT */}
+                  {activeTab === "moments" && (
+                    <div style={{ display: "flex", flexDirection: "column", gap: "1.25rem" }}>
+                      <div>
+                        <h4 style={{ fontSize: "0.9375rem", fontWeight: 700, color: "#111111", margin: 0 }}>
+                          Rekomendasi Momen Potensial Viral (Whisper AI Analysis)
+                        </h4>
+                        <p style={{ fontSize: "0.8125rem", color: "#6d6c6b", marginTop: "0.25rem" }}>
+                          AI telah membedah video sumber menjadi momen-momen dengan hook audiens terbaik:
                         </p>
                       </div>
-                    </div>
 
-                    <div className="space-y-2">
-                      <h4 className="text-xs font-bold uppercase tracking-wider text-[var(--color-ash)]">
-                        Instruksi & Rubrik Dari Brand
-                      </h4>
-                      <div className="p-4 bg-[var(--color-cream-wash)] rounded-xl text-sm leading-relaxed text-[var(--color-ink)] whitespace-pre-line border border-[rgba(17,17,17,0.06)]">
-                        {campaign.rules}
-                      </div>
-                    </div>
-
-                    {/* Do's & Don'ts Checklist */}
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
-                      <div className="p-4 rounded-xl border border-emerald-100 bg-emerald-50/50 space-y-2.5">
-                        <div className="font-semibold text-emerald-900 flex items-center gap-1.5">
-                          <CheckCircle2 size={15} className="text-emerald-600" />
-                          <span>Wajib Dilakukan (Lolos Verifikasi)</span>
-                        </div>
-                        <ul className="space-y-1.5 text-emerald-800">
-                          <li>• Durasi klip antara 30 detik s/d 90 detik</li>
-                          <li>• Sisipkan kode verifikasi unik di caption/deskripsi</li>
-                          <li>• Format vertikal 9:16 (YouTube Shorts / TikTok / Reels)</li>
-                          <li>• Resolusi visual jelas minimal 720p / 1080p</li>
-                        </ul>
-                      </div>
-
-                      <div className="p-4 rounded-xl border border-rose-100 bg-rose-50/50 space-y-2.5">
-                        <div className="font-semibold text-rose-900 flex items-center gap-1.5">
-                          <AlertCircle size={15} className="text-rose-600" />
-                          <span>Dilarang Keras (Otomatis Ditolak)</span>
-                        </div>
-                        <ul className="space-y-1.5 text-rose-800">
-                          <li>• Reupload mentah video orang lain (Anti-Sybil Anomaly)</li>
-                          <li>• Bot views atau manipulasi traffic palsu</li>
-                          <li>• Klaim keuntungan finansial berlebihan / SARA</li>
-                          <li>• Menghapus video sebelum periode holdback selesai</li>
-                        </ul>
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                {/* TAB 2: VIRAL MOMENTS & TRANSCRIPT */}
-                {activeTab === "moments" && (
-                  <div className="space-y-6">
-                    <div>
-                      <h4 className="text-sm font-semibold text-[var(--color-ink)]">
-                        Rekomendasi Momen Potensial Viral (Whisper AI Analysis)
-                      </h4>
-                      <p className="text-xs text-[var(--color-ash)] mt-0.5">
-                        AI telah membedah video sumber menjadi momen-momen dengan hook audiens terbaik:
-                      </p>
-                    </div>
-
-                    <div className="space-y-3">
-                      {viralMoments.map((m, idx) => (
-                        <div
-                          key={idx}
-                          className="p-4 rounded-xl border border-[rgba(17,17,17,0.08)] bg-white hover:border-[var(--color-ink)] transition-colors space-y-2"
-                        >
-                          <div className="flex flex-wrap items-center justify-between gap-2">
-                            <div className="flex items-center gap-2">
-                              <span className="font-mono text-xs font-bold px-2 py-0.5 rounded bg-[var(--color-pearl)] text-[var(--color-ink)]">
-                                ⏱️ {m.time}
-                              </span>
-                              <span className="font-semibold text-sm text-[var(--color-ink)]">
-                                {m.title}
+                      <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
+                        {viralMoments.map((m, idx) => (
+                          <div
+                            key={idx}
+                            style={{
+                              padding: "1rem 1.25rem",
+                              borderRadius: "14px",
+                              border: "1px solid rgba(17,17,17,0.08)",
+                              backgroundColor: "#ffffff",
+                              display: "flex",
+                              flexDirection: "column",
+                              gap: "0.5rem",
+                              transition: "all 0.15s ease",
+                            }}
+                          >
+                            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: "0.5rem" }}>
+                              <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                                <span style={{ fontFamily: "monospace", fontSize: "0.75rem", fontWeight: 700, padding: "0.2rem 0.5rem", borderRadius: "6px", backgroundColor: "#f4f3f0", color: "#111111" }}>
+                                  ⏱️ {m.time}
+                                </span>
+                                <span style={{ fontWeight: 700, fontSize: "0.875rem", color: "#111111" }}>
+                                  {m.title}
+                                </span>
+                              </div>
+                              <span style={{ fontSize: "0.6875rem", fontWeight: 700, padding: "0.2rem 0.6rem", borderRadius: "9999px", backgroundColor: "#fef3c7", color: "#b45309" }}>
+                                {m.potential}
                               </span>
                             </div>
-                            <span className="text-[11px] font-medium px-2 py-0.5 rounded-full bg-amber-50 text-amber-800 border border-amber-200">
-                              {m.potential}
-                            </span>
+                            <p style={{ fontSize: "0.8125rem", color: "#555552", lineHeight: 1.5, margin: 0 }}>
+                              {m.desc}
+                            </p>
+                            <div style={{ paddingTop: "0.25rem", display: "flex", alignItems: "center", justifyContent: "space-between", fontSize: "0.75rem" }}>
+                              <span style={{ color: "#888888" }}>Cocok untuk: Hook 3 detik pertama YouTube Shorts & TikTok</span>
+                              <button
+                                type="button"
+                                onClick={() => copyToClipboard(m.title, `moment_${idx}`)}
+                                style={{
+                                  background: "none",
+                                  border: "none",
+                                  padding: 0,
+                                  fontSize: "0.75rem",
+                                  fontWeight: 600,
+                                  color: "#111111",
+                                  cursor: "pointer",
+                                  display: "inline-flex",
+                                  alignItems: "center",
+                                  gap: "0.3rem",
+                                }}
+                              >
+                                {copiedText === `moment_${idx}` ? <Check size={12} color="#059669" /> : <Copy size={12} />}
+                                <span>{copiedText === `moment_${idx}` ? "Tersalin!" : "Salin Topik"}</span>
+                              </button>
+                            </div>
                           </div>
-                          <p className="text-xs text-[var(--color-ash)] leading-relaxed">
-                            {m.desc}
-                          </p>
-                          <div className="pt-1 flex items-center justify-between text-xs">
-                            <span className="text-[11px] text-[var(--color-ash)]">
-                              Cocok untuk: Hook 3 detik pertama YouTube Shorts & TikTok
-                            </span>
-                            <button
-                              type="button"
-                              onClick={() => copyToClipboard(m.title, `moment_${idx}`)}
-                              className="text-xs font-medium text-[var(--color-ink)] hover:underline inline-flex items-center gap-1"
-                            >
-                              {copiedText === `moment_${idx}` ? <Check size={12} className="text-[#137333]" /> : <Copy size={12} />}
-                              <span>{copiedText === `moment_${idx}` ? "Tersalin!" : "Salin Topik"}</span>
-                            </button>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {/* TAB 3: 7 STAGES AI VERIFICATION */}
-                {activeTab === "ai" && (
-                  <div className="space-y-6">
-                    <div>
-                      <h4 className="text-sm font-semibold text-[var(--color-ink)]">
-                        Transparansi Mesin AI Verifier (7 Tahap Terotomatisasi)
-                      </h4>
-                      <p className="text-xs text-[var(--color-ash)] mt-0.5">
-                        Setiap klip yang dikirimkan diproses secara real-time tanpa campur tangan admin manual:
-                      </p>
-                    </div>
-
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
-                      <div className="p-3.5 rounded-xl border border-[rgba(17,17,17,0.08)] bg-[var(--color-cream-wash)] space-y-1">
-                        <div className="font-bold text-[var(--color-ink)] flex items-center gap-1.5">
-                          <span className="w-5 h-5 rounded-full bg-white flex items-center justify-center font-mono text-[10px] border border-[rgba(17,17,17,0.1)]">1</span>
-                          <span>Ingestion & Audio Extraction</span>
-                        </div>
-                        <p className="text-[var(--color-ash)] leading-relaxed">
-                          Mengunduh stream video, memvalidasi durasi, dan mengekstrak trek audio kualitas tinggi.
-                        </p>
-                      </div>
-
-                      <div className="p-3.5 rounded-xl border border-[rgba(17,17,17,0.08)] bg-[var(--color-cream-wash)] space-y-1">
-                        <div className="font-bold text-[var(--color-ink)] flex items-center gap-1.5">
-                          <span className="w-5 h-5 rounded-full bg-white flex items-center justify-center font-mono text-[10px] border border-[rgba(17,17,17,0.1)]">2</span>
-                          <span>Whisper AI Transcript Alignment</span>
-                        </div>
-                        <p className="text-[var(--color-ash)] leading-relaxed">
-                          Membandingkan teks audio klip dengan video sumber menggunakan cosine embedding similarity (&ge; 70%).
-                        </p>
-                      </div>
-
-                      <div className="p-3.5 rounded-xl border border-[rgba(17,17,17,0.08)] bg-[var(--color-cream-wash)] space-y-1">
-                        <div className="font-bold text-[var(--color-ink)] flex items-center gap-1.5">
-                          <span className="w-5 h-5 rounded-full bg-white flex items-center justify-center font-mono text-[10px] border border-[rgba(17,17,17,0.1)]">3</span>
-                          <span>Gemini Vision OCR Verification</span>
-                        </div>
-                        <p className="text-[var(--color-ash)] leading-relaxed">
-                          Mendeteksi watermark brand dan kode verifikasi unik clipper yang tercantum pada video.
-                        </p>
-                      </div>
-
-                      <div className="p-3.5 rounded-xl border border-[rgba(17,17,17,0.08)] bg-[var(--color-cream-wash)] space-y-1">
-                        <div className="font-bold text-[var(--color-ink)] flex items-center gap-1.5">
-                          <span className="w-5 h-5 rounded-full bg-white flex items-center justify-center font-mono text-[10px] border border-[rgba(17,17,17,0.1)]">4</span>
-                          <span>Platform Metrics & Velocity</span>
-                        </div>
-                        <p className="text-[var(--color-ash)] leading-relaxed">
-                          Mengambil views organik dan rasio engagement (likes, komentar) untuk mendeteksi lonjakan bot.
-                        </p>
-                      </div>
-
-                      <div className="p-3.5 rounded-xl border border-[rgba(17,17,17,0.08)] bg-[var(--color-cream-wash)] space-y-1">
-                        <div className="font-bold text-[var(--color-ink)] flex items-center gap-1.5">
-                          <span className="w-5 h-5 rounded-full bg-white flex items-center justify-center font-mono text-[10px] border border-[rgba(17,17,17,0.1)]">5</span>
-                          <span>Brand Safety Compliance</span>
-                        </div>
-                        <p className="text-[var(--color-ash)] leading-relaxed">
-                          Memastikan konten bersih dari ujaran kebencian, konten sensitif, dan klaim finansial terlarang.
-                        </p>
-                      </div>
-
-                      <div className="p-3.5 rounded-xl border border-[rgba(17,17,17,0.08)] bg-[var(--color-cream-wash)] space-y-1">
-                        <div className="font-bold text-[var(--color-ink)] flex items-center gap-1.5">
-                          <span className="w-5 h-5 rounded-full bg-white flex items-center justify-center font-mono text-[10px] border border-[rgba(17,17,17,0.1)]">6</span>
-                          <span>Anti-Sybil Anomaly Detection</span>
-                        </div>
-                        <p className="text-[var(--color-ash)] leading-relaxed">
-                          Mencegah pencurian klip clipper lain dengan memverifikasi keunikan potongan (&lt; 85% overlap).
-                        </p>
-                      </div>
-
-                      <div className="p-3.5 rounded-xl border border-emerald-200 bg-emerald-50/60 sm:col-span-2 space-y-1">
-                        <div className="font-bold text-emerald-900 flex items-center gap-1.5">
-                          <span className="w-5 h-5 rounded-full bg-emerald-600 text-white flex items-center justify-center font-mono text-[10px]">7</span>
-                          <span>Smart Contract Attestation & Settlement (EIP-712)</span>
-                        </div>
-                        <p className="text-emerald-800 leading-relaxed">
-                          AI menandatangani ECDSA attestation di BNB Chain. 70% dana langsung cair ke wallet clipper, dan 30% holdback dapat diklaim setelah 3 hari.
-                        </p>
+                        ))}
                       </div>
                     </div>
-                  </div>
-                )}
+                  )}
 
-                {/* TAB 4: LEADERBOARD */}
-                {activeTab === "leaderboard" && (
-                  <div className="space-y-4">
-                    <div className="flex items-center justify-between">
+                  {/* TAB 3: 7 STAGES AI VERIFICATION */}
+                  {activeTab === "ai" && (
+                    <div style={{ display: "flex", flexDirection: "column", gap: "1.25rem" }}>
                       <div>
-                        <h4 className="text-sm font-semibold text-[var(--color-ink)]">
+                        <h4 style={{ fontSize: "0.9375rem", fontWeight: 700, color: "#111111", margin: 0 }}>
+                          Transparansi Mesin AI Verifier (7 Tahap Terotomatisasi)
+                        </h4>
+                        <p style={{ fontSize: "0.8125rem", color: "#6d6c6b", marginTop: "0.25rem" }}>
+                          Setiap klip yang dikirimkan diproses secara real-time tanpa campur tangan admin manual:
+                        </p>
+                      </div>
+
+                      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))", gap: "0.75rem", fontSize: "0.75rem" }}>
+                        {[
+                          { num: 1, title: "Ingestion & Audio Extraction", desc: "Mengunduh stream video, memvalidasi durasi, dan mengekstrak trek audio kualitas tinggi." },
+                          { num: 2, title: "Whisper AI Transcript Alignment", desc: "Membandingkan teks audio klip dengan video sumber menggunakan cosine embedding similarity (≥ 70%)." },
+                          { num: 3, title: "Gemini Vision OCR Verification", desc: "Mendeteksi watermark brand dan kode verifikasi unik clipper yang tercantum pada video." },
+                          { num: 4, title: "Platform Metrics & Velocity", desc: "Mengambil views organik dan rasio engagement (likes, komentar) untuk mendeteksi lonjakan bot." },
+                          { num: 5, title: "Brand Safety Compliance", desc: "Memastikan konten bersih dari ujaran kebencian, konten sensitif, dan klaim finansial terlarang." },
+                          { num: 6, title: "Anti-Sybil Anomaly Detection", desc: "Mencegah pencurian klip clipper lain dengan memverifikasi keunikan potongan (< 85% overlap)." },
+                        ].map((stage) => (
+                          <div
+                            key={stage.num}
+                            style={{
+                              padding: "0.85rem 1rem",
+                              borderRadius: "12px",
+                              border: "1px solid rgba(17,17,17,0.08)",
+                              backgroundColor: "#fbfaf8",
+                              display: "flex",
+                              flexDirection: "column",
+                              gap: "0.25rem",
+                            }}
+                          >
+                            <div style={{ fontWeight: 700, color: "#111111", display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                              <span style={{ width: "20px", height: "20px", borderRadius: "50%", backgroundColor: "#ffffff", border: "1px solid rgba(17,17,17,0.15)", display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "monospace", fontSize: "0.625rem" }}>
+                                {stage.num}
+                              </span>
+                              <span>{stage.title}</span>
+                            </div>
+                            <p style={{ color: "#6d6c6b", lineHeight: 1.5, margin: 0 }}>
+                              {stage.desc}
+                            </p>
+                          </div>
+                        ))}
+
+                        <div
+                          style={{
+                            gridColumn: "1 / -1",
+                            padding: "0.85rem 1rem",
+                            borderRadius: "12px",
+                            border: "1px solid #bbf7d0",
+                            backgroundColor: "#f0fdf4",
+                            display: "flex",
+                            flexDirection: "column",
+                            gap: "0.25rem",
+                          }}
+                        >
+                          <div style={{ fontWeight: 700, color: "#065f46", display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                            <span style={{ width: "20px", height: "20px", borderRadius: "50%", backgroundColor: "#059669", color: "#ffffff", display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "monospace", fontSize: "0.625rem" }}>
+                              7
+                            </span>
+                            <span>Smart Contract Attestation & Settlement (EIP-712)</span>
+                          </div>
+                          <p style={{ color: "#047857", lineHeight: 1.5, margin: 0 }}>
+                            AI menandatangani ECDSA attestation di BNB Chain. 70% dana langsung cair ke wallet clipper, dan 30% holdback dapat diklaim setelah 3 hari.
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* TAB 4: LEADERBOARD */}
+                  {activeTab === "leaderboard" && (
+                    <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
+                      <div>
+                        <h4 style={{ fontSize: "0.9375rem", fontWeight: 700, color: "#111111", margin: 0 }}>
                           Transparansi Pembayaran Klip ({clips.length})
                         </h4>
-                        <p className="text-xs text-[var(--color-ash)]">
+                        <p style={{ fontSize: "0.8125rem", color: "#6d6c6b", marginTop: "0.25rem" }}>
                           Daftar clipper yang telah lolos verifikasi AI dan menerima pembayaran:
                         </p>
                       </div>
-                    </div>
 
-                    {clips.length > 0 ? (
-                      <div className="border border-[rgba(17,17,17,0.08)] rounded-xl overflow-hidden">
-                        <div className="overflow-x-auto">
-                          <table className="w-full text-left text-xs">
-                            <thead className="bg-[var(--color-cream-wash)] text-[var(--color-ash)] font-medium border-b border-[rgba(17,17,17,0.08)]">
+                      {clips.length > 0 ? (
+                        <div style={{ border: "1px solid rgba(17,17,17,0.08)", borderRadius: "14px", overflow: "hidden" }}>
+                          <table style={{ width: "100%", textAlign: "left", fontSize: "0.75rem", borderCollapse: "collapse" }}>
+                            <thead style={{ backgroundColor: "#f4f3f0", color: "#6d6c6b", borderBottom: "1px solid rgba(17,17,17,0.08)" }}>
                               <tr>
-                                <th className="py-3 px-3.5">#</th>
-                                <th className="py-3 px-3.5">Clipper</th>
-                                <th className="py-3 px-3.5">Views Terverifikasi</th>
-                                <th className="py-3 px-3.5">Kecocokan AI</th>
-                                <th className="py-3 px-3.5">Total Payout</th>
-                                <th className="py-3 px-3.5">Status</th>
-                                <th className="py-3 px-3.5 text-right">Audit</th>
+                                <th style={{ padding: "0.75rem 1rem" }}>#</th>
+                                <th style={{ padding: "0.75rem 1rem" }}>Clipper</th>
+                                <th style={{ padding: "0.75rem 1rem" }}>Views Terverifikasi</th>
+                                <th style={{ padding: "0.75rem 1rem" }}>Kecocokan AI</th>
+                                <th style={{ padding: "0.75rem 1rem" }}>Total Payout</th>
+                                <th style={{ padding: "0.75rem 1rem" }}>Status</th>
+                                <th style={{ padding: "0.75rem 1rem", textAlign: "right" }}>Audit</th>
                               </tr>
                             </thead>
-                            <tbody className="divide-y divide-[rgba(17,17,17,0.05)]">
+                            <tbody>
                               {clips.map((clip, idx) => (
-                                <tr key={clip.id} className="hover:bg-[var(--color-cream-wash)] transition-colors">
-                                  <td className="py-3 px-3.5 font-mono text-[var(--color-ash)]">
+                                <tr key={clip.id} style={{ borderBottom: "1px solid rgba(17,17,17,0.05)" }}>
+                                  <td style={{ padding: "0.75rem 1rem", fontFamily: "monospace", color: "#6d6c6b" }}>
                                     {idx === 0 ? "🥇" : idx === 1 ? "🥈" : idx === 2 ? "🥉" : `#${idx + 1}`}
                                   </td>
-                                  <td className="py-3 px-3.5 font-medium text-[var(--color-ink)]">
-                                    <Link
-                                      href={`/clippers/${clip.clipperId}`}
-                                      className="hover:underline text-[var(--color-ink)] font-mono"
-                                    >
+                                  <td style={{ padding: "0.75rem 1rem", fontWeight: 600, color: "#111111" }}>
+                                    <Link href={`/clippers/${clip.clipperId}`} style={{ color: "inherit", textDecoration: "none", fontFamily: "monospace" }}>
                                       {truncateAddress(clip.clipperId)}
                                     </Link>
                                   </td>
-                                  <td className="py-3 px-3.5 font-mono font-medium">
+                                  <td style={{ padding: "0.75rem 1rem", fontFamily: "monospace", fontWeight: 600 }}>
                                     {formatViews(clip.views)} views
                                   </td>
-                                  <td className="py-3 px-3.5">
-                                    <span className="px-2 py-0.5 rounded-full text-[11px] font-medium bg-emerald-50 text-emerald-700 border border-emerald-200">
+                                  <td style={{ padding: "0.75rem 1rem" }}>
+                                    <span style={{ padding: "0.2rem 0.5rem", borderRadius: "9999px", fontSize: "0.6875rem", fontWeight: 700, backgroundColor: "#ecfdf5", color: "#059669" }}>
                                       {clip.matchScore ? `${Math.round(clip.matchScore * 100)}% Cocok` : "92% Cocok"}
                                     </span>
                                   </td>
-                                  <td className="py-3 px-3.5 font-semibold text-[var(--color-ink)]">
+                                  <td style={{ padding: "0.75rem 1rem", fontWeight: 700, color: "#111111" }}>
                                     {formatUsdt(clip.releasedAmount)} USDT
-                                    <span className="text-[11px] font-normal text-[var(--color-ash)] ml-1">
+                                    <span style={{ fontSize: "0.6875rem", fontWeight: 400, color: "#6d6c6b", marginLeft: "0.25rem" }}>
                                       (≈ {formatIdr(clip.releasedAmount)})
                                     </span>
                                   </td>
-                                  <td className="py-3 px-3.5">
-                                    <span className="badge badge-active text-[11px]">Lolos</span>
+                                  <td style={{ padding: "0.75rem 1rem" }}>
+                                    <span style={{ padding: "0.2rem 0.5rem", borderRadius: "9999px", fontSize: "0.6875rem", fontWeight: 700, backgroundColor: "#ecfdf5", color: "#059669" }}>
+                                      Lolos
+                                    </span>
                                   </td>
-                                  <td className="py-3 px-3.5 text-right">
+                                  <td style={{ padding: "0.75rem 1rem", textAlign: "right" }}>
                                     {clip.txHash ? (
                                       <a
                                         href={txExplorerUrl(clip.txHash)}
                                         target="_blank"
                                         rel="noopener noreferrer"
-                                        className="text-[var(--color-ash)] hover:text-[var(--color-ink)] inline-flex items-center gap-1 font-mono text-[11px]"
+                                        style={{ color: "#6d6c6b", display: "inline-flex", alignItems: "center", gap: "0.25rem", textDecoration: "none" }}
                                         title="Buka di BscScan"
                                       >
                                         <span>TX</span>
                                         <ExternalLink size={11} />
                                       </a>
                                     ) : (
-                                      <span className="text-[var(--color-ash)]">—</span>
+                                      <span style={{ color: "#999999" }}>—</span>
                                     )}
                                   </td>
                                 </tr>
@@ -684,264 +1008,417 @@ export default function CampaignDetailPage({
                             </tbody>
                           </table>
                         </div>
-                      </div>
-                    ) : (
-                      <div className="p-8 text-center bg-[var(--color-cream-wash)] rounded-xl border border-[rgba(17,17,17,0.06)] text-xs text-[var(--color-ash)]">
-                        Belum ada klip yang disubmit untuk campaign ini. Jadilah clipper pertama yang mengklaim budget!
-                      </div>
-                    )}
-                  </div>
-                )}
+                      ) : (
+                        <div style={{ padding: "2rem", textAlign: "center", backgroundColor: "#fbfaf8", borderRadius: "14px", color: "#6d6c6b", fontSize: "0.8125rem" }}>
+                          Belum ada klip yang disubmit untuk campaign ini. Jadilah clipper pertama!
+                        </div>
+                      )}
+                    </div>
+                  )}
 
+                </div>
               </div>
+
             </div>
 
-          </div>
+            {/* ── RIGHT COLUMN: HERO REWARD & ACTIONS (35%) ─────── */}
+            <div style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}>
 
-          {/* ── RIGHT COLUMN: STICKY CLIPPER COMMAND CENTER (5 COLS) ─── */}
-          <div className="lg:col-span-4 space-y-6">
+              {/* Card 1: Main Payout Hero Box */}
+              <div
+                style={{
+                  backgroundColor: "#ffffff",
+                  borderRadius: "20px",
+                  border: "1px solid rgba(17,17,17,0.08)",
+                  boxShadow: "0 4px 20px -2px rgba(17,17,17,0.04)",
+                  padding: "1.75rem",
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: "1.25rem",
+                }}
+              >
+                <div>
+                  <span style={{ fontSize: "0.6875rem", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: "#6d6c6b" }}>
+                    Tarif Pembayaran Clipper
+                  </span>
+                  <div style={{ fontSize: "2rem", fontWeight: 800, color: "#111111", letterSpacing: "-0.02em", marginTop: "0.25rem" }}>
+                    {formatCpm(campaign.cpmRate)}
+                  </div>
+                  <div style={{ display: "inline-flex", alignItems: "center", gap: "0.4rem", marginTop: "0.5rem", padding: "0.25rem 0.65rem", borderRadius: "9999px", backgroundColor: "#ecfdf5", color: "#059669", fontSize: "0.6875rem", fontWeight: 700 }}>
+                    <span>• 70% Cair Langsung • 30% Holdback 3 Hari</span>
+                  </div>
+                </div>
 
-            {/* Card 1: Main Economics & Participation CTA */}
-            <div className="card p-6 bg-white rounded-2xl border border-[rgba(17,17,17,0.08)] shadow-sm space-y-5">
-              
-              {/* CPM Highlight Banner */}
-              <div className="bg-[var(--color-cream-wash)] p-4 rounded-xl text-center border border-[rgba(17,17,17,0.06)]">
-                <div className="text-[11px] uppercase tracking-wider font-semibold text-[var(--color-ash)] mb-1">
-                  Tarif Pembayaran Clipper
+                {/* Remaining Budget Bar */}
+                <div style={{ display: "flex", flexDirection: "column", gap: "0.4rem" }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.75rem" }}>
+                    <span style={{ color: "#6d6c6b" }}>Sisa Budget:</span>
+                    <span style={{ fontWeight: 700, color: "#111111" }}>
+                      {formatIdr(campaign.remainingBudget ?? campaign.totalBudget)}
+                    </span>
+                  </div>
+                  <div style={{ height: "8px", width: "100%", backgroundColor: "#f0efec", borderRadius: "9999px", overflow: "hidden" }}>
+                    <div
+                      style={{
+                        height: "100%",
+                        width: `${Math.max(5, 100 - progressPercent)}%`,
+                        backgroundColor: "#059669",
+                        borderRadius: "9999px",
+                      }}
+                    />
+                  </div>
+                  <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.6875rem", color: "#888888" }}>
+                    <span>Tersedia untuk diklaim</span>
+                    <span>Total {formatUsdt(campaign.totalBudget)} USDT</span>
+                  </div>
                 </div>
-                <div className="text-3xl font-extrabold text-[var(--color-ink)] tracking-tight">
-                  {formatCpm(campaign.cpmRate)}
-                </div>
-                <div className="text-xs text-[#137333] mt-1 font-semibold flex items-center justify-center gap-1.5">
-                  <span className="w-1.5 h-1.5 rounded-full bg-[#137333]" />
-                  <span>70% Cair Langsung • 30% Holdback 3 Hari</span>
-                </div>
-              </div>
 
-              {/* Budget Progress Bar */}
-              <div className="space-y-2">
-                <div className="flex items-center justify-between text-xs">
-                  <span className="text-[var(--color-ash)] font-medium">Sisa Budget:</span>
-                  <span className="font-bold text-[var(--color-ink)]">
-                    {formatIdr(remainingWei)}
-                  </span>
+                {/* Detail Metrics */}
+                <div style={{ borderTop: "1px solid rgba(17,17,17,0.06)", borderBottom: "1px solid rgba(17,17,17,0.06)", padding: "0.5rem 0", fontSize: "0.75rem" }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", padding: "0.4rem 0" }}>
+                    <span style={{ color: "#6d6c6b" }}>Maksimal per Klip:</span>
+                    <span style={{ fontWeight: 700, color: "#111111" }}>
+                      {formatIdr(campaign.maxPayoutPerClip)} ({formatUsdt(campaign.maxPayoutPerClip)} USDT)
+                    </span>
+                  </div>
+                  <div style={{ display: "flex", justifyContent: "space-between", padding: "0.4rem 0" }}>
+                    <span style={{ color: "#6d6c6b" }}>Minimal Views:</span>
+                    <span style={{ fontWeight: 700, color: "#111111" }}>
+                      {formatViews(campaign.minViews)} views
+                    </span>
+                  </div>
+                  <div style={{ display: "flex", justifyContent: "space-between", padding: "0.4rem 0" }}>
+                    <span style={{ color: "#6d6c6b" }}>Batas Waktu:</span>
+                    <span style={{ fontWeight: 700, color: "#111111" }}>
+                      {formatDate(campaign.deadline)} ({formatRelativeDate(campaign.deadline)})
+                    </span>
+                  </div>
+                  <div style={{ display: "flex", justifyContent: "space-between", padding: "0.4rem 0" }}>
+                    <span style={{ color: "#6d6c6b" }}>Token Pembayaran:</span>
+                    <span style={{ fontWeight: 700, color: "#111111", fontFamily: "monospace" }}>
+                      USDT (BEP-20)
+                    </span>
+                  </div>
                 </div>
-                <div className="w-full bg-[var(--color-pearl)] h-2 rounded-full overflow-hidden">
-                  <div
-                    className="bg-[var(--color-ink)] h-full transition-all duration-500 rounded-full"
-                    style={{ width: `${progressPercent}%` }}
-                  />
-                </div>
-                <div className="flex items-center justify-between text-[11px] text-[var(--color-ash)]">
-                  <span>Tersedia untuk diklaim</span>
-                  <span>Total {formatUsdt(totalWei)} USDT</span>
-                </div>
-              </div>
 
-              {/* Economic Specs List */}
-              <div className="divide-y divide-[rgba(17,17,17,0.06)] text-xs border-t border-b border-[rgba(17,17,17,0.06)]">
-                <div className="py-2.5 flex items-center justify-between">
-                  <span className="text-[var(--color-ash)]">Maksimal per Klip:</span>
-                  <span className="font-semibold text-[var(--color-ink)]">
-                    {formatIdr(campaign.maxPayoutPerClip)} ({formatUsdt(campaign.maxPayoutPerClip)} USDT)
-                  </span>
-                </div>
-                <div className="py-2.5 flex items-center justify-between">
-                  <span className="text-[var(--color-ash)]">Minimal Views:</span>
-                  <span className="font-semibold text-[var(--color-ink)]">
-                    {formatViews(campaign.minViews)} views
-                  </span>
-                </div>
-                <div className="py-2.5 flex items-center justify-between">
-                  <span className="text-[var(--color-ash)]">Batas Waktu:</span>
-                  <span className="font-semibold text-[var(--color-ink)]">
-                    {formatDate(campaign.deadline)} ({formatRelativeDate(campaign.deadline)})
-                  </span>
-                </div>
-                <div className="py-2.5 flex items-center justify-between">
-                  <span className="text-[var(--color-ash)]">Token Pembayaran:</span>
-                  <span className="font-semibold text-[var(--color-ink)] font-mono">
-                    USDT (BEP-20)
-                  </span>
-                </div>
-              </div>
-
-              {/* Primary Participation Action */}
-              <div className="space-y-2.5 pt-1">
-                {verificationCode ? (
-                  <div className="space-y-3">
-                    <div className="p-3 bg-emerald-50 border border-emerald-200 rounded-xl space-y-1.5">
-                      <div className="flex items-center justify-between text-xs font-semibold text-emerald-900">
-                        <span>Kode Verifikasi Kamu:</span>
-                        <button
-                          type="button"
-                          onClick={() => copyToClipboard(verificationCode, "verif_code")}
-                          className="hover:underline text-[11px] inline-flex items-center gap-1"
+                {/* Primary Participation Action */}
+                <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
+                  {verificationCode ? (
+                    <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
+                      <div
+                        style={{
+                          backgroundColor: "#f0fdf4",
+                          border: "1px solid #bbf7d0",
+                          borderRadius: "14px",
+                          padding: "1rem",
+                          display: "flex",
+                          flexDirection: "column",
+                          gap: "0.5rem",
+                        }}
+                      >
+                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", fontSize: "0.75rem", fontWeight: 700, color: "#065f46" }}>
+                          <span>Kode Verifikasi Kamu:</span>
+                          <button
+                            type="button"
+                            onClick={() => copyToClipboard(verificationCode, "verif_code")}
+                            style={{
+                              background: "none",
+                              border: "none",
+                              padding: 0,
+                              cursor: "pointer",
+                              fontSize: "0.6875rem",
+                              color: "#059669",
+                              display: "inline-flex",
+                              alignItems: "center",
+                              gap: "0.25rem",
+                              fontWeight: 700,
+                            }}
+                          >
+                            {copiedText === "verif_code" ? <Check size={12} /> : <Copy size={12} />}
+                            <span>{copiedText === "verif_code" ? "Tersalin" : "Salin"}</span>
+                          </button>
+                        </div>
+                        <div
+                          style={{
+                            fontFamily: "monospace",
+                            fontSize: "1.125rem",
+                            fontWeight: 800,
+                            color: "#065f46",
+                            backgroundColor: "#ffffff",
+                            padding: "0.5rem 1rem",
+                            borderRadius: "10px",
+                            border: "1px solid #a7f3d0",
+                            textAlign: "center",
+                            letterSpacing: "0.1em",
+                          }}
                         >
-                          {copiedText === "verif_code" ? <Check size={12} /> : <Copy size={12} />}
-                          <span>{copiedText === "verif_code" ? "Tersalin" : "Salin"}</span>
-                        </button>
+                          {verificationCode}
+                        </div>
+                        <p style={{ fontSize: "0.6875rem", color: "#047857", margin: 0, lineHeight: 1.4 }}>
+                          Tempelkan kode unik ini di caption YouTube Shorts atau TikTok Anda.
+                        </p>
                       </div>
-                      <div className="font-mono text-base font-bold text-emerald-800 bg-white px-3 py-1.5 rounded-lg border border-emerald-200 text-center tracking-wider">
-                        {verificationCode}
-                      </div>
-                      <p className="text-[11px] text-emerald-700">
-                        Tempelkan kode ini di deskripsi YouTube Shorts atau TikTok Anda.
-                      </p>
-                    </div>
 
-                    <Link
-                      href={`/clipper/submit?campaignId=${campaign.id}`}
-                      className="btn-primary w-full py-3 text-xs font-semibold flex items-center justify-center gap-2"
-                      style={{ textDecoration: "none" }}
+                      <Link
+                        href={`/clipper/submit?campaignId=${campaign.id}`}
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          gap: "0.5rem",
+                          padding: "0.85rem 1.25rem",
+                          borderRadius: "12px",
+                          backgroundColor: "#111111",
+                          color: "#ffffff",
+                          fontSize: "0.8125rem",
+                          fontWeight: 700,
+                          textDecoration: "none",
+                          boxShadow: "0 4px 14px rgba(0,0,0,0.12)",
+                        }}
+                      >
+                        <Scissors size={15} />
+                        <span>Submit Link Klip Sekarang</span>
+                      </Link>
+                    </div>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={handleJoin}
+                      disabled={joining || campaign.status !== "ACTIVE"}
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        gap: "0.5rem",
+                        padding: "0.9rem 1.25rem",
+                        borderRadius: "12px",
+                        backgroundColor: "#111111",
+                        color: "#ffffff",
+                        fontSize: "0.8125rem",
+                        fontWeight: 700,
+                        border: "none",
+                        cursor: "pointer",
+                        boxShadow: "0 4px 14px rgba(0,0,0,0.12)",
+                      }}
                     >
                       <Scissors size={15} />
-                      <span>Submit Link Klip Sekarang</span>
-                    </Link>
+                      <span>
+                        {campaign.status !== "ACTIVE"
+                          ? "Campaign Telah Berakhir"
+                          : joining
+                          ? "Menyiapkan Kode Unik..."
+                          : "Ikut Campaign & Ambil Kode"}
+                      </span>
+                    </button>
+                  )}
+                </div>
+              </div>
+
+              {/* Card 2: 3-Step Clipper Workflow */}
+              <div
+                style={{
+                  backgroundColor: "#ffffff",
+                  borderRadius: "20px",
+                  border: "1px solid rgba(17,17,17,0.08)",
+                  boxShadow: "0 4px 20px -2px rgba(17,17,17,0.04)",
+                  padding: "1.5rem",
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: "1rem",
+                }}
+              >
+                <h4 style={{ fontSize: "0.75rem", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: "#111111", display: "flex", alignItems: "center", gap: "0.4rem", margin: 0 }}>
+                  <ListOrdered size={14} color="#6d6c6b" />
+                  <span>Alur Kerja Clipper (3 Langkah)</span>
+                </h4>
+
+                <div style={{ display: "flex", flexDirection: "column", gap: "1rem", fontSize: "0.75rem" }}>
+                  <div style={{ display: "flex", alignItems: "flex-start", gap: "0.75rem" }}>
+                    <div style={{ width: "22px", height: "22px", borderRadius: "50%", backgroundColor: "#111111", color: "#ffffff", fontFamily: "monospace", fontSize: "0.6875rem", fontWeight: 700, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, marginTop: "2px" }}>
+                      1
+                    </div>
+                    <div>
+                      <strong style={{ color: "#111111" }}>Ambil Momen Menarik:</strong>
+                      <p style={{ color: "#6d6c6b", margin: "0.2rem 0 0", lineHeight: 1.5 }}>
+                        Gunakan video sumber di sebelah kiri dan potong bagian 30-60 detik dengan hook kuat.
+                      </p>
+                    </div>
                   </div>
-                ) : (
+
+                  <div style={{ display: "flex", alignItems: "flex-start", gap: "0.75rem" }}>
+                    <div style={{ width: "22px", height: "22px", borderRadius: "50%", backgroundColor: "#111111", color: "#ffffff", fontFamily: "monospace", fontSize: "0.6875rem", fontWeight: 700, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, marginTop: "2px" }}>
+                      2
+                    </div>
+                    <div>
+                      <strong style={{ color: "#111111" }}>Upload & Pasang Kode:</strong>
+                      <p style={{ color: "#6d6c6b", margin: "0.2rem 0 0", lineHeight: 1.5 }}>
+                        Upload ke YouTube Shorts / TikTok / Reels. Masukkan kode unik di deskripsi video Anda.
+                      </p>
+                    </div>
+                  </div>
+
+                  <div style={{ display: "flex", alignItems: "flex-start", gap: "0.75rem" }}>
+                    <div style={{ width: "22px", height: "22px", borderRadius: "50%", backgroundColor: "#111111", color: "#ffffff", fontFamily: "monospace", fontSize: "0.6875rem", fontWeight: 700, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, marginTop: "2px" }}>
+                      3
+                    </div>
+                    <div>
+                      <strong style={{ color: "#111111" }}>Klaim Payout USDT:</strong>
+                      <p style={{ color: "#6d6c6b", margin: "0.2rem 0 0", lineHeight: 1.5 }}>
+                        Kirim link di dashboard. AI akan mengecek views harian & langsung mentransfer pembayaran.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Card 3: Material & Asset Kit */}
+              <div
+                style={{
+                  backgroundColor: "#ffffff",
+                  borderRadius: "20px",
+                  border: "1px solid rgba(17,17,17,0.08)",
+                  boxShadow: "0 4px 20px -2px rgba(17,17,17,0.04)",
+                  padding: "1.5rem",
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: "1rem",
+                }}
+              >
+                <h4 style={{ fontSize: "0.75rem", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: "#111111", display: "flex", alignItems: "center", gap: "0.4rem", margin: 0 }}>
+                  <Copy size={14} color="#6d6c6b" />
+                  <span>Kit Materi & Bahan Klip</span>
+                </h4>
+
+                <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem", fontSize: "0.75rem" }}>
                   <button
                     type="button"
-                    onClick={handleJoin}
-                    disabled={joining || campaign.status !== "ACTIVE"}
-                    className="btn-primary w-full py-3 text-xs font-semibold flex items-center justify-center gap-2 shadow-sm"
+                    onClick={() => copyToClipboard(watchUrl, "video_link")}
+                    style={{
+                      width: "100%",
+                      padding: "0.65rem 0.85rem",
+                      borderRadius: "12px",
+                      border: "1px solid rgba(17,17,17,0.08)",
+                      backgroundColor: "#fbfaf8",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "space-between",
+                      color: "#111111",
+                      cursor: "pointer",
+                      fontSize: "inherit",
+                      fontWeight: 600,
+                    }}
                   >
-                    <Scissors size={15} />
-                    <span>
-                      {campaign.status !== "ACTIVE"
-                        ? "Campaign Telah Berakhir"
-                        : joining
-                        ? "Menyiapkan Kode Unik..."
-                        : "Ikut Campaign & Ambil Kode"}
-                    </span>
+                    <span>Salin Link Video Sumber</span>
+                    {copiedText === "video_link" ? <Check size={13} color="#059669" /> : <Copy size={13} />}
                   </button>
-                )}
-              </div>
-            </div>
 
-            {/* Card 2: 3-Step Clipper Workflow */}
-            <div className="card p-5 bg-white rounded-2xl border border-[rgba(17,17,17,0.08)] shadow-sm space-y-3">
-              <h4 className="text-xs font-bold uppercase tracking-wider text-[var(--color-ink)] flex items-center gap-1.5">
-                <ListOrdered size={14} className="text-[var(--color-ash)]" />
-                <span>Alur Kerja Clipper (3 Langkah)</span>
-              </h4>
+                  <button
+                    type="button"
+                    onClick={() => copyToClipboard("#BNBChain #Clipstream #DeFi", "hashtags")}
+                    style={{
+                      width: "100%",
+                      padding: "0.65rem 0.85rem",
+                      borderRadius: "12px",
+                      border: "1px solid rgba(17,17,17,0.08)",
+                      backgroundColor: "#fbfaf8",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "space-between",
+                      color: "#111111",
+                      cursor: "pointer",
+                      fontSize: "inherit",
+                      fontWeight: 600,
+                    }}
+                  >
+                    <span>Salin Tagar Resmi (#BNBChain)</span>
+                    {copiedText === "hashtags" ? <Check size={13} color="#059669" /> : <Hash size={13} />}
+                  </button>
 
-              <div className="space-y-3 text-xs">
-                <div className="flex items-start gap-2.5">
-                  <div className="w-5 h-5 rounded-full bg-[var(--color-ink)] text-white font-mono text-[10px] flex items-center justify-center flex-shrink-0 mt-0.5">
-                    1
-                  </div>
-                  <div>
-                    <span className="font-semibold text-[var(--color-ink)]">Ambil Momen Menarik:</span>
-                    <p className="text-[var(--color-ash)] mt-0.5">
-                      Gunakan video sumber di sebelah kiri dan potong bagian 30-60 detik dengan hook kuat.
-                    </p>
-                  </div>
+                  <a
+                    href={watchUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    style={{
+                      width: "100%",
+                      boxSizing: "border-box",
+                      padding: "0.65rem 0.85rem",
+                      borderRadius: "12px",
+                      border: "1px solid rgba(17,17,17,0.08)",
+                      backgroundColor: "#fbfaf8",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "space-between",
+                      color: "#111111",
+                      textDecoration: "none",
+                      fontSize: "inherit",
+                      fontWeight: 600,
+                    }}
+                  >
+                    <span>Buka Video Asli di YouTube</span>
+                    <ExternalLink size={13} />
+                  </a>
                 </div>
+              </div>
 
-                <div className="flex items-start gap-2.5">
-                  <div className="w-5 h-5 rounded-full bg-[var(--color-ink)] text-white font-mono text-[10px] flex items-center justify-center flex-shrink-0 mt-0.5">
-                    2
-                  </div>
-                  <div>
-                    <span className="font-semibold text-[var(--color-ink)]">Upload & Pasang Kode:</span>
-                    <p className="text-[var(--color-ash)] mt-0.5">
-                      Upload ke YouTube Shorts / TikTok / Reels. Masukkan kode unik di deskripsi video Anda.
-                    </p>
-                  </div>
+              {/* Card 4: Smart Contract Assurance */}
+              <div
+                style={{
+                  padding: "1.25rem",
+                  borderRadius: "16px",
+                  backgroundColor: "#eeedea",
+                  border: "1px solid rgba(17,17,17,0.06)",
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: "0.5rem",
+                  fontSize: "0.75rem",
+                  color: "#555552",
+                }}
+              >
+                <div style={{ display: "flex", alignItems: "center", gap: "0.4rem", fontWeight: 700, color: "#111111" }}>
+                  <Lock size={14} color="#059669" />
+                  <span>Jaminan Smart Contract Escrow</span>
                 </div>
-
-                <div className="flex items-start gap-2.5">
-                  <div className="w-5 h-5 rounded-full bg-[var(--color-ink)] text-white font-mono text-[10px] flex items-center justify-center flex-shrink-0 mt-0.5">
-                    3
-                  </div>
-                  <div>
-                    <span className="font-semibold text-[var(--color-ink)]">Klaim Payout USDT:</span>
-                    <p className="text-[var(--color-ash)] mt-0.5">
-                      Kirim link di dashboard. AI akan mengecek views harian & langsung mentransfer pembayaran.
-                    </p>
-                  </div>
+                <p style={{ lineHeight: 1.5, margin: 0, fontSize: "0.6875rem" }}>
+                  Dana budget telah didepositkan ke kontrak pintar BNB Chain. Sistem terdesentralisasi memproses pencairan otomatis berdasarkan bukti views AI tanpa risiko ditolak sepihak.
+                </p>
+                <div style={{ paddingTop: "0.25rem" }}>
+                  <a
+                    href={campaign.txHash ? txExplorerUrl(campaign.txHash) : "https://testnet.bscscan.com"}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    style={{
+                      fontSize: "0.6875rem",
+                      fontWeight: 700,
+                      color: "#111111",
+                      textDecoration: "underline",
+                      display: "inline-flex",
+                      alignItems: "center",
+                      gap: "0.25rem",
+                    }}
+                  >
+                    <span>Verifikasi di BscScan</span>
+                    <ExternalLink size={11} />
+                  </a>
                 </div>
               </div>
-            </div>
 
-            {/* Card 3: Material & Asset Kit */}
-            <div className="card p-5 bg-white rounded-2xl border border-[rgba(17,17,17,0.08)] shadow-sm space-y-3">
-              <h4 className="text-xs font-bold uppercase tracking-wider text-[var(--color-ink)] flex items-center gap-1.5">
-                <Copy size={14} className="text-[var(--color-ash)]" />
-                <span>Kit Materi & Bahan Klip</span>
-              </h4>
-
-              <div className="space-y-2 text-xs">
-                <button
-                  type="button"
-                  onClick={() => copyToClipboard(watchUrl, "video_link")}
-                  className="w-full py-2 px-3 rounded-xl border border-[rgba(17,17,17,0.08)] bg-[var(--color-cream-wash)] hover:bg-white text-left flex items-center justify-between text-[var(--color-ink)] transition-colors"
-                >
-                  <span className="font-medium">Salin Link Video Sumber</span>
-                  {copiedText === "video_link" ? <Check size={13} className="text-[#137333]" /> : <Copy size={13} />}
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => copyToClipboard("#BNBChain #Clipstream #DeFi", "hashtags")}
-                  className="w-full py-2 px-3 rounded-xl border border-[rgba(17,17,17,0.08)] bg-[var(--color-cream-wash)] hover:bg-white text-left flex items-center justify-between text-[var(--color-ink)] transition-colors"
-                >
-                  <span className="font-medium">Salin Tagar Resmi (#BNBChain)</span>
-                  {copiedText === "hashtags" ? <Check size={13} className="text-[#137333]" /> : <Hash size={13} />}
-                </button>
-
-                <a
-                  href={watchUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="w-full py-2 px-3 rounded-xl border border-[rgba(17,17,17,0.08)] bg-[var(--color-cream-wash)] hover:bg-white text-left flex items-center justify-between text-[var(--color-ink)] transition-colors"
-                  style={{ textDecoration: "none" }}
-                >
-                  <span className="font-medium">Buka Video Asli di YouTube</span>
-                  <ExternalLink size={13} />
-                </a>
-              </div>
-            </div>
-
-            {/* Card 4: Smart Contract Assurance */}
-            <div className="p-4 rounded-2xl bg-[var(--color-cream-wash)] border border-[rgba(17,17,17,0.06)] space-y-2 text-xs text-[var(--color-ash)]">
-              <div className="flex items-center gap-1.5 font-semibold text-[var(--color-ink)]">
-                <Lock size={14} className="text-[#137333]" />
-                <span>Jaminan Smart Contract Escrow</span>
-              </div>
-              <p className="leading-relaxed text-[11px]">
-                Dana budget telah didepositkan ke kontrak pintar BNB Chain. Sistem terdesentralisasi memproses pencairan otomatis berdasarkan bukti views AI tanpa risiko ditolak sepihak.
-              </p>
-              <div className="pt-1">
-                <a
-                  href={campaign.txHash ? txExplorerUrl(campaign.txHash) : "https://testnet.bscscan.com"}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-[11px] font-semibold text-[var(--color-ink)] hover:underline inline-flex items-center gap-1"
-                >
-                  <span>Verifikasi di BscScan</span>
-                  <ExternalLink size={11} />
-                </a>
-              </div>
             </div>
 
           </div>
 
+          {/* ── JOIN MODAL ─────────────────────────────────────── */}
+          {verificationCode && (
+            <JoinModal
+              isOpen={joinModalOpen}
+              onClose={() => setJoinModalOpen(false)}
+              campaignId={campaign.id}
+              campaignTitle={campaign.title}
+              sourceUrl={campaign.sourceUrl}
+              verificationCode={verificationCode}
+            />
+          )}
+
         </div>
-
-        {/* ── JOIN MODAL ─────────────────────────────────────── */}
-        {verificationCode && (
-          <JoinModal
-            isOpen={joinModalOpen}
-            onClose={() => setJoinModalOpen(false)}
-            campaignId={campaign.id}
-            campaignTitle={campaign.title}
-            sourceUrl={campaign.sourceUrl}
-            verificationCode={verificationCode}
-          />
-        )}
-
       </div>
     </div>
   );

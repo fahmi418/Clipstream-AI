@@ -54,6 +54,22 @@ export default function RootLayout({
           rel="stylesheet"
           href="/css/amplemarket-custom.css"
         />
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              if (typeof window !== 'undefined' && 'serviceWorker' in navigator) {
+                navigator.serviceWorker.getRegistrations().then(function(regs) {
+                  for (let r of regs) { r.unregister(); }
+                });
+                if ('caches' in window) {
+                  caches.keys().then(function(names) {
+                    for (let n of names) { caches.delete(n); }
+                  });
+                }
+              }
+            `,
+          }}
+        />
       </head>
       <body className="am-body min-h-screen flex flex-col bg-[#f6f5f3] text-[#111] antialiased">
         <div className="am-page-wrapper flex flex-col min-h-screen">

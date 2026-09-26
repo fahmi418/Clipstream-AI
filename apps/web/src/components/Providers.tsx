@@ -177,3 +177,5 @@ export function Providers({ children }: { children: ReactNode }) {
     </PrivyProvider>
   );
 }
+
+export default Providers;
