@@ -55,24 +55,24 @@ export async function seedDemoData(): Promise<void> {
   // 2. Source Videos
   const srcVideo1 = await repo.createSourceVideo({
     platform: 'youtube',
-    videoId: 'srcVideo001',
-    videoIdHash: keccak256(encodePacked(['string', 'string'], ['youtube', 'srcVideo001'])),
-    title: 'Podcast Bincang Teknologi — Episode 42: Web3 & Autonomous AI Agents',
+    videoId: 'L_LUpnjgPso',
+    videoIdHash: keccak256(encodePacked(['string', 'string'], ['youtube', 'L_LUpnjgPso'])),
+    title: 'BNB Chain Deep Dive: Kecepatan, Skalabilitas & Arsitektur Smart Contract',
     durationSec: 2400,
     transcript:
-      'Halo semua, selamat datang di episode 42 podcast bincang teknologi. Hari ini kita membahas tuntas bagaimana autonomous AI agent merevolusi ekonomi kreator dan Web3 di Indonesia.',
+      'Halo semua, selamat datang di pembahasan arsitektur BNB Chain. Hari ini kita membahas tuntas bagaimana autonomous AI agent merevolusi ekonomi kreator, gasless swap, dan ekosistem Web3 di Indonesia.',
     transcriptHash: '0x1111111111111111111111111111111111111111111111111111111111111111',
     transcriptStatus: 'READY',
   });
 
   const srcVideo2 = await repo.createSourceVideo({
     platform: 'youtube',
-    videoId: 'srcVideo002',
-    videoIdHash: keccak256(encodePacked(['string', 'string'], ['youtube', 'srcVideo002'])),
-    title: 'Kopi Nusantara: Rahasia Biji Kopi Gayo dan Robusta Pilihan',
+    videoId: 'y881t8ilMyc',
+    videoIdHash: keccak256(encodePacked(['string', 'string'], ['youtube', 'y881t8ilMyc'])),
+    title: 'DeFi DEX Architecture: Gasless Swaps, AMM Routing & Security Audits',
     durationSec: 1800,
     transcript:
-      'Kopi Nusantara menghadirkan cita rasa otentik kopi Indonesia dari pegunungan Gayo hingga Toraja.',
+      'Pelajari cara kerja decentralized exchange generasi terbaru di BNB Chain dengan fitur gasless swap, router teroptimasi, dan keamanan multi-audit.',
     transcriptHash: '0x2222222222222222222222222222222222222222222222222222222222222222',
     transcriptStatus: 'READY',
   });

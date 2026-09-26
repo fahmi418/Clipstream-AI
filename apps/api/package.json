@@ -6,7 +6,8 @@
   "scripts": {
     "build": "tsc",
     "start": "node dist/server.js",
-    "dev": "tsc --watch",
+    "dev": "node --watch dist/server.js",
+    "dev:watch": "tsc --watch",
     "seed": "node dist/db/seed.js",
     "test": "vitest run"
   },
