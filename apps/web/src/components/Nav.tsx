@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState, useRef } from "react";
-import { usePrivy } from "@privy-io/react-auth";
+import { usePrivy } from "@/lib/privy-safe";
 import { useAuth } from "@/lib/auth-context";
 import { Logo } from "@/components/Logo";
 import { RoleSelectModal } from "@/components/RoleSelectModal";

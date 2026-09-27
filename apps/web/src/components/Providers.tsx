@@ -2,7 +2,7 @@
 
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { WagmiProvider } from "wagmi";
-import { PrivyProvider, usePrivy } from "@privy-io/react-auth";
+import { PrivySafeProvider, usePrivy } from "@/lib/privy-safe";
 import { useState, useEffect, useRef, type ReactNode } from "react";
 import { wagmiConfig } from "@/lib/wagmi-config";
 import { AuthContext, type AuthState } from "@/lib/auth-context";
@@ -153,15 +153,8 @@ function AuthProvider({ children }: { children: ReactNode }) {
 export function Providers({ children }: { children: ReactNode }) {
   const queryClient = getQueryClient();
 
-  const isSecureContext =
-    typeof window !== "undefined"
-      ? window.location.protocol === "https:" ||
-        window.location.hostname === "localhost" ||
-        window.location.hostname === "127.0.0.1"
-      : false;
-
   return (
-    <PrivyProvider
+    <PrivySafeProvider
       appId={privyAppId}
       config={{
         loginMethods: ["google", "email"],
@@ -169,15 +162,11 @@ export function Providers({ children }: { children: ReactNode }) {
           theme: "light",
           accentColor: "#111111",
         },
-        ...(isSecureContext
-          ? {
-              embeddedWallets: {
-                ethereum: {
-                  createOnLogin: "users-without-wallets",
-                },
-              },
-            }
-          : {}),
+        embeddedWallets: {
+          ethereum: {
+            createOnLogin: "users-without-wallets",
+          },
+        },
       }}
     >
       <WagmiProvider config={wagmiConfig}>
@@ -185,7 +174,7 @@ export function Providers({ children }: { children: ReactNode }) {
           <AuthProvider>{children}</AuthProvider>
         </QueryClientProvider>
       </WagmiProvider>
-    </PrivyProvider>
+    </PrivySafeProvider>
   );
 }
 

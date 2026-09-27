@@ -12,7 +12,7 @@ import {
   type ClipStatus,
 } from "@/lib/api";
 import { useAuth } from "@/lib/auth-context";
-import { usePrivy } from "@privy-io/react-auth";
+import { usePrivy } from "@/lib/privy-safe";
 import {
   formatCpm,
   formatUsdt,

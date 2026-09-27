@@ -9,7 +9,7 @@ import {
 } from "@/lib/api";
 import { idrToUsdtWei, formatUsdt, formatViews } from "@/lib/format";
 import { useAuth } from "@/lib/auth-context";
-import { usePrivy } from "@privy-io/react-auth";
+import { usePrivy } from "@/lib/privy-safe";
 import {
   ArrowRight,
   ArrowLeft,

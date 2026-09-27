@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useAuth } from "@/lib/auth-context";
-import { usePrivy } from "@privy-io/react-auth";
+import { usePrivy } from "@/lib/privy-safe";
 import { AuthGate } from "@/components/AuthGate";
 import {
   type Clip,

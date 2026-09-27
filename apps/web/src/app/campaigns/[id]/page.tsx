@@ -22,7 +22,7 @@ import {
 import { RulesLockBadge } from "@/components/RulesLockBadge";
 import { JoinModal } from "@/components/JoinModal";
 import { useAuth } from "@/lib/auth-context";
-import { usePrivy } from "@privy-io/react-auth";
+import { usePrivy } from "@/lib/privy-safe";
 import {
   ArrowLeft,
   Scissors,
