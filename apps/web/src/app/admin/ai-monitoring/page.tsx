@@ -35,6 +35,7 @@ import {
   Check,
   ExternalLink,
   Sparkles,
+  X,
 } from "lucide-react";
 
 export default function AdminAiMonitoringPage() {
@@ -342,7 +343,7 @@ export default function AdminAiMonitoringPage() {
                 }}
               >
                 <Zap size={14} className={runningAudit ? "animate-spin" : ""} />
-                {runningAudit ? "Menjalankan Audit..." : "⚡ Jalankan Audit AI Live"}
+                {runningAudit ? "Menjalankan Audit..." : "Jalankan Audit AI Live"}
               </button>
 
               <button
@@ -432,11 +433,13 @@ export default function AdminAiMonitoringPage() {
                   background: "none",
                   border: "none",
                   color: "#047857",
-                  fontWeight: 700,
                   cursor: "pointer",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
                 }}
               >
-                ✕
+                <X size={16} />
               </button>
             </div>
           )}
@@ -469,11 +472,13 @@ export default function AdminAiMonitoringPage() {
                   background: "none",
                   border: "none",
                   color: "#b91c1c",
-                  fontWeight: 700,
                   cursor: "pointer",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
                 }}
               >
-                ✕
+                <X size={16} />
               </button>
             </div>
           )}

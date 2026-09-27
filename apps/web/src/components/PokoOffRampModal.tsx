@@ -3,6 +3,8 @@
 import { useState, useEffect } from "react";
 import {
   X,
+  Zap,
+  ArrowRight,
   AlertTriangle,
   ChevronDown,
   ChevronUp,
@@ -251,13 +253,13 @@ export function PokoOffRampModal({
                   height: "36px",
                   borderRadius: "12px",
                   backgroundColor: "#eef7fe",
+                  color: "#118eea",
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
-                  fontSize: "18px",
                 }}
               >
-                ⚡
+                <Zap size={18} />
               </div>
               <div>
                 <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
@@ -838,7 +840,8 @@ export function PokoOffRampModal({
                     transition: "all 0.15s ease",
                   }}
                 >
-                  <span>Konfirmasi &amp; Tarik Rp {netIdrReceived.toLocaleString("id-ID")} →</span>
+                  <span>Konfirmasi &amp; Tarik Rp {netIdrReceived.toLocaleString("id-ID")}</span>
+                  <ArrowRight size={16} />
                 </button>
 
                 {/* Security Trust Seals */}
@@ -903,7 +906,7 @@ export function PokoOffRampModal({
                   {[
                     { id: 1, text: "Verifikasi EIP-712 Signature & Smart Contract opBNB Escrow" },
                     { id: 2, text: "Lock USDT pada Poko Liquidity Bridge Contract" },
-                    { id: 3, text: `Konversi FX USDT → IDR via AMM Rate (Rp ${idrRate.toLocaleString("id-ID")})` },
+                    { id: 3, text: `Konversi FX USDT ke IDR via AMM Rate (Rp ${idrRate.toLocaleString("id-ID")})` },
                     { id: 4, text: `Dispatched ke Rail BI-FAST / ${provider} OpenAPI Settlement` },
                   ].map((stage) => {
                     const isDone = processingStage > stage.id;

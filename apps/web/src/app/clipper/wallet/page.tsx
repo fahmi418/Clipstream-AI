@@ -653,37 +653,11 @@ export default function ClipperWalletPage() {
           </div>
 
           {/* Main 2-Column Section */}
-          <div
-            style={{
-              display: "grid",
-              gridTemplateColumns: "minmax(0, 1.4fr) minmax(0, 1fr)",
-              gap: "1.5rem",
-              alignItems: "start",
-            }}
-            className="flex-col md:grid"
-          >
+          <div className="flex flex-col lg:grid lg:grid-cols-12 gap-6 items-start">
             {/* Left Column: Form Penarikan & Riwayat */}
-            <div
-              style={{
-                backgroundColor: "#ffffff",
-                borderRadius: "24px",
-                border: "1px solid rgba(0, 0, 0, 0.08)",
-                padding: "clamp(1.25rem, 3vw, 2rem)",
-                boxShadow: "0 4px 20px rgba(0, 0, 0, 0.03)",
-              }}
-            >
+            <div className="w-full lg:col-span-7 bg-white rounded-3xl border border-black/10 p-5 sm:p-7 shadow-sm">
               {/* Tab Selector */}
-              <div
-                style={{
-                  display: "grid",
-                  gridTemplateColumns: "1.2fr 1fr 0.8fr",
-                  padding: "4px",
-                  backgroundColor: "#f0eeea",
-                  borderRadius: "12px",
-                  gap: "3px",
-                  marginBottom: "1.5rem",
-                }}
-              >
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-1.5 p-1 bg-[#f0eeea] rounded-xl mb-6">
                 <button
                   type="button"
                   onClick={() => {
@@ -954,7 +928,7 @@ export default function ClipperWalletPage() {
                         <label style={{ display: "block", fontSize: "0.75rem", fontWeight: 700, color: "#475569", marginBottom: "6px" }}>
                           Pilihan Cepat Akun E-Wallet / Bank:
                         </label>
-                        <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "8px" }}>
+                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
                           <button
                             type="button"
                             onClick={() => {
@@ -1256,7 +1230,7 @@ export default function ClipperWalletPage() {
             </div>
 
             {/* Right Column: Panduan K.I.S.S. & Edukasi Dompet */}
-            <div style={{ display: "flex", flexDirection: "column", gap: "1.25rem" }}>
+            <div className="w-full lg:col-span-5 flex flex-col gap-5">
               {/* Box 1: Keamanan & Non-Custodial Smart Contract */}
               <div
                 style={{

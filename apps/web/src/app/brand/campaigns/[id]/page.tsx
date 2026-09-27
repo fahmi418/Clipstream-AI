@@ -173,8 +173,8 @@ export default function BrandCampaignDetailPage({
         <div className="flex flex-col md:flex-row md:items-start justify-between gap-4">
           <div className="space-y-1">
             <div className="flex items-center gap-2">
-              <span className="badge badge-active text-[11px]">
-                ● {campaign.status}
+              <span className="badge badge-active text-[11px] inline-flex items-center gap-1">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" /> {campaign.status}
               </span>
               <RulesLockBadge
                 onchainId={campaign.onchainId}

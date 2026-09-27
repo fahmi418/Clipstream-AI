@@ -272,7 +272,7 @@ export function ViewGrowthChart({
             })}
           </div>
           <div style={{ fontSize: "0.6875rem", color: "#e8400d", marginTop: "2px" }}>
-            ● Verifikasi Otomatis
+            <span className="inline-block w-1.5 h-1.5 rounded-full bg-emerald-500 mr-1" /> Verifikasi Otomatis
           </div>
         </div>
       </div>

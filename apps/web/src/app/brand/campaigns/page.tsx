@@ -299,7 +299,7 @@ export default function BrandCampaignsPage() {
                 borderRadius: "9999px",
               }}
             >
-              ● Diamankan Smart Contract
+              <span className="inline-block w-1.5 h-1.5 rounded-full bg-emerald-500 mr-1" /> Diamankan Smart Contract
             </div>
           </div>
 
@@ -423,43 +423,35 @@ export default function BrandCampaignsPage() {
 
         {/* Campaign List Section */}
         <div>
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "space-between",
-              marginBottom: "1.25rem",
-              flexWrap: "wrap",
-              gap: "0.75rem",
-            }}
-          >
+          <div className="flex items-start justify-between gap-4 mb-5">
             <div>
-              <h2 style={{ fontSize: "1.375rem", fontWeight: 600, color: "#111", margin: 0 }}>
-                Daftar Campaign Aktif ({campaigns.length})
-              </h2>
-              <p style={{ fontSize: "0.8125rem", color: "rgba(17,17,17,0.55)", marginTop: "2px" }}>
+              <div className="flex items-center gap-3">
+                <h2 style={{ fontSize: "1.375rem", fontWeight: 700, color: "#111", margin: 0 }}>
+                  Daftar Campaign Aktif ({campaigns.length})
+                </h2>
+                <button
+                  type="button"
+                  onClick={fetchBrandCampaigns}
+                  style={{
+                    padding: "0.45rem",
+                    borderRadius: "50%",
+                    border: "1px solid rgba(17,17,17,0.1)",
+                    backgroundColor: "#ffffff",
+                    cursor: "pointer",
+                    color: "rgba(17,17,17,0.6)",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                  }}
+                  title="Muat Ulang"
+                >
+                  <RotateCcw size={14} />
+                </button>
+              </div>
+              <p style={{ fontSize: "0.8125rem", color: "rgba(17,17,17,0.55)", marginTop: "4px" }}>
                 Kelola parameter bounty, pantau serapan budget, dan periksa klip kiriman editor.
               </p>
             </div>
-
-            <button
-              type="button"
-              onClick={fetchBrandCampaigns}
-              style={{
-                padding: "0.45rem",
-                borderRadius: "50%",
-                border: "1px solid rgba(17,17,17,0.1)",
-                backgroundColor: "#ffffff",
-                cursor: "pointer",
-                color: "rgba(17,17,17,0.6)",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-              }}
-              title="Muat Ulang"
-            >
-              <RotateCcw size={14} />
-            </button>
           </div>
 
           {/* Campaign List Cards */}
@@ -500,9 +492,12 @@ export default function BrandCampaignsPage() {
                           backgroundColor: "#ecfdf5",
                           padding: "0.2rem 0.5rem",
                           borderRadius: "9999px",
+                          display: "inline-flex",
+                          alignItems: "center",
+                          gap: "4px",
                         }}
                       >
-                        ● Aktif
+                        <span className="inline-block w-1.5 h-1.5 rounded-full bg-emerald-500" /> Aktif
                       </span>
                       <RulesLockBadge onchainId={camp.onchainId} txHash={camp.txHash} />
                       <span style={{ fontSize: "0.75rem", color: "rgba(17,17,17,0.5)" }}>

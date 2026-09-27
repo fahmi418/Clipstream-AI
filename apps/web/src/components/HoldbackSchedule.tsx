@@ -253,7 +253,7 @@ export function HoldbackSchedule({
                         fontWeight: 700,
                       }}
                     >
-                      ● Siap Klaim
+                      <span className="inline-block w-1.5 h-1.5 rounded-full bg-emerald-500 mr-1" /> Siap Klaim
                     </span>
                   ) : (
                     <span

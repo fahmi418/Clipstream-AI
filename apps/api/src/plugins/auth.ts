@@ -69,6 +69,38 @@ const authPluginAsync: FastifyPluginAsync = async (fastify) => {
       const token = authHeader.slice(7).trim();
       if (!token) return;
 
+      // Demo / Sandbox token bypass for testing & development
+      if (token === 'demo-jwt-token-admin') {
+        request.user = {
+          id: 'admin-clipstream-superadmin',
+          walletAddress: '0x15d34AAf54267DB7D7c367839AAf71A00a2C6A65',
+          displayName: 'Clipstream SuperAdmin',
+          email: 'admin@clipstream.ai',
+          role: 'ADMIN',
+        };
+        return;
+      }
+      if (token === 'demo-jwt-token-brand' || token === 'demo-jwt-brand') {
+        request.user = {
+          id: 'ef1908a4-a526-4acf-a66d-d052b142cd43',
+          walletAddress: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
+          displayName: 'Tech Podcast Studio',
+          email: 'brand@podcastbincang.id',
+          role: 'BRAND',
+        };
+        return;
+      }
+      if (token === 'demo-jwt-token-clipper' || token === 'demo-jwt-clipper') {
+        request.user = {
+          id: '8d069dfc-f447-4c08-a913-a9e2d5400798',
+          walletAddress: '0x70997970C51812dc3A010C7d01b50e0d17dc79C8',
+          displayName: 'Budi Clipper Indo',
+          email: 'budi@clipper.id',
+          role: 'CLIPPER',
+        };
+        return;
+      }
+
       // Compatibility: If token is a Privy DID
       if (token.startsWith('did:privy:')) {
         const repo = getDatabaseRepository();

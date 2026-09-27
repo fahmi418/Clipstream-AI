@@ -271,7 +271,7 @@ export function SourceChunksExplorer({
                     </span>
 
                     <span style={{ fontSize: "0.6875rem", color: "#059669", fontWeight: 600 }}>
-                      ● Vector Ready
+                      <span className="inline-block w-1.5 h-1.5 rounded-full bg-emerald-500 mr-1" /> Vector Ready
                     </span>
                   </div>
 

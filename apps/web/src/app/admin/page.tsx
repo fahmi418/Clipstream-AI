@@ -506,7 +506,7 @@ export default function AdminDashboardPage() {
                 borderRadius: "9999px",
               }}
             >
-              ● 100% Solvable &amp; Audited
+              <span className="inline-block w-1.5 h-1.5 rounded-full bg-emerald-500 mr-1" /> 100% Solvable &amp; Audited
             </div>
           </div>
 
@@ -623,7 +623,7 @@ export default function AdminDashboardPage() {
                 borderRadius: "9999px",
               }}
             >
-              ● Konsensus PoS Aktif
+              <span className="inline-block w-1.5 h-1.5 rounded-full bg-emerald-500 mr-1" /> Konsensus PoS Aktif
             </div>
           </div>
         </div>
