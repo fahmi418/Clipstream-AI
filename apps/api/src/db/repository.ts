@@ -297,7 +297,16 @@ export interface IDatabaseRepository {
 
   // Appeals
   createAppeal(
-    appeal: Omit<AppealEntity, 'id' | 'createdAt' | 'resolvedAt'>
+    appeal: Omit<AppealEntity, 'id' | 'createdAt' | 'resolvedAt'> & { id?: string }
   ): Promise<AppealEntity>;
   getAppealsByClip(clipId: string): Promise<AppealEntity[]>;
+  getAllAppeals(): Promise<AppealEntity[]>;
+  getAppealById(id: string): Promise<AppealEntity | null>;
+  updateAppeal(id: string, updates: Partial<AppealEntity>): Promise<AppealEntity | null>;
+  deleteAppeal(id: string): Promise<boolean>;
+
+  // Admin CRUD helpers
+  deleteCampaign(id: string): Promise<boolean>;
+  deleteClip(id: string): Promise<boolean>;
+  listAllClips(): Promise<ClipEntity[]>;
 }

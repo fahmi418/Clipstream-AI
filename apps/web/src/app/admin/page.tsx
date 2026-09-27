@@ -43,6 +43,8 @@ import {
   Zap,
   Radio,
   Cpu,
+  BookOpen,
+  SlidersHorizontal,
 } from "lucide-react";
 
 interface DisputeCase {
@@ -261,6 +263,107 @@ export default function AdminDashboardPage() {
           padding: "0 1.5rem",
         }}
       >
+        {/* Admin Sub Navigation Tabs */}
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: "8px",
+            marginBottom: "1.75rem",
+            borderBottom: "1px solid #e2e8f0",
+            paddingBottom: "12px",
+          }}
+        >
+          <Link
+            href="/admin"
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: "6px",
+              padding: "8px 16px",
+              borderRadius: "8px",
+              fontSize: "0.875rem",
+              fontWeight: 600,
+              color: "#7c3aed",
+              textDecoration: "none",
+              background: "rgba(124, 58, 237, 0.08)",
+              border: "1px solid rgba(124, 58, 237, 0.2)",
+            }}
+          >
+            <SlidersHorizontal size={15} /> Ringkasan &amp; Worker
+          </Link>
+
+          <Link
+            href="/admin/appeals"
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: "6px",
+              padding: "8px 16px",
+              borderRadius: "8px",
+              fontSize: "0.875rem",
+              fontWeight: 500,
+              color: "#64748b",
+              textDecoration: "none",
+              background: "transparent",
+            }}
+          >
+            <ShieldAlert size={15} /> Banding &amp; Sengketa
+            {disputes.filter((d) => d.status === "OPEN").length > 0 && (
+              <span
+                style={{
+                  background: "#d97706",
+                  color: "#fff",
+                  fontSize: "0.6875rem",
+                  fontWeight: 700,
+                  padding: "1px 6px",
+                  borderRadius: "9999px",
+                  marginLeft: "4px",
+                }}
+              >
+                {disputes.filter((d) => d.status === "OPEN").length}
+              </span>
+            )}
+          </Link>
+
+          <Link
+            href="/admin/ai-monitoring"
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: "6px",
+              padding: "8px 16px",
+              borderRadius: "8px",
+              fontSize: "0.875rem",
+              fontWeight: 600,
+              color: "#0284c7",
+              textDecoration: "none",
+              background: "rgba(2, 132, 199, 0.08)",
+              border: "1px solid rgba(2, 132, 199, 0.2)",
+            }}
+          >
+            <Bot size={15} /> Observabilitas AI &amp; Token
+          </Link>
+
+          <Link
+            href="/admin/blog"
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: "6px",
+              padding: "8px 16px",
+              borderRadius: "8px",
+              fontSize: "0.875rem",
+              fontWeight: 500,
+              color: "#64748b",
+              textDecoration: "none",
+              background: "transparent",
+            }}
+          >
+            <BookOpen size={15} /> Manajemen Artikel
+          </Link>
+        </div>
+
         {/* Top Breadcrumb & Header */}
         <div style={{ marginBottom: "2rem" }}>
           <div
@@ -767,39 +870,51 @@ export default function AdminDashboardPage() {
                   <div
                     style={{
                       display: "grid",
-                      gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
-                      gap: "0.75rem",
+                      gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))",
+                      gap: "1rem",
                       padding: "1rem",
                       borderRadius: "12px",
                       backgroundColor: "#fbfaf9",
                       border: "1px solid rgba(17,17,17,0.06)",
                     }}
                   >
-                    <div>
+                    <div style={{ minWidth: 0 }}>
                       <div style={{ fontSize: "0.6875rem", fontWeight: 600, color: "rgba(17,17,17,0.5)", textTransform: "uppercase" }}>
                         Kreator / Clipper
                       </div>
-                      <div style={{ fontSize: "0.875rem", fontWeight: 600, color: "#111", marginTop: "2px" }}>
+                      <div style={{ fontSize: "0.875rem", fontWeight: 600, color: "#111", marginTop: "2px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                         {disp.clipperName}
                       </div>
-                      <div style={{ fontSize: "0.75rem", fontFamily: "monospace", color: "rgba(17,17,17,0.6)" }}>
-                        {disp.clipperWallet}
+                      <div
+                        title={disp.clipperWallet}
+                        style={{
+                          fontSize: "0.75rem",
+                          fontFamily: "monospace",
+                          color: "rgba(17,17,17,0.6)",
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
+                          whiteSpace: "nowrap",
+                        }}
+                      >
+                        {disp.clipperWallet && disp.clipperWallet.length > 16
+                          ? `${disp.clipperWallet.slice(0, 6)}...${disp.clipperWallet.slice(-4)}`
+                          : disp.clipperWallet}
                       </div>
                     </div>
 
-                    <div>
+                    <div style={{ minWidth: 0 }}>
                       <div style={{ fontSize: "0.6875rem", fontWeight: 600, color: "rgba(17,17,17,0.5)", textTransform: "uppercase" }}>
                         Brand Pelapor
                       </div>
-                      <div style={{ fontSize: "0.875rem", fontWeight: 600, color: "#111", marginTop: "2px" }}>
+                      <div style={{ fontSize: "0.875rem", fontWeight: 600, color: "#111", marginTop: "2px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                         {disp.brandName}
                       </div>
-                      <div style={{ fontSize: "0.75rem", color: "#e8400d" }}>
+                      <div style={{ fontSize: "0.75rem", color: "#e8400d", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                         Tersedia di Escrow Vault
                       </div>
                     </div>
 
-                    <div>
+                    <div style={{ minWidth: 0 }}>
                       <div style={{ fontSize: "0.6875rem", fontWeight: 600, color: "rgba(17,17,17,0.5)", textTransform: "uppercase" }}>
                         Skor AI Verification
                       </div>
@@ -811,7 +926,7 @@ export default function AdminDashboardPage() {
                       </div>
                     </div>
 
-                    <div>
+                    <div style={{ minWidth: 0 }}>
                       <div style={{ fontSize: "0.6875rem", fontWeight: 600, color: "rgba(17,17,17,0.5)", textTransform: "uppercase" }}>
                         Link Klip Bukti
                       </div>
@@ -1529,7 +1644,14 @@ export default function AdminDashboardPage() {
                   }}
                 >
                   <div><strong>Kampanye:</strong> {selectedDispute.campaignTitle}</div>
-                  <div><strong>Kreator:</strong> {selectedDispute.clipperName} ({selectedDispute.clipperWallet})</div>
+                  <div>
+                    <strong>Kreator:</strong> {selectedDispute.clipperName}{" "}
+                    <span style={{ fontFamily: "monospace", color: "#64748b" }}>
+                      ({selectedDispute.clipperWallet && selectedDispute.clipperWallet.length > 16
+                        ? `${selectedDispute.clipperWallet.slice(0, 6)}...${selectedDispute.clipperWallet.slice(-4)}`
+                        : selectedDispute.clipperWallet})
+                    </span>
+                  </div>
                   <div><strong>Nilai Klaim:</strong> {selectedDispute.claimAmount}</div>
                   <div><strong>Laporan:</strong> {selectedDispute.flagReason}</div>
                   <div>

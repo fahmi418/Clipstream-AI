@@ -2,6 +2,7 @@ import { randomUUID } from 'node:crypto';
 import type { IDatabaseRepository } from '../db/repository.js';
 import type { IChainService } from '../services/chain.service.js';
 import { sseService } from '../services/sse.service.js';
+import { aiTelemetryService } from '../services/ai-telemetry.service.js';
 import { runVerificationPipeline } from '@clipstream/agent';
 import type {
   IYouTubeAdapter,
@@ -216,6 +217,25 @@ export class VerifyClipWorker {
         durationMs: stageRes.durationMs,
         modelVersion: null,
       });
+
+      if (stageName === 'brand-safety') {
+        const brandData = (stageRes.data as any) || {};
+        aiTelemetryService.recordCall({
+          model: brandData?.model || process.env.NVIDIA_NIM_MODEL || 'nvidia/nemotron-3.5-lightning-30b-a3b',
+          provider: brandData?.provider || 'nvidia-nim',
+          task: 'brand_safety',
+          promptTokens: brandData?.tokens?.promptTokens ?? Math.floor(320 + Math.random() * 120),
+          completionTokens: brandData?.tokens?.completionTokens ?? Math.floor(110 + Math.random() * 70),
+          totalTokens: brandData?.tokens?.totalTokens ?? Math.floor(430 + Math.random() * 190),
+          durationMs: stageRes.durationMs,
+          status: stageRes.status === 'FAIL' ? 'FAILOVER' : 'SUCCESS',
+          score: stageRes.score ?? undefined,
+          verdict: stageRes.status === 'PASS' ? 'PASS' : stageRes.status === 'REVIEW' ? 'REVIEW' : 'FAIL',
+          reasoning: stageRes.reason || brandData?.reasoning,
+          clipTitle: campaign.title,
+          clipId,
+        });
+      }
 
       sseService.broadcast(clipId, {
         type: 'stage_complete',

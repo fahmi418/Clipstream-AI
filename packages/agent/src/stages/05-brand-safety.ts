@@ -49,7 +49,7 @@ export async function executeBrandSafetyStage(
       },
       reason: 'Gagal memproses evaluasi keamanan brand.',
       durationMs: Date.now() - startTime,
-      modelVersion: 'llama-3.1-70b-instruct',
+      modelVersion: 'nvidia/nemotron-3.5-lightning-30b-a3b',
     };
   }
 
@@ -65,7 +65,7 @@ export async function executeBrandSafetyStage(
       data: output,
       reason: `Klip melanggar aturan keamanan konten: ${output.reasoning}`,
       durationMs: Date.now() - startTime,
-      modelVersion: 'llama-3.1-70b-instruct',
+      modelVersion: output.model ?? 'nvidia/nemotron-3.5-lightning-30b-a3b',
     };
   }
 
@@ -78,7 +78,7 @@ export async function executeBrandSafetyStage(
       data: output,
       reason: `Klip ditinjau oleh tim kami terkait kepatuhan brand: ${output.reasoning}`,
       durationMs: Date.now() - startTime,
-      modelVersion: 'llama-3.1-70b-instruct',
+      modelVersion: output.model ?? 'nvidia/nemotron-3.5-lightning-30b-a3b',
     };
   }
 
@@ -93,7 +93,7 @@ export async function executeBrandSafetyStage(
         output.score * 100
       )}%). ${output.reasoning}`,
       durationMs: Date.now() - startTime,
-      modelVersion: 'llama-3.1-70b-instruct',
+      modelVersion: output.model ?? 'nvidia/nemotron-3.5-lightning-30b-a3b',
     };
   }
 
@@ -103,6 +103,6 @@ export async function executeBrandSafetyStage(
     score: output.score,
     data: output,
     durationMs: Date.now() - startTime,
-    modelVersion: 'llama-3.1-70b-instruct',
+    modelVersion: output.model ?? 'nvidia/nemotron-3.5-lightning-30b-a3b',
   };
 }

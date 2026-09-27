@@ -6,6 +6,21 @@ export function errorHandler(
   _request: FastifyRequest,
   reply: FastifyReply
 ): void {
+  // Handle rate-limit exceeded errors
+  if ((error as any)?.error?.code === 'RATE_LIMIT_EXCEEDED' || error.statusCode === 429) {
+    const payload = (error as any)?.error
+      ? error
+      : {
+          ok: false,
+          error: {
+            code: 'RATE_LIMIT_EXCEEDED',
+            message: error.message || 'Terlalu banyak permintaan (Rate limit tercapai). Silakan coba lagi.',
+          },
+        };
+    reply.status(429).send(payload);
+    return;
+  }
+
   if (error instanceof ZodError) {
     reply.status(400).send({
       ok: false,
@@ -96,6 +111,7 @@ export function errorHandler(
     });
     return;
   }
+
 
   const statusCode = error.statusCode || 500;
   reply.status(statusCode).send({

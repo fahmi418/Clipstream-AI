@@ -54,7 +54,15 @@ export const clipRoutes: FastifyPluginAsync = async (fastify) => {
 
   fastify.post(
     '/api/clips',
-    { preHandler: requireAuth },
+    {
+      preHandler: requireAuth,
+      config: {
+        rateLimit: {
+          max: 10,
+          timeWindow: '1 minute',
+        },
+      },
+    },
     async (request, reply) => {
       const parsed = SubmitClipSchema.parse(request.body);
       const user = request.user!;

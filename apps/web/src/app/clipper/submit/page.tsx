@@ -124,7 +124,20 @@ function ClipperSubmitContent() {
           url: videoUrl.trim(),
         });
         if (res.clipId) clipId = res.clipId;
-      } catch {
+      } catch (submitErr: any) {
+        const errMsg = submitErr?.message || '';
+        if (
+          errMsg.includes('Rate limit') ||
+          errMsg.includes('Terlalu banyak permintaan') ||
+          errMsg.includes('didukung') ||
+          errMsg.includes('berakhir') ||
+          errMsg.includes('sudah pernah') ||
+          errMsg.includes('VALIDATION_FAILED')
+        ) {
+          setError(errMsg);
+          setSubmitting(false);
+          return;
+        }
         // Fallback for offline demo mode
       }
 

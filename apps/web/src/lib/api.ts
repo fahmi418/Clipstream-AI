@@ -162,11 +162,30 @@ async function request<T>(
     ...((init?.headers as Record<string, string>) ?? {}),
   };
 
-  const res = await fetch(`${API_BASE}${path}`, {
-    credentials: "include",
-    headers,
-    ...init,
-  });
+  let res: Response;
+  try {
+    res = await fetch(`${API_BASE}${path}`, {
+      credentials: "include",
+      headers,
+      ...init,
+    });
+  } catch {
+    // Retry once after 600ms in case backend API is momentarily restarting
+    try {
+      await new Promise((r) => setTimeout(r, 600));
+      res = await fetch(`${API_BASE}${path}`, {
+        credentials: "include",
+        headers,
+        ...init,
+      });
+    } catch {
+      throw new ApiRequestError(
+        "NETWORK_ERROR",
+        `Koneksi ke backend API terputus (${API_BASE}${path}).`,
+        0
+      );
+    }
+  }
 
   const json = (await res.json()) as ApiResponse<T> | ApiError;
 
@@ -842,6 +861,7 @@ export interface AdminAppeal {
   clipId: string;
   clipperId: string;
   clipperWallet: string;
+  clipperName?: string;
   campaignTitle: string;
   brandName: string;
   clipUrl: string;
@@ -851,10 +871,43 @@ export interface AdminAppeal {
   status: "PENDING" | "UPHELD" | "REJECTED";
   reviewNotes: string | null;
   createdAt: string;
+  resolvedAt?: string | null;
 }
 
 export function getAdminAppeals() {
   return request<AdminAppeal[]>("/api/admin/appeals");
+}
+
+export function createAdminAppeal(payload: {
+  clipId: string;
+  reason: string;
+  status?: "PENDING" | "UPHELD" | "REJECTED";
+  reviewNotes?: string;
+}) {
+  return request<AdminAppeal>("/api/admin/appeals", {
+    method: "POST",
+    body: JSON.stringify(payload),
+  });
+}
+
+export function updateAdminAppeal(
+  appealId: string,
+  payload: {
+    reason?: string;
+    status?: "PENDING" | "UPHELD" | "REJECTED";
+    reviewNotes?: string | null;
+  }
+) {
+  return request<AdminAppeal>(`/api/admin/appeals/${appealId}`, {
+    method: "PATCH",
+    body: JSON.stringify(payload),
+  });
+}
+
+export function deleteAdminAppeal(appealId: string) {
+  return request<{ id: string; deleted: boolean }>(`/api/admin/appeals/${appealId}`, {
+    method: "DELETE",
+  });
 }
 
 export function resolveAdminAppeal(
@@ -867,9 +920,61 @@ export function resolveAdminAppeal(
     reviewNotes: string | null;
     resolvedAt: string;
     txHash: string | null;
+    appeal?: AdminAppeal;
   }>(`/api/admin/appeals/${appealId}/resolve`, {
     method: "POST",
     body: JSON.stringify(payload),
+  });
+}
+
+export interface AdminClip {
+  id: string;
+  onchainId: string | null;
+  campaignId: string;
+  clipperId: string;
+  platform: string;
+  videoId: string;
+  videoIdHash: string;
+  url: string;
+  verificationCode: string;
+  publishedAt: string | null;
+  durationSec: number | null;
+  paidViews: number;
+  releasedAmount: string;
+  holdbackAmount: string;
+  status: string;
+  submittedAt: string;
+  campaignTitle: string;
+  clipperWallet: string;
+  clipperName: string;
+}
+
+export function getAdminClips() {
+  return request<AdminClip[]>("/api/admin/clips");
+}
+
+export function updateAdminClip(
+  clipId: string,
+  payload: {
+    status?: string;
+    paidViews?: number;
+  }
+) {
+  return request<AdminClip>(`/api/admin/clips/${clipId}`, {
+    method: "PATCH",
+    body: JSON.stringify(payload),
+  });
+}
+
+export function deleteAdminClip(clipId: string) {
+  return request<{ id: string; deleted: boolean }>(`/api/admin/clips/${clipId}`, {
+    method: "DELETE",
+  });
+}
+
+export function deleteAdminCampaign(campaignId: string) {
+  return request<{ id: string; deleted: boolean }>(`/api/admin/campaigns/${campaignId}`, {
+    method: "DELETE",
   });
 }
 
@@ -938,6 +1043,72 @@ export interface AdminWorkerStatus {
   recentJobs: AdminWorkerJob[];
 }
 
+export interface AiTelemetryModelHealth {
+  name: string;
+  modelId: string;
+  provider: string;
+  tier: number | string;
+  role: string;
+  status: "HEALTHY" | "DEGRADED" | "OFFLINE";
+  latencyMs: number;
+  successRate: number;
+  totalCalls: number;
+  failoverCount: number;
+  lastPingAt: string;
+}
+
+export interface AiTelemetryLog {
+  id: string;
+  timestamp: string;
+  model: string;
+  provider: string;
+  task: string;
+  promptTokens: number;
+  completionTokens: number;
+  totalTokens: number;
+  durationMs: number;
+  status: "SUCCESS" | "FAILOVER" | "RATE_LIMITED" | "ERROR";
+  score?: number;
+  verdict?: "PASS" | "REVIEW" | "FAIL";
+  reasoning?: string;
+  clipTitle?: string;
+  clipId?: string;
+}
+
+export interface AiTelemetryResponse {
+  tokens: {
+    totalTokens: number;
+    promptTokens: number;
+    completionTokens: number;
+    estimatedCostUsd: number;
+    estimatedCostIdr: number;
+    savingsUsd: number;
+    savingsIdr: number;
+    byModel: Record<string, { promptTokens: number; completionTokens: number; totalTokens: number; calls: number }>;
+    byProvider: Record<string, { totalTokens: number; calls: number }>;
+  };
+  verdicts: {
+    totalAudits: number;
+    pass: number;
+    review: number;
+    fail: number;
+    passRate: number;
+  };
+  modelsHealth: AiTelemetryModelHealth[];
+  cascadingPipeline: {
+    tier1: string;
+    tier2: string;
+    tier3: string;
+    tier4: string;
+    tier5: string;
+    vision: string;
+    audio: string;
+    activePrimary: string;
+  };
+  rateLimits: Record<string, any>;
+  recentLogs: AiTelemetryLog[];
+}
+
 export function getAdminWorkerStatus() {
   return request<AdminWorkerStatus>("/api/admin/workers/status");
 }
@@ -950,6 +1121,35 @@ export function triggerAdminPollMetrics() {
   }>("/api/admin/workers/poll-metrics/trigger", {
     method: "POST",
   });
+}
+
+export function getAdminAiTelemetry() {
+  return request<AiTelemetryResponse>("/api/admin/ai/telemetry");
+}
+
+export function pingAdminAiModel(modelId: string) {
+  return request<{ modelId: string; status: "ONLINE" | "ERROR"; latencyMs: number; error?: string }>(
+    "/api/admin/ai/ping",
+    {
+      method: "POST",
+      body: JSON.stringify({ modelId }),
+    }
+  );
+}
+
+export function runAdminAiAudit(payload?: {
+  title?: string;
+  description?: string;
+  transcript?: string;
+  rules?: string;
+}) {
+  return request<{ ok: boolean; data: AiTelemetryLog }>(
+    "/api/admin/ai/run-audit",
+    {
+      method: "POST",
+      body: JSON.stringify(payload || {}),
+    }
+  );
 }
 
 export { ApiRequestError };

@@ -18,6 +18,8 @@ import {
   Sparkles,
   ShieldCheck,
   Zap,
+  ChevronDown,
+  ChevronUp,
 } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
 import type { UserRole } from "@/lib/api";
@@ -41,6 +43,7 @@ function LoginFormContent() {
   // Wallet form state
   const [manualWallet, setManualWallet] = useState("");
   const [hasEthereum, setHasEthereum] = useState(false);
+  const [showManualWallet, setShowManualWallet] = useState(false);
 
   // UI state
   const [loading, setLoading] = useState(false);
@@ -156,6 +159,39 @@ function LoginFormContent() {
     }
   };
 
+  const handleDemoWalletLogin = async (role: UserRole, address: string) => {
+    setErrorMsg(null);
+    setSuccessMsg(null);
+    setSelectedRole(role);
+    setManualWallet(address);
+
+    try {
+      setLoading(true);
+      const loggedUser = await loginWithWallet({
+        walletAddress: address,
+        role,
+      });
+
+      setSuccessMsg(`Terhubung sebagai ${role === "CLIPPER" ? "Clipper" : "Brand"} Demo (${address.slice(0, 6)}...${address.slice(-4)})`);
+      setTimeout(() => {
+        if (redirectUrl) {
+          router.push(redirectUrl);
+        } else if (loggedUser.role === "BRAND") {
+          router.push("/brand/campaigns");
+        } else if (loggedUser.role === "ADMIN") {
+          router.push("/admin/appeals");
+        } else {
+          router.push("/clipper");
+        }
+      }, 500);
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Gagal demo login.";
+      setErrorMsg(msg);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div
       style={{
@@ -198,7 +234,7 @@ function LoginFormContent() {
           >
             Masuk ke Akun
           </h1>
-          <p
+          <div
             style={{
               fontSize: "0.875rem",
               color: "#666666",
@@ -207,7 +243,7 @@ function LoginFormContent() {
             }}
           >
             Akses dashboard Clipper atau Brand Anda.
-          </p>
+          </div>
         </div>
 
         {/* Tab Switcher */}
@@ -284,123 +320,327 @@ function LoginFormContent() {
 
         {/* Tab 1: Web3 Wallet Login */}
         {activeTab === "wallet" && (
-          <div className="space-y-4">
+          <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
+            {/* 1-Click Demo Accounts Selector for Web3 */}
+            <div
+              style={{
+                backgroundColor: "#f8fafc",
+                borderRadius: "12px",
+                padding: "10px 12px",
+                border: "1px solid rgba(0, 0, 0, 0.08)",
+              }}
+            >
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "6px" }}>
+                <span style={{ fontSize: "0.6875rem", fontWeight: 700, color: "#64748b", textTransform: "uppercase", letterSpacing: "0.5px", display: "inline-flex", alignItems: "center", gap: "4px" }}>
+                  <Zap size={11} /> Akun Demo Siap Pakai (1-Klik)
+                </span>
+                <span style={{ fontSize: "0.625rem", color: "#059669", fontWeight: 700, backgroundColor: "#ecfdf5", padding: "1px 6px", borderRadius: "9999px" }}>
+                  Auto-Login
+                </span>
+              </div>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8px" }}>
+                <button
+                  type="button"
+                  disabled={loading}
+                  onClick={() => handleDemoWalletLogin("CLIPPER", "0x70997970C51812dc3A010C7d01b50e0d17dc79C8")}
+                  style={{
+                    padding: "8px 10px",
+                    borderRadius: "8px",
+                    backgroundColor: selectedRole === "CLIPPER" ? "#fff8f5" : "#ffffff",
+                    border: selectedRole === "CLIPPER" ? "1px solid #e8400d" : "1px solid rgba(0,0,0,0.1)",
+                    color: selectedRole === "CLIPPER" ? "#e8400d" : "#334155",
+                    fontSize: "0.75rem",
+                    fontWeight: 700,
+                    cursor: loading ? "not-allowed" : "pointer",
+                    textAlign: "center",
+                    transition: "all 0.15s ease",
+                    display: "inline-flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    gap: "6px",
+                    appearance: "none",
+                    WebkitAppearance: "none",
+                  }}
+                >
+                  <Scissors size={13} /> Clipper Demo
+                </button>
+
+                <button
+                  type="button"
+                  disabled={loading}
+                  onClick={() => handleDemoWalletLogin("BRAND", "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266")}
+                  style={{
+                    padding: "8px 10px",
+                    borderRadius: "8px",
+                    backgroundColor: selectedRole === "BRAND" ? "#f0f6ff" : "#ffffff",
+                    border: selectedRole === "BRAND" ? "1px solid #2563eb" : "1px solid rgba(0,0,0,0.1)",
+                    color: selectedRole === "BRAND" ? "#2563eb" : "#334155",
+                    fontSize: "0.75rem",
+                    fontWeight: 700,
+                    cursor: loading ? "not-allowed" : "pointer",
+                    textAlign: "center",
+                    transition: "all 0.15s ease",
+                    display: "inline-flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    gap: "6px",
+                    appearance: "none",
+                    WebkitAppearance: "none",
+                  }}
+                >
+                  <Megaphone size={13} /> Brand Demo
+                </button>
+              </div>
+            </div>
+
             {/* Role selection toggle for wallet login */}
             <div>
-              <label className="block text-xs font-bold text-[#111111] uppercase tracking-wider mb-2">
+              <label
+                style={{
+                  display: "block",
+                  fontSize: "0.6875rem",
+                  fontWeight: 700,
+                  color: "#475569",
+                  textTransform: "uppercase",
+                  letterSpacing: "0.5px",
+                  marginBottom: "0.5rem",
+                }}
+              >
                 Pilih Peran Utama
               </label>
-              <div className="grid grid-cols-2 gap-2">
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.625rem" }}>
                 <button
                   type="button"
                   onClick={() => setSelectedRole("CLIPPER")}
-                  className={`p-3 rounded-xl border text-left flex items-center gap-2.5 transition-all ${
-                    selectedRole === "CLIPPER"
-                      ? "border-[#e8400d] bg-[#fff8f5] ring-1 ring-[#e8400d]"
-                      : "border-black/[0.08] bg-[#faf9f6] hover:border-black/20"
-                  }`}
+                  style={{
+                    padding: "10px 12px",
+                    borderRadius: "10px",
+                    border: selectedRole === "CLIPPER" ? "2px solid #e8400d" : "2px solid #e2e8f0",
+                    backgroundColor: selectedRole === "CLIPPER" ? "#fff8f5" : "#faf9f6",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "10px",
+                    cursor: "pointer",
+                    textAlign: "left",
+                    transition: "all 0.15s ease",
+                    boxSizing: "border-box",
+                    appearance: "none",
+                    WebkitAppearance: "none",
+                  }}
                 >
-                  <Scissors size={16} className={selectedRole === "CLIPPER" ? "text-[#e8400d]" : "text-[#777]"} />
+                  <div
+                    style={{
+                      width: "32px",
+                      height: "32px",
+                      borderRadius: "8px",
+                      backgroundColor: selectedRole === "CLIPPER" ? "rgba(232, 64, 13, 0.1)" : "#f1f5f9",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      flexShrink: 0,
+                    }}
+                  >
+                    <Scissors size={15} style={{ color: selectedRole === "CLIPPER" ? "#e8400d" : "#64748b" }} />
+                  </div>
                   <div>
-                    <div className="text-xs font-bold text-[#111111]">Clipper</div>
-                    <div className="text-[10px] text-[#777777]">Hasilkan USDC</div>
+                    <div style={{ fontSize: "0.8125rem", fontWeight: 700, color: "#0f172a", lineHeight: 1.2 }}>
+                      Clipper
+                    </div>
+                    <div style={{ fontSize: "0.6875rem", color: "#64748b", marginTop: "2px" }}>
+                      Hasilkan USDC
+                    </div>
                   </div>
                 </button>
 
                 <button
                   type="button"
                   onClick={() => setSelectedRole("BRAND")}
-                  className={`p-3 rounded-xl border text-left flex items-center gap-2.5 transition-all ${
-                    selectedRole === "BRAND"
-                      ? "border-[#2563eb] bg-[#f0f6ff] ring-1 ring-[#2563eb]"
-                      : "border-black/[0.08] bg-[#faf9f6] hover:border-black/20"
-                  }`}
+                  style={{
+                    padding: "10px 12px",
+                    borderRadius: "10px",
+                    border: selectedRole === "BRAND" ? "2px solid #2563eb" : "2px solid #e2e8f0",
+                    backgroundColor: selectedRole === "BRAND" ? "#f0f6ff" : "#faf9f6",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "10px",
+                    cursor: "pointer",
+                    textAlign: "left",
+                    transition: "all 0.15s ease",
+                    boxSizing: "border-box",
+                    appearance: "none",
+                    WebkitAppearance: "none",
+                  }}
                 >
-                  <Megaphone size={16} className={selectedRole === "BRAND" ? "text-[#2563eb]" : "text-[#777]"} />
+                  <div
+                    style={{
+                      width: "32px",
+                      height: "32px",
+                      borderRadius: "8px",
+                      backgroundColor: selectedRole === "BRAND" ? "rgba(37, 99, 235, 0.1)" : "#f1f5f9",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      flexShrink: 0,
+                    }}
+                  >
+                    <Megaphone size={15} style={{ color: selectedRole === "BRAND" ? "#2563eb" : "#64748b" }} />
+                  </div>
                   <div>
-                    <div className="text-xs font-bold text-[#111111]">Brand</div>
-                    <div className="text-[10px] text-[#777777]">Buat Kampanye</div>
+                    <div style={{ fontSize: "0.8125rem", fontWeight: 700, color: "#0f172a", lineHeight: 1.2 }}>
+                      Brand
+                    </div>
+                    <div style={{ fontSize: "0.6875rem", color: "#64748b", marginTop: "2px" }}>
+                      Buat Kampanye
+                    </div>
                   </div>
                 </button>
               </div>
             </div>
 
-            {hasEthereum ? (
-              <div className="pt-2">
-                <button
-                  type="button"
-                  disabled={loading}
-                  onClick={handleConnectWallet}
-                  className="w-full py-3.5 px-4 rounded-xl bg-[#111111] hover:bg-[#222222] text-white font-bold text-sm flex items-center justify-center gap-2 shadow-md transition-all hover:scale-[1.005] active:scale-[0.995] disabled:opacity-50 cursor-pointer"
-                >
-                  {loading ? (
-                    <Loader2 size={18} className="animate-spin" />
-                  ) : (
-                    <>
-                      <Wallet size={18} />
-                      <span>Hubungkan Wallet Browser</span>
-                      <ArrowRight size={16} className="ml-1" />
-                    </>
-                  )}
-                </button>
-                <p className="text-[11px] text-center text-[#777777] mt-2">
-                  Mendukung MetaMask, Rabby, Coinbase Wallet, dan browser EVM
-                </p>
+            {/* Primary Browser Wallet Connect CTA */}
+            <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
+              <button
+                type="button"
+                disabled={loading}
+                onClick={handleConnectWallet}
+                style={{
+                  width: "100%",
+                  height: "46px",
+                  minHeight: "46px",
+                  padding: "0 18px",
+                  borderRadius: "12px",
+                  backgroundColor: "#0f172a",
+                  color: "#ffffff",
+                  fontSize: "0.875rem",
+                  fontWeight: 600,
+                  border: "none",
+                  cursor: loading ? "not-allowed" : "pointer",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  gap: "8px",
+                  boxSizing: "border-box",
+                  appearance: "none",
+                  WebkitAppearance: "none",
+                  transition: "background-color 0.15s ease",
+                  boxShadow: "0 2px 6px rgba(0, 0, 0, 0.12)",
+                }}
+              >
+                {loading ? (
+                  <Loader2 size={18} className="animate-spin" />
+                ) : (
+                  <>
+                    <Wallet size={16} />
+                    <span>Hubungkan Wallet Browser</span>
+                    <ArrowRight size={15} style={{ marginLeft: "2px" }} />
+                  </>
+                )}
+              </button>
+              <div style={{ fontSize: "0.75rem", textAlign: "center", color: "#64748b", lineHeight: 1.4 }}>
+                Mendukung MetaMask, Rabby, Coinbase Wallet, dan browser EVM
               </div>
-            ) : (
-              <div className="space-y-3">
-                <div className="p-3 bg-amber-50 border border-amber-200 rounded-xl text-amber-800 text-xs">
-                  Ekstensi Web3 wallet tidak terdeteksi. Silakan masukkan alamat wallet EVM publik Anda di bawah:
-                </div>
-                <div>
-                  <div className="flex items-center justify-between mb-1.5">
-                    <label className="block text-xs font-bold text-[#333333]">
-                      Alamat Wallet EVM (0x...)
-                    </label>
-                    <div className="flex items-center gap-1.5">
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setSelectedRole("CLIPPER");
-                          setManualWallet("0x70997970C51812dc3A010C7d01b50e0d17dc79C8");
-                        }}
-                        className="text-[10px] text-[#e8400d] font-bold bg-[#fff8f5] px-2 py-0.5 rounded border border-[#e8400d]/20 hover:bg-[#fff0eb] cursor-pointer"
-                      >
-                        + Clipper Demo
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setSelectedRole("BRAND");
-                          setManualWallet("0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266");
-                        }}
-                        className="text-[10px] text-[#2563eb] font-bold bg-[#f0f6ff] px-2 py-0.5 rounded border border-[#2563eb]/20 hover:bg-[#e6f0fe] cursor-pointer"
-                      >
-                        + Brand Demo
-                      </button>
-                    </div>
-                  </div>
+            </div>
+
+            {/* Collapsible / Manual EVM Address Option */}
+            <div style={{ marginTop: "0.25rem" }}>
+              <button
+                type="button"
+                onClick={() => setShowManualWallet(!showManualWallet)}
+                style={{
+                  width: "100%",
+                  background: "none",
+                  border: "none",
+                  padding: "4px 0",
+                  fontSize: "0.75rem",
+                  fontWeight: 600,
+                  color: "#64748b",
+                  cursor: "pointer",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  gap: "4px",
+                }}
+              >
+                <span>{showManualWallet ? "Sembunyikan alamat manual" : "Atau masukkan alamat EVM manual"}</span>
+                {showManualWallet ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+              </button>
+
+              {showManualWallet && (
+                <div
+                  style={{
+                    marginTop: "0.5rem",
+                    padding: "12px",
+                    backgroundColor: "#f8fafc",
+                    borderRadius: "12px",
+                    border: "1px solid rgba(0, 0, 0, 0.08)",
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: "8px",
+                  }}
+                >
+                  <label style={{ fontSize: "0.6875rem", fontWeight: 700, color: "#475569", textTransform: "uppercase", letterSpacing: "0.5px" }}>
+                    Alamat EVM Publik (0x...)
+                  </label>
                   <input
                     type="text"
                     placeholder="0x70997970C51812dc3A010C7d01b50e0d17dc79C8"
                     value={manualWallet}
                     onChange={(e) => setManualWallet(e.target.value)}
-                    className="w-full px-4 py-2.5 bg-[#fcfbf9] border border-black/[0.12] rounded-xl text-sm text-[#111111] placeholder:text-[#999999] focus:bg-white focus:outline-none focus:border-[#e8400d] focus:ring-2 focus:ring-[#e8400d]/10 transition-all font-mono"
+                    style={{
+                      width: "100%",
+                      padding: "8px 10px",
+                      borderRadius: "8px",
+                      border: "1px solid rgba(0, 0, 0, 0.12)",
+                      fontSize: "0.75rem",
+                      fontFamily: "monospace",
+                      backgroundColor: "#ffffff",
+                      color: "#0f172a",
+                      outline: "none",
+                      boxSizing: "border-box",
+                    }}
                   />
+                  <button
+                    type="button"
+                    disabled={loading || !manualWallet.trim()}
+                    onClick={handleConnectWallet}
+                    style={{
+                      width: "100%",
+                      height: "36px",
+                      borderRadius: "8px",
+                      backgroundColor: manualWallet.trim() ? "#0f172a" : "#cbd5e1",
+                      color: "#ffffff",
+                      fontSize: "0.75rem",
+                      fontWeight: 600,
+                      border: "none",
+                      cursor: manualWallet.trim() && !loading ? "pointer" : "not-allowed",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      gap: "6px",
+                      appearance: "none",
+                      WebkitAppearance: "none",
+                    }}
+                  >
+                    {loading ? <Loader2 size={14} className="animate-spin" /> : <span>Masuk dengan Alamat</span>}
+                  </button>
                 </div>
-                <button
-                  type="button"
-                  disabled={loading}
-                  onClick={handleConnectWallet}
-                  className="w-full py-3 px-4 rounded-xl bg-[#111111] hover:bg-[#222222] text-white font-bold text-sm flex items-center justify-center gap-2 transition-all disabled:opacity-50 cursor-pointer"
-                >
-                  {loading ? <Loader2 size={16} className="animate-spin" /> : <span>Masuk dengan Alamat</span>}
-                </button>
-              </div>
-            )}
+              )}
+            </div>
 
-            <div className="flex items-center gap-2 justify-center text-[11px] text-[#777777] pt-2 border-t border-black/[0.06]">
-              <ShieldCheck size={14} className="text-emerald-600" />
+            {/* Non-custodial Security Badge */}
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: "6px",
+                fontSize: "0.6875rem",
+                color: "#64748b",
+                paddingTop: "0.75rem",
+                borderTop: "1px solid rgba(0, 0, 0, 0.06)",
+              }}
+            >
+              <ShieldCheck size={14} style={{ color: "#059669", flexShrink: 0 }} />
               <span>Non-custodial, kami tidak pernah meminta private key</span>
             </div>
           </div>
@@ -427,7 +667,7 @@ function LoginFormContent() {
                   Auto-Fill
                 </span>
               </div>
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "6px" }}>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8px" }}>
                 <button
                   type="button"
                   onClick={() => {
@@ -435,12 +675,12 @@ function LoginFormContent() {
                     setPassword("password123");
                   }}
                   style={{
-                    padding: "6px 4px",
+                    padding: "8px 10px",
                     borderRadius: "8px",
                     backgroundColor: email === "budi@clipper.id" ? "#fff8f5" : "#ffffff",
                     border: email === "budi@clipper.id" ? "1px solid #e8400d" : "1px solid rgba(0,0,0,0.1)",
                     color: email === "budi@clipper.id" ? "#e8400d" : "#334155",
-                    fontSize: "0.6875rem",
+                    fontSize: "0.75rem",
                     fontWeight: 700,
                     cursor: "pointer",
                     textAlign: "center",
@@ -448,10 +688,10 @@ function LoginFormContent() {
                     display: "inline-flex",
                     alignItems: "center",
                     justifyContent: "center",
-                    gap: "4px",
+                    gap: "6px",
                   }}
                 >
-                  <Scissors size={12} /> Clipper
+                  <Scissors size={13} /> Clipper Demo
                 </button>
 
                 <button
@@ -461,12 +701,12 @@ function LoginFormContent() {
                     setPassword("password123");
                   }}
                   style={{
-                    padding: "6px 4px",
+                    padding: "8px 10px",
                     borderRadius: "8px",
                     backgroundColor: email === "brand@podcastbincang.id" ? "#f0f6ff" : "#ffffff",
                     border: email === "brand@podcastbincang.id" ? "1px solid #2563eb" : "1px solid rgba(0,0,0,0.1)",
                     color: email === "brand@podcastbincang.id" ? "#2563eb" : "#334155",
-                    fontSize: "0.6875rem",
+                    fontSize: "0.75rem",
                     fontWeight: 700,
                     cursor: "pointer",
                     textAlign: "center",
@@ -474,36 +714,10 @@ function LoginFormContent() {
                     display: "inline-flex",
                     alignItems: "center",
                     justifyContent: "center",
-                    gap: "4px",
+                    gap: "6px",
                   }}
                 >
-                  <Megaphone size={12} /> Brand
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => {
-                    setEmail("admin@clipstream.ai");
-                    setPassword("password123");
-                  }}
-                  style={{
-                    padding: "6px 4px",
-                    borderRadius: "8px",
-                    backgroundColor: email === "admin@clipstream.ai" ? "#faf5ff" : "#ffffff",
-                    border: email === "admin@clipstream.ai" ? "1px solid #9333ea" : "1px solid rgba(0,0,0,0.1)",
-                    color: email === "admin@clipstream.ai" ? "#9333ea" : "#334155",
-                    fontSize: "0.6875rem",
-                    fontWeight: 700,
-                    cursor: "pointer",
-                    textAlign: "center",
-                    transition: "all 0.15s ease",
-                    display: "inline-flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    gap: "4px",
-                  }}
-                >
-                  <ShieldCheck size={12} /> Admin
+                  <Megaphone size={13} /> Brand Demo
                 </button>
               </div>
             </div>

@@ -6,7 +6,7 @@ import { AuthGate } from "@/components/AuthGate";
 import Link from "next/link";
 import {
   Plus, Eye, Pencil, Trash2, X, Save, ArrowLeft,
-  BookOpen, Calendar, Clock, CheckCircle2
+  BookOpen, Calendar, Clock, CheckCircle2, ShieldAlert, SlidersHorizontal
 } from "lucide-react";
 
 const inputStyle: React.CSSProperties = {
@@ -106,6 +106,73 @@ export default function AdminBlogPage() {
           {/* ── LIST MODE ─────────────────────────────────────── */}
           {mode === "list" && (
             <>
+              {/* Admin Sub Navigation Tabs */}
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "8px",
+                  marginBottom: "1.75rem",
+                  borderBottom: "1px solid #e2e8f0",
+                  paddingBottom: "12px",
+                }}
+              >
+                <Link
+                  href="/admin"
+                  style={{
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: "6px",
+                    padding: "8px 16px",
+                    borderRadius: "8px",
+                    fontSize: "0.875rem",
+                    fontWeight: 500,
+                    color: "#64748b",
+                    textDecoration: "none",
+                    background: "transparent",
+                  }}
+                >
+                  <SlidersHorizontal size={15} /> Ringkasan & Worker
+                </Link>
+
+                <Link
+                  href="/admin/appeals"
+                  style={{
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: "6px",
+                    padding: "8px 16px",
+                    borderRadius: "8px",
+                    fontSize: "0.875rem",
+                    fontWeight: 500,
+                    color: "#64748b",
+                    textDecoration: "none",
+                    background: "transparent",
+                  }}
+                >
+                  <ShieldAlert size={15} /> Banding & Sengketa
+                </Link>
+
+                <Link
+                  href="/admin/blog"
+                  style={{
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: "6px",
+                    padding: "8px 16px",
+                    borderRadius: "8px",
+                    fontSize: "0.875rem",
+                    fontWeight: 600,
+                    color: "#7c3aed",
+                    textDecoration: "none",
+                    background: "rgba(124, 58, 237, 0.08)",
+                    border: "1px solid rgba(124, 58, 237, 0.2)",
+                  }}
+                >
+                  <BookOpen size={15} /> Manajemen Artikel
+                </Link>
+              </div>
+
               {/* Header */}
               <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "2rem", flexWrap: "wrap", gap: "1rem" }}>
                 <div>

@@ -285,26 +285,26 @@ export function HeroCreatorRocket({ className = "" }: { className?: string }) {
 
         {/* ── 5. FLOATING CREATOR & WEB3 ECOSYSTEM BADGES ── */}
 
-        {/* Floating Earning Pill: +$42.50 USDT */}
-        <g transform="translate(305, 275)" filter="url(#card-soft-shadow)">
+        {/* Floating Earning Pill: +$42.50 USDT (Floating freely in clear space with ample padding) */}
+        <g transform="translate(330, 265)" filter="url(#card-soft-shadow)">
           <rect
             x="0"
             y="0"
-            width="96"
-            height="26"
-            rx="13"
+            width="126"
+            height="28"
+            rx="14"
             fill="#ffffff"
             stroke="#111111"
             strokeWidth="1.5"
           />
-          <circle cx="13" cy="13" r="4.5" fill="#00d084" />
+          <circle cx="15" cy="14" r="4.5" fill="#00d084" />
           <text
-            x="24"
-            y="17"
+            x="27"
+            y="18"
             fill="#111111"
-            fontSize="11"
+            fontSize="11.5"
             fontWeight="700"
-            fontFamily="Inter, sans-serif"
+            fontFamily="Inter, -apple-system, sans-serif"
           >
             +$42.50 USDT
           </text>

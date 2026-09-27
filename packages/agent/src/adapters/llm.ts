@@ -14,6 +14,11 @@ export interface BrandSafetyOutput {
   reasoning: string;
   provider?: string;
   model?: string;
+  tokens?: {
+    promptTokens: number;
+    completionTokens: number;
+    totalTokens: number;
+  };
 }
 
 export interface ILlmAdapter {
@@ -93,7 +98,7 @@ export class NvidiaNimLlmAdapter implements ILlmAdapter {
   constructor(config: NvidiaNimConfig = {}) {
     this.apiKey = config.apiKey || process.env.NVIDIA_NIM_API_KEY || process.env.NVIDIA_API_KEY || '';
     this.baseUrl = config.baseUrl || process.env.NVIDIA_NIM_BASE_URL || 'https://integrate.api.nvidia.com/v1';
-    this.model = config.model || process.env.NVIDIA_NIM_MODEL || 'meta/llama-3.3-70b-instruct';
+    this.model = config.model || process.env.NVIDIA_NIM_MODEL || 'nvidia/nemotron-3.5-lightning-30b-a3b';
   }
 
   async evaluateBrandSafety(
@@ -115,6 +120,7 @@ export class NvidiaNimLlmAdapter implements ILlmAdapter {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${this.apiKey}`,
       },
+      signal: AbortSignal.timeout(Number(process.env.NVIDIA_TIMEOUT_MS) || 75000),
       body: JSON.stringify({
         model: this.model,
         messages: [
@@ -122,7 +128,7 @@ export class NvidiaNimLlmAdapter implements ILlmAdapter {
           { role: 'user', content: userMessage },
         ],
         temperature: 0.1,
-        max_tokens: 1024,
+        max_tokens: 2048,
         response_format: { type: 'json_object' },
       }),
     });
@@ -134,14 +140,24 @@ export class NvidiaNimLlmAdapter implements ILlmAdapter {
 
     const data = (await res.json()) as {
       choices?: Array<{ message?: { content?: string } }>;
+      usage?: { prompt_tokens?: number; completion_tokens?: number; total_tokens?: number };
     };
 
     const content = data.choices?.[0]?.message?.content || '{}';
     const parsed = parseAndValidateJson(content);
+    const promptTokens = data.usage?.prompt_tokens ?? Math.ceil((systemPrompt.length + userMessage.length) / 4);
+    const completionTokens = data.usage?.completion_tokens ?? Math.ceil(content.length / 4);
+    const totalTokens = data.usage?.total_tokens ?? (promptTokens + completionTokens);
+
     return {
       ...parsed,
       provider: 'nvidia-nim',
       model: this.model,
+      tokens: {
+        promptTokens,
+        completionTokens,
+        totalTokens,
+      },
     };
   }
 }
@@ -158,7 +174,7 @@ export class GeminiLlmAdapter implements ILlmAdapter {
 
   constructor(config: GeminiConfig = {}) {
     this.apiKey = config.apiKey || process.env.GEMINI_API_KEY || process.env.GOOGLE_AI_API_KEY || '';
-    this.model = config.model || process.env.GEMINI_MODEL || 'gemini-2.0-flash';
+    this.model = config.model || process.env.GEMINI_MODEL || 'gemini-3.8-flash';
   }
 
   async evaluateBrandSafety(
@@ -178,6 +194,7 @@ export class GeminiLlmAdapter implements ILlmAdapter {
     const res = await fetch(url, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
+      signal: AbortSignal.timeout(30000),
       body: JSON.stringify({
         systemInstruction: {
           parts: [{ text: systemPrompt }],
@@ -206,14 +223,28 @@ export class GeminiLlmAdapter implements ILlmAdapter {
           parts?: Array<{ text?: string }>;
         };
       }>;
+      usageMetadata?: {
+        promptTokenCount?: number;
+        candidatesTokenCount?: number;
+        totalTokenCount?: number;
+      };
     };
 
     const text = data.candidates?.[0]?.content?.parts?.[0]?.text || '{}';
     const parsed = parseAndValidateJson(text);
+    const promptTokens = data.usageMetadata?.promptTokenCount ?? Math.ceil((systemPrompt.length + userMessage.length) / 4);
+    const completionTokens = data.usageMetadata?.candidatesTokenCount ?? Math.ceil(text.length / 4);
+    const totalTokens = data.usageMetadata?.totalTokenCount ?? (promptTokens + completionTokens);
+
     return {
       ...parsed,
       provider: 'google-gemini',
       model: this.model,
+      tokens: {
+        promptTokens,
+        completionTokens,
+        totalTokens,
+      },
     };
   }
 }
@@ -230,7 +261,7 @@ export class GroqLlmAdapter implements ILlmAdapter {
 
   constructor(config: GroqConfig = {}) {
     this.apiKey = config.apiKey || process.env.GROQ_API_KEY || '';
-    this.model = config.model || process.env.GROQ_MODEL || 'llama-3.3-70b-versatile';
+    this.model = config.model || process.env.GROQ_MODEL || 'openai/gpt-oss-120b';
   }
 
   async evaluateBrandSafety(
@@ -252,6 +283,7 @@ export class GroqLlmAdapter implements ILlmAdapter {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${this.apiKey}`,
       },
+      signal: AbortSignal.timeout(20000),
       body: JSON.stringify({
         model: this.model,
         messages: [
@@ -271,14 +303,24 @@ export class GroqLlmAdapter implements ILlmAdapter {
 
     const data = (await res.json()) as {
       choices?: Array<{ message?: { content?: string } }>;
+      usage?: { prompt_tokens?: number; completion_tokens?: number; total_tokens?: number };
     };
 
     const content = data.choices?.[0]?.message?.content || '{}';
     const parsed = parseAndValidateJson(content);
+    const promptTokens = data.usage?.prompt_tokens ?? Math.ceil((systemPrompt.length + userMessage.length) / 4);
+    const completionTokens = data.usage?.completion_tokens ?? Math.ceil(content.length / 4);
+    const totalTokens = data.usage?.total_tokens ?? (promptTokens + completionTokens);
+
     return {
       ...parsed,
       provider: 'groq',
       model: this.model,
+      tokens: {
+        promptTokens,
+        completionTokens,
+        totalTokens,
+      },
     };
   }
 }
@@ -374,6 +416,9 @@ export class MockLlmAdapter implements ILlmAdapter {
       ? 'Konten memenuhi semua kriteria keamanan brand dan aturan kampanye.'
       : violations.map((v) => `${v.rule} (${v.severity}): ${v.evidence}`).join('; ');
 
+    const promptTokens = Math.max(120, Math.ceil(combinedText.length / 4));
+    const completionTokens = Math.max(45, Math.ceil(reasoning.length / 4));
+
     return {
       safe,
       score,
@@ -381,6 +426,11 @@ export class MockLlmAdapter implements ILlmAdapter {
       reasoning,
       provider: 'mock',
       model: 'mock-heuristic',
+      tokens: {
+        promptTokens,
+        completionTokens,
+        totalTokens: promptTokens + completionTokens,
+      },
     };
   }
 }
@@ -434,9 +484,22 @@ export class MultiProviderLlmAdapter implements ILlmAdapter {
 export function createLlmAdapter(): ILlmAdapter {
   const providers: ILlmAdapter[] = [];
 
-  // Check NVIDIA NIM
+  // Check NVIDIA NIM Tiered Orchestration
   if (process.env.NVIDIA_NIM_API_KEY || process.env.NVIDIA_API_KEY) {
-    providers.push(new NvidiaNimLlmAdapter());
+    // 1. Primary: Nemotron 3.5 Lightning 30B (Ultra-fast native MoE for agentic tasks)
+    providers.push(
+      new NvidiaNimLlmAdapter({
+        model: process.env.NVIDIA_NIM_MODEL || 'nvidia/nemotron-3.5-lightning-30b-a3b',
+      })
+    );
+
+    // 2. Strict Fallback: Gemma 4 31B (Deep reasoning & strict compliance)
+    const fallbackModel = process.env.NVIDIA_FALLBACK_MODEL || 'google/gemma-4-31b-it';
+    providers.push(
+      new NvidiaNimLlmAdapter({
+        model: fallbackModel,
+      })
+    );
   }
 
   // Check Gemini
@@ -459,8 +522,11 @@ export function createLlmAdapter(): ILlmAdapter {
 function parseAndValidateJson(raw: string): BrandSafetyOutput {
   try {
     let clean = raw.trim();
-    // Strip markdown code fences if model returned ```json ... ```
-    if (clean.startsWith('```')) {
+    // Extract JSON block if surrounded by markdown code fences or reasoning text
+    const jsonMatch = clean.match(/\{[\s\S]*\}/);
+    if (jsonMatch) {
+      clean = jsonMatch[0];
+    } else if (clean.startsWith('```')) {
       clean = clean.replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/, '');
     }
     const obj = JSON.parse(clean);

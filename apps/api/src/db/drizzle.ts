@@ -743,11 +743,12 @@ export class DrizzleDatabaseRepository implements IDatabaseRepository {
 
   // Appeals
   async createAppeal(
-    appealData: Omit<AppealEntity, 'id' | 'createdAt' | 'resolvedAt'>
+    appealData: Omit<AppealEntity, 'id' | 'createdAt' | 'resolvedAt'> & { id?: string }
   ): Promise<AppealEntity> {
     const records = await this.db
       .insert(schema.appeals)
       .values({
+        id: appealData.id,
         clipId: appealData.clipId,
         clipperId: appealData.clipperId,
         reason: appealData.reason,
@@ -785,6 +786,92 @@ export class DrizzleDatabaseRepository implements IDatabaseRepository {
       createdAt: r.createdAt,
       resolvedAt: r.resolvedAt,
     }));
+  }
+
+  async getAllAppeals(): Promise<AppealEntity[]> {
+    const records = await this.db
+      .select()
+      .from(schema.appeals)
+      .orderBy(desc(schema.appeals.createdAt));
+
+    return records.map((r) => ({
+      id: r.id,
+      clipId: r.clipId,
+      clipperId: r.clipperId,
+      reason: r.reason,
+      status: r.status,
+      reviewNotes: r.reviewNotes,
+      createdAt: r.createdAt,
+      resolvedAt: r.resolvedAt,
+    }));
+  }
+
+  async getAppealById(id: string): Promise<AppealEntity | null> {
+    const records = await this.db
+      .select()
+      .from(schema.appeals)
+      .where(eq(schema.appeals.id, id))
+      .limit(1);
+
+    if (!records[0]) return null;
+    return {
+      id: records[0].id,
+      clipId: records[0].clipId,
+      clipperId: records[0].clipperId,
+      reason: records[0].reason,
+      status: records[0].status,
+      reviewNotes: records[0].reviewNotes,
+      createdAt: records[0].createdAt,
+      resolvedAt: records[0].resolvedAt,
+    };
+  }
+
+  async updateAppeal(id: string, updates: Partial<AppealEntity>): Promise<AppealEntity | null> {
+    const records = await this.db
+      .update(schema.appeals)
+      .set({
+        status: updates.status,
+        reviewNotes: updates.reviewNotes,
+        resolvedAt: updates.resolvedAt,
+      })
+      .where(eq(schema.appeals.id, id))
+      .returning();
+
+    if (!records[0]) return null;
+    return {
+      id: records[0].id,
+      clipId: records[0].clipId,
+      clipperId: records[0].clipperId,
+      reason: records[0].reason,
+      status: records[0].status,
+      reviewNotes: records[0].reviewNotes,
+      createdAt: records[0].createdAt,
+      resolvedAt: records[0].resolvedAt,
+    };
+  }
+
+  async deleteAppeal(id: string): Promise<boolean> {
+    await this.db.delete(schema.appeals).where(eq(schema.appeals.id, id));
+    return true;
+  }
+
+  async deleteCampaign(id: string): Promise<boolean> {
+    await this.db.delete(schema.campaigns).where(eq(schema.campaigns.id, id));
+    return true;
+  }
+
+  async deleteClip(id: string): Promise<boolean> {
+    await this.db.delete(schema.clips).where(eq(schema.clips.id, id));
+    return true;
+  }
+
+  async listAllClips(): Promise<ClipEntity[]> {
+    const records = await this.db
+      .select()
+      .from(schema.clips)
+      .orderBy(desc(schema.clips.submittedAt));
+
+    return records.map((r) => this.mapClip(r));
   }
 
   async close(): Promise<void> {

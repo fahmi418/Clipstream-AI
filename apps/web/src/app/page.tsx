@@ -33,6 +33,7 @@ import { fetchStats, listCampaigns, type Stats, type Campaign } from "@/lib/api"
 import { formatUsdt, formatIdr, formatViews } from "@/lib/format";
 import { RoleSelectModal } from "@/components/RoleSelectModal";
 import { HeroCreatorRocket } from "@/components/HeroCreatorRocket";
+import { ClipstreamHeroProductScreen } from "@/components/ClipstreamHeroProductScreen";
 import { ScrollReveal } from "@/components/ScrollReveal";
 import { IconBadge } from "@/components/ui/IconBadge";
 import {
@@ -57,19 +58,19 @@ const PERSONA_CONFIG = [
     ...PERSONAS_DATA[1],
     role: "Brand",
     icon: Megaphone,
-    image: "/assets/66aca46a2e87f778fe899f43_am_6_personas_enterprise.avif",
+    image: "/assets/66aca84f860e0b6ca0cabcda_am_8_personas_founders_2%202.avif",
   },
   {
     ...PERSONAS_DATA[2],
     role: "Agency",
     icon: Users,
-    image: "/assets/66aca46a2e87f778fe899f39_am_6_personas_leaders.avif",
+    image: "/assets/66aca8430056a00245b85bf7_am_7_personas_sales_leaders%202.avif",
   },
   {
     ...PERSONAS_DATA[3],
     role: "Validator",
     icon: Bot,
-    image: "/assets/66aca46a2e87f778fe899f3d_am_6_personas_ops.avif",
+    image: "/assets/66aca84f1064e578674a4da0_am_9_personas_revops%202.avif",
   },
   {
     ...PERSONAS_DATA[4],
@@ -1017,12 +1018,7 @@ function HomePageContent() {
 
               {/* Duo Product Screen with Floating Signal Cards (Amplemarket Reference Layout) */}
               <div data-w-id="duo-product-screen" className="am-ai-assistant-interaction-wrapper" style={{ position: "relative", marginTop: "3rem" }}>
-                <img
-                  src="/assets/68752b3932dc24182dd919f0_75fdee8b7b6fff4d0482abce86648ded_am_duo_copilot-p-1600.avif"
-                  loading="lazy"
-                  alt="Duo AI Copilot product screen"
-                  className="am-home-duo-product-screen gsap-duo-screen"
-                />
+                <ClipstreamHeroProductScreen />
 
                 {/* Floating Signal Card 1: Whisper Audio Match (Minimalist White - Top Left) */}
                 <div
@@ -1033,7 +1029,7 @@ function HomePageContent() {
                     borderRadius: "12px",
                     padding: "1rem 1.25rem",
                     boxShadow: "0 18px 40px -6px rgba(0, 0, 0, 0.14), 0 3px 10px rgba(0, 0, 0, 0.04)",
-                    width: "260px",
+                    width: "255px",
                     maxWidth: "90vw",
                     zIndex: 10,
                     textAlign: "left",
@@ -1069,7 +1065,7 @@ function HomePageContent() {
                     borderRadius: "12px",
                     padding: "1rem 1.25rem",
                     boxShadow: "0 18px 40px -6px rgba(0, 0, 0, 0.14), 0 3px 10px rgba(0, 0, 0, 0.04)",
-                    width: "270px",
+                    width: "265px",
                     maxWidth: "90vw",
                     zIndex: 10,
                     textAlign: "left",
@@ -1105,12 +1101,12 @@ function HomePageContent() {
                     borderRadius: "12px",
                     padding: "1rem 1.25rem",
                     boxShadow: "0 18px 40px -6px rgba(0, 0, 0, 0.14), 0 3px 10px rgba(0, 0, 0, 0.04)",
-                    width: "280px",
+                    width: "275px",
                     maxWidth: "90vw",
                     zIndex: 10,
                     textAlign: "left",
-                    bottom: "-5%",
-                    left: "35%",
+                    bottom: "-3%",
+                    left: "40%",
                     transform: "rotate(3deg)",
                     userSelect: "none",
                   }}

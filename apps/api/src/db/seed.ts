@@ -247,7 +247,7 @@ export async function seedDemoData(): Promise<void> {
   });
 
   // Klip B: REJECTED / SOURCE_MISMATCH (Key demo moment - clip from unrelated video)
-  await repo.createClip({
+  const clipB = await repo.createClip({
     onchainId: null,
     campaignId: campaign1.id,
     clipperId: clipperUser.id,
@@ -273,7 +273,7 @@ export async function seedDemoData(): Promise<void> {
   });
 
   // Klip C: REJECTED / SAFETY_VIOLATION (Brand safety violation demo)
-  await repo.createClip({
+  const clipC = await repo.createClip({
     onchainId: null,
     campaignId: campaign2.id,
     clipperId: clipperUser.id,
@@ -349,6 +349,23 @@ export async function seedDemoData(): Promise<void> {
     registerTxHash: '0x2222222222222222222222222222222222222222222222222222222222222222',
     lastVerifiedAt: new Date(Date.now() - 4 * 86400_000),
     nextCheckAt: null,
+  });
+
+  // 7. Seed Appeals (Dispute Resolution Queue)
+  await repo.createAppeal({
+    clipId: clipB.id,
+    clipperId: clipperUser.id,
+    reason: 'Watermark sponsor sudah tersemat jelas di frame detik 00:12 hingga 00:40. Mohon evaluasi ulang transkrip audio.',
+    status: 'PENDING',
+    reviewNotes: null,
+  });
+
+  await repo.createAppeal({
+    clipId: clipC.id,
+    clipperId: clipperUser.id,
+    reason: 'Kutipan medis di video merupakan opini narasumber resmi podcast dan disclaimer edukasi telah dicantumkan di deskripsi klip.',
+    status: 'PENDING',
+    reviewNotes: null,
   });
 }
 

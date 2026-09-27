@@ -60,7 +60,7 @@ export async function executeOwnershipStage(
         channelId: details.channelId,
         videoDetails: details,
       },
-      reason: `Kode verifikasi CS-${campaign.onchainId}-xxxxxx tidak ditemukan di deskripsi video. Tambahkan kode verifikasi di deskripsi video YouTube kamu.`,
+      reason: `Kode verifikasi CS-${campaign?.onchainId ?? campaign?.id ?? 'XXXX'}-xxxxxx tidak ditemukan di deskripsi video. Tambahkan kode verifikasi di deskripsi video YouTube kamu.`,
       durationMs: Date.now() - startTime,
     };
   }

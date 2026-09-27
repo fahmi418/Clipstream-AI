@@ -512,10 +512,10 @@ export class InMemoryDatabaseRepository implements IDatabaseRepository {
 
   // Appeals
   async createAppeal(
-    appealData: Omit<AppealEntity, 'id' | 'createdAt' | 'resolvedAt'>
+    appealData: Omit<AppealEntity, 'id' | 'createdAt' | 'resolvedAt'> & { id?: string }
   ): Promise<AppealEntity> {
     const appeal: AppealEntity = {
-      id: randomUUID(),
+      id: appealData.id || randomUUID(),
       ...appealData,
       createdAt: new Date(),
       resolvedAt: null,
@@ -530,5 +530,42 @@ export class InMemoryDatabaseRepository implements IDatabaseRepository {
       if (a.clipId === clipId) list.push(a);
     }
     return list.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+  }
+
+  async getAllAppeals(): Promise<AppealEntity[]> {
+    return Array.from(this.appeals.values()).sort(
+      (a, b) => b.createdAt.getTime() - a.createdAt.getTime()
+    );
+  }
+
+  async getAppealById(id: string): Promise<AppealEntity | null> {
+    return this.appeals.get(id) || null;
+  }
+
+  async updateAppeal(id: string, updates: Partial<AppealEntity>): Promise<AppealEntity | null> {
+    const existing = this.appeals.get(id);
+    if (!existing) return null;
+    const updated = { ...existing, ...updates };
+    this.appeals.set(id, updated);
+    return updated;
+  }
+
+  async deleteAppeal(id: string): Promise<boolean> {
+    return this.appeals.delete(id);
+  }
+
+  // Admin CRUD helpers
+  async deleteCampaign(id: string): Promise<boolean> {
+    return this.campaigns.delete(id);
+  }
+
+  async deleteClip(id: string): Promise<boolean> {
+    return this.clips.delete(id);
+  }
+
+  async listAllClips(): Promise<ClipEntity[]> {
+    return Array.from(this.clips.values()).sort(
+      (a, b) => b.submittedAt.getTime() - a.submittedAt.getTime()
+    );
   }
 }

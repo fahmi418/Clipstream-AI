@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
+import Script from "next/script";
 import "./globals.css";
 import { Providers } from "@/components/Providers";
 import { Nav } from "@/components/Nav";
@@ -15,6 +16,13 @@ export const metadata: Metadata = {
   title: "ClipStream AI — Klip kamu, dibayar otomatis",
   description:
     "Brand kunci budget di smart contract. AI mengecek klip kamu. Begitu views masuk, uangnya cair. Tanpa nunggu approval admin.",
+  icons: {
+    icon: [
+      { url: "/icon.svg", type: "image/svg+xml" },
+    ],
+    shortcut: "/icon.svg",
+    apple: "/icon.svg",
+  },
   openGraph: {
     title: "ClipStream AI",
     description:
@@ -42,6 +50,7 @@ export default function RootLayout({
   return (
     <html lang="id" className={inter.variable} suppressHydrationWarning>
       <head>
+        <link rel="icon" type="image/svg+xml" href="/icon.svg" />
         <link
           rel="stylesheet"
           href="/css/amplemarket-staging.webflow.shared.6db28886d.min.css"
@@ -54,24 +63,26 @@ export default function RootLayout({
           rel="stylesheet"
           href="/css/amplemarket-custom.css"
         />
-        <script
+      </head>
+      <body className="am-body min-h-screen flex flex-col bg-[#f6f5f3] text-[#111] antialiased" suppressHydrationWarning>
+        <Script
+          id="sw-cleanup"
+          strategy="afterInteractive"
           dangerouslySetInnerHTML={{
             __html: `
               if (typeof window !== 'undefined' && 'serviceWorker' in navigator) {
                 navigator.serviceWorker.getRegistrations().then(function(regs) {
-                  for (let r of regs) { r.unregister(); }
+                  for (var r of regs) { r.unregister(); }
                 });
                 if ('caches' in window) {
                   caches.keys().then(function(names) {
-                    for (let n of names) { caches.delete(n); }
+                    for (var n of names) { caches.delete(n); }
                   });
                 }
               }
             `,
           }}
         />
-      </head>
-      <body className="am-body min-h-screen flex flex-col bg-[#f6f5f3] text-[#111] antialiased" suppressHydrationWarning>
         <div className="am-page-wrapper flex flex-col min-h-screen">
           <Providers>
             <Nav />
