@@ -7,6 +7,7 @@ allowBuilds:
   bufferutil: true
   esbuild: true
   keccak: true
+  msgpackr-extract: true
   unrs-resolver: true
   utf-8-validate: true
 
