@@ -114,11 +114,15 @@ export function errorHandler(
 
 
   const statusCode = error.statusCode || 500;
+  // Do NOT leak raw exception messages to the client in production
+  const safeMessage = statusCode === 500 && process.env.NODE_ENV === 'production'
+    ? 'Internal server error'
+    : message;
   reply.status(statusCode).send({
     ok: false,
     error: {
       code: statusCode === 500 ? 'INTERNAL_ERROR' : 'REQUEST_FAILED',
-      message,
+      message: safeMessage,
     },
   });
 }

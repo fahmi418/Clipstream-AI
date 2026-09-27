@@ -28,30 +28,38 @@ declare module '@fastify/jwt' {
 
 const authPluginAsync: FastifyPluginAsync = async (fastify) => {
   // Register JWT plugin
+  // JWT_SECRET is REQUIRED in production — startup will fail if missing
+  const jwtSecret = process.env.JWT_SECRET;
+  if (!jwtSecret && process.env.NODE_ENV === 'production') {
+    throw new Error('[AUTH] JWT_SECRET environment variable is required in production.');
+  }
   await fastify.register(fastifyJwt, {
-    secret: process.env.JWT_SECRET || 'clipstream-jwt-super-secret-key-production-ready-2026',
+    secret: jwtSecret || 'clipstream-dev-insecure-jwt-secret-do-not-use-in-production',
     sign: {
       expiresIn: '7d',
     },
   });
 
   fastify.addHook('preHandler', async (request: FastifyRequest, _reply: FastifyReply) => {
-    // 1. Check for test/dev header
-    const testUserId = request.headers['x-user-id'];
-    if (typeof testUserId === 'string' && testUserId.length > 0) {
-      const repo = getDatabaseRepository();
-      const user = await repo.getUserById(testUserId);
-      if (user) {
-        request.user = {
-          id: user.id,
-          walletAddress: user.walletAddress,
-          displayName: user.displayName,
-          email: user.email,
-          role: user.role,
-          avatarUrl: user.avatarUrl,
-          bio: user.bio,
-        };
-        return;
+    // NOTE: x-user-id dev bypass header removed — only allowed in test environment
+    // to prevent production auth bypass via crafted headers.
+    if (process.env.NODE_ENV !== 'production' && process.env.NODE_ENV !== 'staging') {
+      const testUserId = request.headers['x-user-id'];
+      if (typeof testUserId === 'string' && testUserId.length > 0) {
+        const repo = getDatabaseRepository();
+        const user = await repo.getUserById(testUserId);
+        if (user) {
+          request.user = {
+            id: user.id,
+            walletAddress: user.walletAddress,
+            displayName: user.displayName,
+            email: user.email,
+            role: user.role,
+            avatarUrl: user.avatarUrl,
+            bio: user.bio,
+          };
+          return;
+        }
       }
     }
 

@@ -44,6 +44,7 @@ export default function AdminAiMonitoringPage() {
   const [lastUpdated, setLastUpdated] = useState<string>("");
   const [runningAudit, setRunningAudit] = useState(false);
   const [auditSuccessMessage, setAuditSuccessMessage] = useState<string | null>(null);
+  const [auditErrorMessage, setAuditErrorMessage] = useState<string | null>(null);
   const [pingingModelId, setPingingModelId] = useState<string | null>(null);
   const [pingResult, setPingResult] = useState<{ modelId: string; status: string; latencyMs: number; error?: string } | null>(null);
   const [searchLog, setSearchLog] = useState("");
@@ -77,6 +78,7 @@ export default function AdminAiMonitoringPage() {
     try {
       setRunningAudit(true);
       setAuditSuccessMessage(null);
+      setAuditErrorMessage(null);
       const sampleTitles = [
         "Review Podcast Bisnis #web3 #shorts",
         "Tutorial Prompt Engineering AI 2026",
@@ -95,9 +97,10 @@ export default function AdminAiMonitoringPage() {
         `Audit Live Berhasil! Model: ${res.data.model} | Token: ${res.data.totalTokens} (${res.data.promptTokens} in / ${res.data.completionTokens} out) | Durasi: ${res.data.durationMs}ms | Hasil: ${res.data.verdict}`
       );
       setTimeout(() => setAuditSuccessMessage(null), 12000);
-    } catch (err: any) {
-      console.error("Gagal menjalankan live audit:", err);
-      alert("Gagal menjalankan live audit: " + (err.message || "Unknown error"));
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Unknown error';
+      setAuditErrorMessage(`Gagal menjalankan live audit: ${msg}`);
+      setTimeout(() => setAuditErrorMessage(null), 10000);
     } finally {
       setRunningAudit(false);
     }
@@ -429,6 +432,43 @@ export default function AdminAiMonitoringPage() {
                   background: "none",
                   border: "none",
                   color: "#047857",
+                  fontWeight: 700,
+                  cursor: "pointer",
+                }}
+              >
+                ✕
+              </button>
+            </div>
+          )}
+
+          {/* Live Audit Error Notification Banner */}
+          {auditErrorMessage && (
+            <div
+              style={{
+                marginBottom: "1.5rem",
+                padding: "12px 16px",
+                borderRadius: "10px",
+                background: "#fef2f2",
+                border: "1px solid #fecaca",
+                color: "#991b1b",
+                fontSize: "0.875rem",
+                fontWeight: 600,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                gap: "10px",
+              }}
+            >
+              <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                <XCircle size={18} style={{ color: "#dc2626", flexShrink: 0 }} />
+                <span>{auditErrorMessage}</span>
+              </div>
+              <button
+                onClick={() => setAuditErrorMessage(null)}
+                style={{
+                  background: "none",
+                  border: "none",
+                  color: "#b91c1c",
                   fontWeight: 700,
                   cursor: "pointer",
                 }}

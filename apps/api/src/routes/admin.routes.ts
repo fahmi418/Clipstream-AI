@@ -2,6 +2,7 @@ import type { FastifyPluginAsync } from 'fastify';
 import { z } from 'zod';
 import { getDatabaseRepository } from '../db/client.js';
 import { aiTelemetryService } from '../services/ai-telemetry.service.js';
+import { requireAuth, requireRole } from '../plugins/auth.js';
 
 const ResolveAppealSchema = z.object({
   decision: z.enum(['approve', 'reject']),
@@ -9,6 +10,10 @@ const ResolveAppealSchema = z.object({
 });
 
 export const adminRoutes: FastifyPluginAsync = async (fastify) => {
+  // All admin routes require authenticated ADMIN role
+  fastify.addHook('preHandler', requireAuth);
+  fastify.addHook('preHandler', requireRole('ADMIN'));
+
   // GET /api/admin/appeals - list all appeals
   fastify.get('/api/admin/appeals', async (_request, reply) => {
     const repo = getDatabaseRepository();
@@ -41,13 +46,13 @@ export const adminRoutes: FastifyPluginAsync = async (fastify) => {
         id: app.id,
         clipId: app.clipId,
         clipperId: clip?.clipperId || '',
-        clipperWallet: clipper?.walletAddress || '0x7099...79C8',
+        clipperWallet: clipper?.walletAddress || '—',
         clipperName: clipper?.displayName || 'Clipper',
         campaignTitle: camp?.title || 'General Campaign',
         brandName: 'Brand Sponsor',
         clipUrl: clip?.url || '',
-        claimAmount: '14.20 USDT',
-        aiScore: 0.88,
+        claimAmount: clip?.releasedAmount ? `${clip.releasedAmount} USDT` : '—',
+        aiScore: clip?.safetyScore ?? 0,
         reason: app.reason,
         status: app.status,
         reviewNotes: app.reviewNotes,
@@ -153,9 +158,7 @@ export const adminRoutes: FastifyPluginAsync = async (fastify) => {
       });
     }
 
-    const txHash = isApprove
-      ? '0x892a0192384719283748192039485719283746152435465769c1e44af2817263'
-      : null;
+    const txHash = isApprove ? (appeal?.clipId ? await repo.getClipById(appeal.clipId).then(c => c?.txHash ?? null) : null) : null;
 
     return reply.status(200).send({
       ok: true,

@@ -39,12 +39,12 @@ export class NvidiaVisionWatermarkAdapter implements INvidiaVisionWatermarkAdapt
   ): Promise<VisualWatermarkResult> {
     if (!this.apiKey) {
       return {
-        watermarkDetected: true,
-        logoVisible: true,
-        confidence: 0.95,
-        reasoning: 'Verifikasi watermark offline/mock: logo diasumsikan sesuai.',
+        watermarkDetected: false,
+        logoVisible: false,
+        confidence: 0,
+        reasoning: 'Verifikasi watermark dilewati (NVIDIA_NIM_API_KEY tidak dikonfigurasi). Aktifkan API key untuk pemeriksaan visual.',
         provider: 'nvidia-nim-vision',
-        model: 'mock-vision',
+        model: 'mock-vision-skipped',
       };
     }
 

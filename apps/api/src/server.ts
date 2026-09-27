@@ -50,8 +50,17 @@ export async function buildServer(): Promise<FastifyInstance> {
   });
 
   // Plugins
+  const allowedOrigins = (process.env.CORS_ORIGINS || 'http://localhost:3000')
+    .split(',').map(o => o.trim()).filter(Boolean);
   await fastify.register(cors, {
-    origin: true,
+    origin: (origin, cb) => {
+      // Allow requests with no origin (e.g. server-to-server, Postman in dev)
+      if (!origin || allowedOrigins.includes(origin)) {
+        cb(null, true);
+      } else {
+        cb(new Error('CORS_NOT_ALLOWED'), false);
+      }
+    },
     credentials: true,
   });
 

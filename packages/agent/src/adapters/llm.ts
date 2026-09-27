@@ -549,12 +549,19 @@ function parseAndValidateJson(raw: string): BrandSafetyOutput {
       reasoning,
     };
   } catch {
-    // If parsing fails, return default safe structure
+    // If parsing fails, FAIL SAFE: flag for manual review rather than auto-approving
+    // This prevents a broken/empty LLM response from silently passing content through
     return {
-      safe: true,
-      score: 0.9,
-      violations: [],
-      reasoning: 'Evaluasi konten selesai tanpa pelanggaran terdeteksi.',
+      safe: false,
+      score: 0.0,
+      violations: [
+        {
+          rule: 'parse_failure',
+          severity: 'medium' as const,
+          evidence: 'AI response tidak dapat diproses (JSON tidak valid). Diteruskan ke review manual.',
+        },
+      ],
+      reasoning: 'Evaluasi AI gagal diproses. Konten memerlukan tinjauan manual oleh admin.',
     };
   }
 }
