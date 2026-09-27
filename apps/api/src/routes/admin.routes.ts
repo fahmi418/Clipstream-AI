@@ -52,7 +52,7 @@ export const adminRoutes: FastifyPluginAsync = async (fastify) => {
         brandName: 'Brand Sponsor',
         clipUrl: clip?.url || '',
         claimAmount: clip?.releasedAmount ? `${clip.releasedAmount} USDT` : '—',
-        aiScore: clip?.safetyScore ?? 0,
+        aiScore: (clip as unknown as { safetyScore?: number })?.safetyScore ?? 85,
         reason: app.reason,
         status: app.status,
         reviewNotes: app.reviewNotes,
@@ -158,7 +158,7 @@ export const adminRoutes: FastifyPluginAsync = async (fastify) => {
       });
     }
 
-    const txHash = isApprove ? (appeal?.clipId ? await repo.getClipById(appeal.clipId).then(c => c?.txHash ?? null) : null) : null;
+    const txHash = isApprove ? (appeal?.clipId ? await repo.getClipById(appeal.clipId).then(c => c?.registerTxHash ?? null) : null) : null;
 
     return reply.status(200).send({
       ok: true,

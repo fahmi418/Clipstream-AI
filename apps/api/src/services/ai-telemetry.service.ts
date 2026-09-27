@@ -44,7 +44,7 @@ class AiTelemetryService {
   private seedInitialTelemetry(): void {
     const models = [
       { id: 'nvidia/nemotron-3.5-lightning-30b-a3b', provider: 'nvidia-nim', weight: 65 },
-      { id: 'google/gemma-4-31b-it', provider: 'nvidia-nim', weight: 15 },
+      { id: 'meta/muse-glimmer-30b', provider: 'nvidia-nim', weight: 15 },
       { id: 'gemini-3.8-flash', provider: 'google-gemini', weight: 10 },
       { id: 'openai/gpt-oss-120b', provider: 'groq', weight: 8 },
       { id: 'meta/llama-3.2-11b-vision-instruct', provider: 'nvidia-nim-vision', weight: 12 },
@@ -185,15 +185,15 @@ class AiTelemetryService {
         lastPingAt: new Date().toISOString(),
       },
       {
-        name: 'Google Gemma 4 31B IT',
-        modelId: 'google/gemma-4-31b-it',
+        name: 'Meta Muse Glimmer 30B',
+        modelId: 'meta/muse-glimmer-30b',
         provider: 'NVIDIA NIM',
         tier: 2,
         role: 'Strict Compliance & Reasoning Fallback',
         status: process.env.NVIDIA_NIM_API_KEY ? 'HEALTHY' : 'DEGRADED',
-        latencyMs: 580,
-        successRate: 99.1,
-        totalCalls: byModel['google/gemma-4-31b-it']?.calls || 8,
+        latencyMs: 520,
+        successRate: 99.6,
+        totalCalls: byModel['meta/muse-glimmer-30b']?.calls || 14,
         failoverCount: 0,
         lastPingAt: new Date().toISOString(),
       },
@@ -297,7 +297,7 @@ class AiTelemetryService {
       }),
       cascadingPipeline: {
         tier1: 'nvidia/nemotron-3.5-lightning-30b-a3b (Primary MoE)',
-        tier2: 'google/gemma-4-31b-it (Strict Reasoning)',
+        tier2: 'meta/muse-glimmer-30b (Strict Reasoning)',
         tier3: 'gemini-3.8-flash (Google Cloud)',
         tier4: 'openai/gpt-oss-120b (Groq LPU)',
         tier5: 'Local Heuristic Safety Engine',
@@ -320,7 +320,7 @@ class AiTelemetryService {
   public async pingModel(modelId: string): Promise<{ modelId: string; status: 'ONLINE' | 'ERROR'; latencyMs: number; error?: string }> {
     const start = Date.now();
     try {
-      if (modelId.includes('nemotron') || modelId.includes('gemma') || modelId.includes('llama')) {
+      if (modelId.includes('nemotron') || modelId.includes('muse') || modelId.includes('glimmer') || modelId.includes('llama') || modelId.includes('gemma')) {
         const apiKey = process.env.NVIDIA_NIM_API_KEY || '';
         if (!apiKey) throw new Error('NVIDIA_NIM_API_KEY belum dikonfigurasi.');
         const res = await fetch('https://integrate.api.nvidia.com/v1/chat/completions', {

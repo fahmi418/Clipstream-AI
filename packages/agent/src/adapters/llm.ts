@@ -493,8 +493,8 @@ export function createLlmAdapter(): ILlmAdapter {
       })
     );
 
-    // 2. Strict Fallback: Gemma 4 31B (Deep reasoning & strict compliance)
-    const fallbackModel = process.env.NVIDIA_FALLBACK_MODEL || 'google/gemma-4-31b-it';
+    // 2. Strict Fallback: Meta Muse Glimmer 30B (Deep reasoning & strict compliance)
+    const fallbackModel = process.env.NVIDIA_FALLBACK_MODEL || 'meta/muse-glimmer-30b';
     providers.push(
       new NvidiaNimLlmAdapter({
         model: fallbackModel,

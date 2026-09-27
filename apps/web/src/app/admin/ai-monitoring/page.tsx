@@ -399,7 +399,7 @@ export default function AdminAiMonitoringPage() {
               </h1>
             </div>
             <p style={{ fontSize: "0.9375rem", color: "#64748b", margin: 0, maxWidth: "48rem" }}>
-              Dasbor kendali real-time untuk memantau kesehatan model AI multi-tier (NVIDIA NIM H100, Google Gemma 4,
+              Dasbor kendali real-time untuk memantau kesehatan model AI multi-tier (NVIDIA NIM H100, Meta Muse Glimmer 30B,
               Gemini, Groq), konsumsi token, latensi inferensi, dan perlindungan kuota.
             </p>
           </div>
@@ -740,7 +740,7 @@ export default function AdminAiMonitoringPage() {
                   />
                 </div>
                 <div style={{ fontSize: "0.875rem", fontWeight: 700, color: "#0f172a", marginBottom: "4px" }}>
-                  {tier2Model?.name || "Google Gemma 4 31B"}
+                  {tier2Model?.name || "Meta Muse Glimmer 30B"}
                 </div>
                 <div style={{ fontSize: "0.75rem", color: "#64748b", marginBottom: "8px" }}>
                   {tier2Model?.role || "Strict Compliance"}
