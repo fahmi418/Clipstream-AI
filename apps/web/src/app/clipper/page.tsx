@@ -53,86 +53,18 @@ export default function ClipperDashboardPage() {
 
   // Aggregated dynamic balances — synced with wallet page via localStorage
   const [availableUsdt, setAvailableUsdt] = useState<number>(() => {
-    if (typeof window === "undefined") return 16.43;
-    return parseFloat(localStorage.getItem("demo_availableUsdc") ?? "16.43");
+    if (typeof window === "undefined") return 0;
+    return parseFloat(localStorage.getItem("demo_availableUsdc") ?? "0");
   });
   const [holdbackUsdt, setHoldbackUsdt] = useState<number>(() => {
-    if (typeof window === "undefined") return 7.04;
-    return parseFloat(localStorage.getItem("demo_holdbackUsdc") ?? "7.04");
+    if (typeof window === "undefined") return 0;
+    return parseFloat(localStorage.getItem("demo_holdbackUsdc") ?? "0");
   });
   const [claimSuccessMessage, setClaimSuccessMessage] = useState<string | null>(null);
 
-  const [holdbackItems, setHoldbackItems] = useState<HoldbackItem[]>([
-    {
-      id: "hb-1",
-      clipId: "clip-seed-1",
-      clipTitle: "Podcast Bincang Teknologi — Episode 42",
-      amountUsdt: 4.71,
-      unlockAt: new Date(Date.now() + 2 * 86400000), // 2 days
-      status: "LOCKED",
-    },
-    {
-      id: "hb-2",
-      clipId: "clip-seed-2",
-      clipTitle: "DeFi DEX Launch Campaign Highlights",
-      amountUsdt: 2.33,
-      unlockAt: new Date(Date.now() + 3 * 86400000), // 3 days
-      status: "LOCKED",
-    },
-    {
-      id: "hb-3",
-      clipId: "clip-seed-3",
-      clipTitle: "BNB Chain Ecosystem Spotlight Short",
-      amountUsdt: 3.50,
-      unlockAt: new Date(Date.now() - 3600_000), // Already unlocked!
-      status: "UNLOCKED",
-    },
-  ]);
+  const [holdbackItems, setHoldbackItems] = useState<HoldbackItem[]>([]);
 
-  const mockClips: Clip[] = [
-    {
-      id: "clip-seed-1",
-      campaignId: "camp-seed-1",
-      clipperId: user?.id ?? "clipper-1",
-      url: "https://www.youtube.com/shorts/5-gWpX231y0",
-      status: "ACTIVE",
-      views: 52310,
-      paidViews: 52310,
-      releasedAmount: "10990000", // 10.99 USDT
-      holdbackAmount: "4710000", // 4.71 USDT
-      holdbackUnlockAt: new Date(Date.now() + 2 * 86400000).toISOString(),
-      matchScore: 0.87,
-      safetyScore: 0.94,
-      anomalyScore: 0.18,
-      rejectionReason: null,
-      txHash: "0x3b72c91a02938472199ac2b44910283748291023948aae921847192837192834",
-      evidenceCid: "bafybeihdwdcefgh4dqkjv67ua4wm",
-      onchainHash: "0x9c1e44af28172635489102938471928374819203948571928374615243546576",
-      submittedAt: new Date(Date.now() - 86400000).toISOString(),
-      updatedAt: new Date().toISOString(),
-    },
-    {
-      id: "clip-seed-2",
-      campaignId: "camp-seed-2",
-      clipperId: user?.id ?? "clipper-1",
-      url: "https://www.youtube.com/shorts/k891023948a",
-      status: "ACTIVE",
-      views: 25890,
-      paidViews: 25890,
-      releasedAmount: "5440000", // 5.44 USDT
-      holdbackAmount: "2330000", // 2.33 USDT
-      holdbackUnlockAt: new Date(Date.now() + 3 * 86400000).toISOString(),
-      matchScore: 0.82,
-      safetyScore: 0.91,
-      anomalyScore: 0.15,
-      rejectionReason: null,
-      txHash: "0x892a0192384719283748192039485719283746152435465769c1e44af2817263",
-      evidenceCid: "bafybeifk4920192837481920394857",
-      onchainHash: "0x19283746152435465769c1e44af2817263548910293847192837481920394857",
-      submittedAt: new Date(Date.now() - 43200000).toISOString(),
-      updatedAt: new Date().toISOString(),
-    },
-  ];
+  const mockClips: Clip[] = [];
 
   const recomputeFinancials = (clipList: Clip[]) => {
     let releasedSum = 0;
@@ -213,21 +145,15 @@ export default function ClipperDashboardPage() {
     try {
       const userClips = await getUserClips();
       if (userClips && userClips.length > 0) {
-        const map = new Map<string, Clip>();
-        for (const c of userClips) map.set(c.id, c);
-        for (const c of mockClips) {
-          if (!map.has(c.id)) map.set(c.id, c);
-        }
-        const merged = Array.from(map.values());
-        setClips(merged);
-        recomputeFinancials(merged);
+        setClips(userClips);
+        recomputeFinancials(userClips);
       } else {
-        setClips(mockClips);
-        recomputeFinancials(mockClips);
+        setClips([]);
+        recomputeFinancials([]);
       }
     } catch {
-      setClips(mockClips);
-      recomputeFinancials(mockClips);
+      setClips([]);
+      recomputeFinancials([]);
     } finally {
       setLoading(false);
     }

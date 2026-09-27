@@ -64,38 +64,11 @@ interface DisputeCase {
   txHash?: string | null;
 }
 
-const initialDisputes: DisputeCase[] = [
-  {
-    id: "DISP-2026-081",
-    clipUrl: "https://www.youtube.com/shorts/sample-dispute-1",
-    clipperName: "Fajar_Creative",
-    clipperWallet: "0x7099...79C8",
-    campaignTitle: "Podcast Bincang Teknologi — Episode 42",
-    brandName: "Tech Podcast Studio",
-    claimAmount: "14.20 USDT",
-    aiScore: 0.88,
-    flagReason: "Brand mengajukan banding: watermark sponsor tampak buram di detik ke-15",
-    submittedAt: "2 jam yang lalu",
-    status: "OPEN",
-  },
-  {
-    id: "DISP-2026-082",
-    clipUrl: "https://www.tiktok.com/@defi_explorer/video/sample-dispute-2",
-    clipperName: "DeFi_Explorer",
-    clipperWallet: "0x3C44...2b80",
-    campaignTitle: "DeFi DEX Launch Campaign",
-    brandName: "BNB Chain DEX Official",
-    claimAmount: "28.50 USDT",
-    aiScore: 0.74,
-    flagReason: "AI mendeteksi potensi duplikasi audio latar dengan kreator lain",
-    submittedAt: "5 jam yang lalu",
-    status: "OPEN",
-  },
-];
+const initialDisputes: DisputeCase[] = [];
 
 export default function AdminDashboardPage() {
   const [activeTab, setActiveTab] = useState<"queue" | "disputes" | "vault">("disputes");
-  const [disputes, setDisputes] = useState<DisputeCase[]>(initialDisputes);
+  const [disputes, setDisputes] = useState<DisputeCase[]>([]);
   const [actionNotice, setActionNotice] = useState<string | null>(null);
   const [searchFilter, setSearchFilter] = useState("");
   const [loadingAppeals, setLoadingAppeals] = useState(false);
@@ -131,14 +104,14 @@ export default function AdminDashboardPage() {
             id: d.id,
             clipId: d.clipId,
             clipUrl: d.clipUrl,
-            clipperName: "Clipper_" + d.clipperWallet.slice(2, 8),
-            clipperWallet: d.clipperWallet,
-            campaignTitle: d.campaignTitle,
-            brandName: d.brandName,
-            claimAmount: d.claimAmount || "14.20 USDT",
-            aiScore: d.aiScore || 0.85,
-            flagReason: d.reason,
-            submittedAt: new Date(d.createdAt).toLocaleDateString("id-ID"),
+            clipperName: d.clipperName || ("Clipper_" + (d.clipperWallet ? d.clipperWallet.slice(2, 8) : "0000")),
+            clipperWallet: d.clipperWallet || "—",
+            campaignTitle: d.campaignTitle || "General Campaign",
+            brandName: d.brandName || "Brand Sponsor",
+            claimAmount: d.claimAmount || "—",
+            aiScore: d.aiScore ?? 0.85,
+            flagReason: d.reason || "Banding klip diajukan clipper.",
+            submittedAt: d.createdAt ? new Date(d.createdAt).toLocaleDateString("id-ID") : "Baru saja",
             status:
               d.status === "UPHELD"
                 ? "RESOLVED_APPROVED"
@@ -148,10 +121,12 @@ export default function AdminDashboardPage() {
             reviewNotes: d.reviewNotes,
           }));
           setDisputes(mapped);
+        } else {
+          setDisputes([]);
         }
       })
       .catch(() => {
-        // keep initial fallback
+        setDisputes([]);
       })
       .finally(() => setLoadingAppeals(false));
 
