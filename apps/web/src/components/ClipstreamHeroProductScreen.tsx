@@ -287,24 +287,50 @@ export function ClipstreamHeroProductScreen() {
         <button
           type="button"
           onClick={() => setActiveMobileTab("list")}
-          className={`flex-1 py-2 px-3 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-1.5 ${
-            activeMobileTab === "list"
-              ? "bg-white text-slate-900 shadow-sm border border-black/5"
-              : "text-slate-600 hover:text-slate-900"
-          }`}
+          style={{
+            flex: 1,
+            padding: "8px 10px",
+            borderRadius: "10px",
+            fontSize: "0.75rem",
+            fontWeight: 700,
+            border: "none",
+            cursor: "pointer",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: "6px",
+            whiteSpace: "nowrap",
+            backgroundColor: activeMobileTab === "list" ? "#111827" : "transparent",
+            color: activeMobileTab === "list" ? "#ffffff" : "#64748b",
+            boxShadow: activeMobileTab === "list" ? "0 2px 8px rgba(0,0,0,0.15)" : "none",
+            transition: "all 0.15s ease",
+          }}
         >
           <span>📋 Daftar Klip ({SAMPLE_CLIPS.length})</span>
         </button>
         <button
           type="button"
           onClick={() => setActiveMobileTab("detail")}
-          className={`flex-1 py-2 px-3 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-1.5 ${
-            activeMobileTab === "detail"
-              ? "bg-white text-slate-900 shadow-sm border border-black/5"
-              : "text-slate-600 hover:text-slate-900"
-          }`}
+          style={{
+            flex: 1,
+            padding: "8px 10px",
+            borderRadius: "10px",
+            fontSize: "0.75rem",
+            fontWeight: 700,
+            border: "none",
+            cursor: "pointer",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: "6px",
+            whiteSpace: "nowrap",
+            backgroundColor: activeMobileTab === "detail" ? "#111827" : "transparent",
+            color: activeMobileTab === "detail" ? "#ffffff" : "#64748b",
+            boxShadow: activeMobileTab === "detail" ? "0 2px 8px rgba(0,0,0,0.15)" : "none",
+            transition: "all 0.15s ease",
+          }}
         >
-          <span>🔍 Audit AI ({selectedClip.creator})</span>
+          <span>🔍 Hasil Audit AI</span>
         </button>
       </div>
 
@@ -395,13 +421,33 @@ export function ClipstreamHeroProductScreen() {
           </div>
 
           {/* Section 1: Multimodal AI Verification Details */}
-          <div className="p-3.5 sm:p-4 rounded-xl border border-slate-200 bg-white">
+          <div
+            style={{
+              backgroundColor: "#f8fafc",
+              borderRadius: "14px",
+              border: "1px solid #e2e8f0",
+              padding: "14px 16px",
+            }}
+          >
             <div className="text-[10px] sm:text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-2 flex flex-col sm:flex-row justify-between sm:items-center gap-1">
               <span>Transkrip Audio Whisper &amp; Watermark Gemini</span>
               <span className="text-emerald-700 font-bold">{selectedClip.audioMatch}% Akurasi Semantik</span>
             </div>
 
-            <p className="text-xs sm:text-sm leading-relaxed text-slate-700 italic m-0 mb-3 p-2.5 sm:p-3 bg-slate-50 rounded-lg border-l-2 border-slate-300">
+            <p
+              style={{
+                fontSize: "0.8125rem",
+                lineHeight: 1.55,
+                color: "#1e293b",
+                fontStyle: "italic",
+                margin: "0 0 10px 0",
+                padding: "10px 12px",
+                backgroundColor: "#ffffff",
+                borderRadius: "8px",
+                borderLeft: "3px solid #059669",
+                boxShadow: "0 1px 3px rgba(0,0,0,0.03)",
+              }}
+            >
               &ldquo;{selectedClip.quote}&rdquo;
             </p>
 
@@ -416,9 +462,16 @@ export function ClipstreamHeroProductScreen() {
 
           {/* Section 2: Oracle Metrics (3 Clean Responsive Cards) */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
-            <div className="p-3 sm:p-3.5 rounded-xl border border-slate-200 bg-white">
+            <div
+              style={{
+                padding: "12px 14px",
+                borderRadius: "12px",
+                border: "1px solid #e2e8f0",
+                backgroundColor: "#f8fafc",
+              }}
+            >
               <div className="text-[10px] sm:text-[11px] text-slate-500 font-bold">Views Terverifikasi</div>
-              <div className="text-base sm:text-lg font-extrabold text-slate-900 mt-1">
+              <div className="text-base sm:text-lg font-extrabold text-slate-900 mt-0.5">
                 {selectedClip.views}
               </div>
               <div className="text-[10px] text-emerald-700 font-bold mt-0.5">
@@ -426,9 +479,16 @@ export function ClipstreamHeroProductScreen() {
               </div>
             </div>
 
-            <div className="p-3 sm:p-3.5 rounded-xl border border-slate-200 bg-white">
+            <div
+              style={{
+                padding: "12px 14px",
+                borderRadius: "12px",
+                border: "1px solid #e2e8f0",
+                backgroundColor: "#f8fafc",
+              }}
+            >
               <div className="text-[10px] sm:text-[11px] text-slate-500 font-bold">Keaslian Penonton</div>
-              <div className="text-base sm:text-lg font-extrabold text-slate-900 mt-1">
+              <div className="text-base sm:text-lg font-extrabold text-slate-900 mt-0.5">
                 99.2%
               </div>
               <div className="text-[10px] text-emerald-700 font-bold mt-0.5">
@@ -436,9 +496,16 @@ export function ClipstreamHeroProductScreen() {
               </div>
             </div>
 
-            <div className="p-3 sm:p-3.5 rounded-xl border border-slate-200 bg-white">
+            <div
+              style={{
+                padding: "12px 14px",
+                borderRadius: "12px",
+                border: "1px solid #e2e8f0",
+                backgroundColor: "#f8fafc",
+              }}
+            >
               <div className="text-[10px] sm:text-[11px] text-slate-500 font-bold">Efektif CPM</div>
-              <div className="text-base sm:text-lg font-extrabold text-slate-900 mt-1">
+              <div className="text-base sm:text-lg font-extrabold text-slate-900 mt-0.5">
                 Rp 24.500
               </div>
               <div className="text-[10px] text-slate-500 mt-0.5">
@@ -448,7 +515,14 @@ export function ClipstreamHeroProductScreen() {
           </div>
 
           {/* Section 3: Smart Contract Timelock Escrow Breakdown */}
-          <div className="p-3.5 sm:p-4 rounded-xl border border-slate-200 bg-white">
+          <div
+            style={{
+              padding: "14px 16px",
+              borderRadius: "14px",
+              border: "1px solid #e2e8f0",
+              backgroundColor: "#f8fafc",
+            }}
+          >
             <div className="text-[10px] sm:text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-2.5 flex justify-between items-center">
               <span>Alokasi Escrow Smart Contract</span>
               <span className="text-[10px] text-slate-400 lowercase font-normal">
@@ -458,7 +532,18 @@ export function ClipstreamHeroProductScreen() {
 
             <div className="flex flex-col gap-2.5">
               {/* Step 1: 70% Instant */}
-              <div className="flex items-center justify-between p-2.5 sm:p-3 rounded-lg bg-slate-50 border border-slate-100 gap-3">
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  padding: "10px 12px",
+                  borderRadius: "10px",
+                  backgroundColor: "#ecfdf5",
+                  border: "1px solid #a7f3d0",
+                  gap: "8px",
+                }}
+              >
                 <div className="min-w-0">
                   <div className="text-xs sm:text-sm font-bold text-slate-900">
                     70% Pencairan Instan
@@ -471,12 +556,23 @@ export function ClipstreamHeroProductScreen() {
                   <div className="text-xs sm:text-sm font-extrabold text-emerald-700">
                     {selectedClip.instantUsdt}
                   </div>
-                  <div className="text-[10px] text-slate-400">Terkirim</div>
+                  <div className="text-[10px] text-emerald-600 font-medium">Terkirim</div>
                 </div>
               </div>
 
               {/* Step 2: 30% Holdback */}
-              <div className="flex items-center justify-between p-2.5 sm:p-3 rounded-lg bg-slate-50 border border-slate-100 gap-3">
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  padding: "10px 12px",
+                  borderRadius: "10px",
+                  backgroundColor: "#fffbeb",
+                  border: "1px solid #fde68a",
+                  gap: "8px",
+                }}
+              >
                 <div className="min-w-0">
                   <div className="text-xs sm:text-sm font-bold text-slate-900">
                     30% Escrow Holdback (72 Jam)
@@ -486,10 +582,10 @@ export function ClipstreamHeroProductScreen() {
                   </div>
                 </div>
                 <div className="text-right flex-shrink-0">
-                  <div className="text-xs sm:text-sm font-extrabold text-amber-600">
+                  <div className="text-xs sm:text-sm font-extrabold text-amber-700">
                     {selectedClip.holdbackUsdt}
                   </div>
-                  <div className="text-[10px] text-slate-400">Timelock Aktif</div>
+                  <div className="text-[10px] text-amber-600 font-medium">Timelock Aktif</div>
                 </div>
               </div>
             </div>

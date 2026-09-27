@@ -11,10 +11,15 @@ export interface PersonaItem {
   subtitle: string;
   tabLabel: string;
   color: string;
+  gradient: string;
   bgActive: string;
+  bgInactive: string;
   borderActive: string;
+  borderInactive: string;
   textColor: string;
+  textColorInactive: string;
   badgeBg: string;
+  badgeBgActive: string;
   heading: string;
   desc: string;
   cta: string;
@@ -57,10 +62,15 @@ export const PERSONAS_DATA: PersonaItem[] = [
     subtitle: "Kreator Konten & Editor Video",
     tabLabel: "Clipper",
     color: "#e8400d",
-    bgActive: "#fff8f5",
+    gradient: "linear-gradient(135deg, #e8400d 0%, #f97316 100%)",
+    bgActive: "#e8400d",
+    bgInactive: "#fff7ed",
     borderActive: "#e8400d",
-    textColor: "#c23306",
+    borderInactive: "#fed7aa",
+    textColor: "#ffffff",
+    textColorInactive: "#c2410c",
     badgeBg: "rgba(232, 64, 13, 0.1)",
+    badgeBgActive: "rgba(255, 255, 255, 0.22)",
     heading: "Bikin Klip Pendek Berkualitas, Payout Otomatis Masuk ke Dompet",
     desc: "Pilih kampanye aktif, potong momen terbaik, sematkan identitas sponsor, lalu publikasikan ke TikTok atau YouTube Shorts. Reward ditransfer langsung melalui smart contract begitu penayangan terverifikasi.",
     cta: "Mulai Jadi Clipper",
@@ -76,10 +86,15 @@ export const PERSONAS_DATA: PersonaItem[] = [
     subtitle: "Brand, Perusahaan & Pengiklan",
     tabLabel: "Brand",
     color: "#2563eb",
-    bgActive: "#eff6ff",
+    gradient: "linear-gradient(135deg, #2563eb 0%, #3b82f6 100%)",
+    bgActive: "#2563eb",
+    bgInactive: "#eff6ff",
     borderActive: "#2563eb",
-    textColor: "#1d4ed8",
+    borderInactive: "#bfdbfe",
+    textColor: "#ffffff",
+    textColorInactive: "#1d4ed8",
     badgeBg: "rgba(37, 99, 235, 0.1)",
+    badgeBgActive: "rgba(255, 255, 255, 0.22)",
     heading: "Jangkau Jutaan Penonton Organik dengan Jaminan Proteksi Anggaran",
     desc: "Kunci anggaran kampanye dalam escrow smart contract BNB Chain. Pembayaran hanya dilepas untuk penayangan otentik yang telah divalidasi oleh sistem cerdas multimodal kami.",
     cta: "Pasang Kampanye Brand",
@@ -95,10 +110,15 @@ export const PERSONAS_DATA: PersonaItem[] = [
     subtitle: "Agency Talent & Manajemen Kreator",
     tabLabel: "Agency",
     color: "#059669",
-    bgActive: "#f0fdf4",
+    gradient: "linear-gradient(135deg, #059669 0%, #10b981 100%)",
+    bgActive: "#059669",
+    bgInactive: "#ecfdf5",
     borderActive: "#059669",
-    textColor: "#047857",
+    borderInactive: "#a7f3d0",
+    textColor: "#ffffff",
+    textColorInactive: "#047857",
     badgeBg: "rgba(5, 150, 105, 0.1)",
+    badgeBgActive: "rgba(255, 255, 255, 0.22)",
     heading: "Kelola Puluhan Talenta Kreator dalam Satu Panel Terpusat",
     desc: "Otomatisasi pembagian royalti antara agensi dan talenta secara transparan tanpa perlu rekapitulasi invoice atau rekonsiliasi manual di akhir bulan.",
     cta: "Eksplorasi Solusi Agensi",
@@ -114,10 +134,15 @@ export const PERSONAS_DATA: PersonaItem[] = [
     subtitle: "Validator Komunitas & Reviewer Node",
     tabLabel: "Validator",
     color: "#d97706",
-    bgActive: "#fffbeb",
+    gradient: "linear-gradient(135deg, #d97706 0%, #f59e0b 100%)",
+    bgActive: "#d97706",
+    bgInactive: "#fffbeb",
     borderActive: "#d97706",
-    textColor: "#b45309",
+    borderInactive: "#fde68a",
+    textColor: "#ffffff",
+    textColorInactive: "#b45309",
     badgeBg: "rgba(217, 119, 6, 0.1)",
+    badgeBgActive: "rgba(255, 255, 255, 0.22)",
     heading: "Jaga Integritas Ekosistem dan Dapatkan Imbal Hasil Protokol",
     desc: "Bantu jaringan meninjau video yang memerlukan penilaian sekunder saat terjadi sengketa, lalu peroleh bagi hasil imbalan dari tata kelola protokol.",
     cta: "Pelajari Reviewer Node",
@@ -133,10 +158,15 @@ export const PERSONAS_DATA: PersonaItem[] = [
     subtitle: "Web3 Protocols, dApps & DAO Ecosystem",
     tabLabel: "Ekosistem Web3",
     color: "#7c3aed",
-    bgActive: "#f5f3ff",
+    gradient: "linear-gradient(135deg, #7c3aed 0%, #8b5cf6 100%)",
+    bgActive: "#7c3aed",
+    bgInactive: "#f5f3ff",
     borderActive: "#7c3aed",
-    textColor: "#6d28d9",
+    borderInactive: "#ddd6fe",
+    textColor: "#ffffff",
+    textColorInactive: "#6d28d9",
     badgeBg: "rgba(124, 58, 237, 0.1)",
+    badgeBgActive: "rgba(255, 255, 255, 0.22)",
     heading: "Integrasikan Escrow Smart Contract ke Platform Anda",
     desc: "Gunakan infrastruktur escrow terverifikasi kami untuk menggerakkan kampanye video komunitas di BNB Chain dengan audit terbuka di blockchain.",
     cta: "Lihat Repositori & Kontrak",

@@ -1809,7 +1809,7 @@ function HomePageContent() {
 
             <div className="am-personas-content" style={{ marginTop: "2.5rem" }}>
               <div className="am-personas-content-wrapper">
-                {/* Responsive Persona Tabs Menu with Character Illustrations (Desktop) & Clean Pills (Mobile) */}
+                {/* Responsive Persona Tabs Menu with Solid Shapes, Vibrant Colors & Active Gradients */}
                 <div
                   className="am-personas-tabs-wrapper"
                   style={{
@@ -1831,40 +1831,49 @@ function HomePageContent() {
                         onClick={() => setActivePersona(p.id)}
                         className="am-personas-tab w-inline-block"
                         style={{
-                          background: isSelected ? p.bgActive : "#ffffff",
-                          border: isSelected ? `1.5px solid ${p.borderActive}` : "1px solid rgba(0, 0, 0, 0.08)",
-                          borderRadius: "18px",
-                          padding: "0.875rem 0.625rem",
+                          background: isSelected ? p.gradient : p.bgInactive,
+                          border: isSelected ? "1.5px solid transparent" : `1.5px solid ${p.borderInactive}`,
+                          borderRadius: "20px",
+                          padding: "0.875rem 0.75rem",
                           cursor: "pointer",
-                          transition: "all 0.25s ease",
-                          boxShadow: isSelected ? `0 6px 18px ${p.color}25` : "0 2px 6px rgba(0, 0, 0, 0.02)",
+                          transition: "all 0.25s cubic-bezier(0.16, 1, 0.3, 1)",
+                          boxShadow: isSelected
+                            ? `0 12px 28px -6px ${p.color}50, 0 4px 10px -2px ${p.color}30`
+                            : "0 2px 6px rgba(0, 0, 0, 0.03)",
+                          transform: isSelected ? "translateY(-2px) scale(1.02)" : "none",
                           display: "flex",
                           flexDirection: "column",
                           alignItems: "center",
                           justifyContent: "space-between",
                           width: "100%",
+                          outline: "none",
                         }}
                       >
                         <div
                           style={{
-                            fontWeight: isSelected ? 700 : 600,
-                            color: isSelected ? p.textColor : "#111111",
-                            fontSize: "0.875rem",
+                            fontWeight: 700,
+                            color: isSelected ? "#ffffff" : p.textColorInactive,
+                            fontSize: "0.9375rem",
                             display: "inline-flex",
                             alignItems: "center",
                             gap: "0.5rem",
                           }}
                         >
-                          <IconBadge
-                            icon={IconComp}
-                            size="xs"
-                            shape="squircle"
+                          <div
                             style={{
-                              backgroundColor: isSelected ? p.badgeBg : "rgba(0, 0, 0, 0.04)",
-                              borderColor: isSelected ? p.borderActive : "transparent",
-                              color: isSelected ? p.textColor : "#6b7280",
+                              width: "28px",
+                              height: "28px",
+                              borderRadius: "8px",
+                              backgroundColor: isSelected ? "rgba(255, 255, 255, 0.22)" : p.badgeBg,
+                              color: isSelected ? "#ffffff" : p.color,
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "center",
+                              flexShrink: 0,
                             }}
-                          />
+                          >
+                            <IconComp size={15} />
+                          </div>
                           <span>{p.role}</span>
                         </div>
 
@@ -1874,7 +1883,7 @@ function HomePageContent() {
                             src={p.image}
                             alt={p.role}
                             className="am-personas-hero-illustration"
-                            style={{ maxHeight: "125px", width: "auto", objectFit: "contain" }}
+                            style={{ maxHeight: "125px", width: "auto", objectFit: "contain", filter: isSelected ? "drop-shadow(0 8px 16px rgba(0,0,0,0.15))" : "grayscale(20%) opacity(0.85)" }}
                           />
                         </div>
                       </button>
@@ -1892,15 +1901,16 @@ function HomePageContent() {
                           style={{
                             display: "inline-flex",
                             alignItems: "center",
-                            padding: "0.3rem 0.875rem",
+                            padding: "0.4rem 1.125rem",
                             borderRadius: "9999px",
-                            backgroundColor: currentPersona.bgActive,
-                            color: currentPersona.textColor,
+                            background: currentPersona.gradient,
+                            color: "#ffffff",
                             fontSize: "0.75rem",
-                            fontWeight: 700,
+                            fontWeight: 800,
                             letterSpacing: "0.5px",
                             marginBottom: "1rem",
                             textTransform: "uppercase",
+                            boxShadow: `0 4px 14px ${currentPersona.color}35`,
                           }}
                         >
                           {currentPersona.subtitle}
@@ -1927,8 +1937,19 @@ function HomePageContent() {
                               href={currentPersona.ctaHref}
                               target="_blank"
                               rel="noreferrer"
-                              className="am-nav-btn is-secondary"
-                              style={{ display: "inline-flex", alignItems: "center", gap: "0.35rem" }}
+                              className="am-nav-btn"
+                              style={{
+                                display: "inline-flex",
+                                alignItems: "center",
+                                gap: "0.5rem",
+                                background: currentPersona.gradient,
+                                color: "#ffffff",
+                                padding: "0.75rem 1.75rem",
+                                borderRadius: "9999px",
+                                fontWeight: 700,
+                                textDecoration: "none",
+                                boxShadow: `0 6px 20px ${currentPersona.color}40`,
+                              }}
                             >
                               <span>{currentPersona.cta}</span>
                               <ExternalLink size={14} />
@@ -1936,8 +1957,19 @@ function HomePageContent() {
                           ) : (
                             <Link
                               href={currentPersona.ctaHref}
-                              className="am-nav-btn is-secondary"
-                              style={{ display: "inline-flex", alignItems: "center", gap: "0.35rem" }}
+                              className="am-nav-btn"
+                              style={{
+                                display: "inline-flex",
+                                alignItems: "center",
+                                gap: "0.5rem",
+                                background: currentPersona.gradient,
+                                color: "#ffffff",
+                                padding: "0.75rem 1.75rem",
+                                borderRadius: "9999px",
+                                fontWeight: 700,
+                                textDecoration: "none",
+                                boxShadow: `0 6px 20px ${currentPersona.color}40`,
+                              }}
                             >
                               <span>{currentPersona.cta}</span>
                               <ArrowRight size={14} />
