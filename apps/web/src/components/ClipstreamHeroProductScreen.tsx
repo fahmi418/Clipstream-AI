@@ -197,6 +197,7 @@ const SAMPLE_CLIPS: ClipItem[] = [
 
 export function ClipstreamHeroProductScreen() {
   const [selectedId, setSelectedId] = useState<string>("clip-1");
+  const [activeMobileTab, setActiveMobileTab] = useState<"list" | "detail">("detail");
   const selectedClip =
     SAMPLE_CLIPS.find((c) => c.id === selectedId) || SAMPLE_CLIPS[0];
 
@@ -205,7 +206,7 @@ export function ClipstreamHeroProductScreen() {
       className="am-home-duo-product-screen gsap-duo-screen"
       style={{
         backgroundColor: "#ffffff",
-        borderRadius: "14px",
+        borderRadius: "16px",
         border: "1px solid rgba(0, 0, 0, 0.08)",
         boxShadow:
           "0 18px 45px -10px rgba(0, 0, 0, 0.1), 0 2px 8px rgba(0, 0, 0, 0.03)",
@@ -217,229 +218,141 @@ export function ClipstreamHeroProductScreen() {
         textAlign: "left",
         userSelect: "none",
         color: "#111827",
-        minHeight: "740px",
+        minHeight: "700px",
         display: "flex",
         flexDirection: "column",
       }}
     >
       {/* ── 1. Top Window Bar ── */}
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-          padding: "10px 18px",
-          borderBottom: "1px solid #f1f5f9",
-          backgroundColor: "#ffffff",
-          gap: "12px",
-          flexWrap: "wrap",
-        }}
-      >
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-3 sm:px-4 sm:py-2.5 border-b border-slate-100 bg-white gap-2.5">
         {/* Left: Window Dots + App Brand + Tabs */}
-        <div style={{ display: "flex", alignItems: "center", gap: "14px" }}>
-          <div style={{ display: "flex", gap: "6px" }}>
-            <span style={{ width: "10px", height: "10px", borderRadius: "50%", backgroundColor: "#e5e7eb", display: "inline-block" }} />
-            <span style={{ width: "10px", height: "10px", borderRadius: "50%", backgroundColor: "#e5e7eb", display: "inline-block" }} />
-            <span style={{ width: "10px", height: "10px", borderRadius: "50%", backgroundColor: "#e5e7eb", display: "inline-block" }} />
+        <div className="flex items-center gap-3 flex-wrap">
+          <div className="hidden sm:flex gap-1.5">
+            <span className="w-2.5 h-2.5 rounded-full bg-slate-200 inline-block" />
+            <span className="w-2.5 h-2.5 rounded-full bg-slate-200 inline-block" />
+            <span className="w-2.5 h-2.5 rounded-full bg-slate-200 inline-block" />
           </div>
 
-          <div style={{ height: "16px", width: "1px", backgroundColor: "#e5e7eb" }} />
+          <div className="hidden sm:block h-4 w-px bg-slate-200" />
 
-          <div style={{ display: "flex", alignItems: "center", gap: "7px" }}>
-            <span style={{ fontSize: "0.875rem", fontWeight: 700, color: "#111827", letterSpacing: "-0.01em" }}>
+          <div className="flex items-center gap-2">
+            <span className="text-sm font-bold text-slate-900 tracking-tight">
               ClipStream Copilot
             </span>
-            <span
-              style={{
-                fontSize: "0.625rem",
-                padding: "1px 6px",
-                borderRadius: "4px",
-                backgroundColor: "#f3f4f6",
-                color: "#4b5563",
-                fontWeight: 600,
-              }}
-            >
+            <span className="text-[10px] px-1.5 py-0.5 rounded bg-slate-100 text-slate-600 font-semibold border border-slate-200/60">
               BNB Chain Escrow
             </span>
           </div>
 
-          <div style={{ display: "flex", alignItems: "center", gap: "4px", marginLeft: "8px" }}>
-            <span
-              style={{
-                padding: "3px 10px",
-                borderRadius: "6px",
-                fontSize: "0.75rem",
-                fontWeight: 600,
-                backgroundColor: "#f3f4f6",
-                color: "#111827",
-              }}
-            >
-              Antrean Verifikasi <span style={{ color: "#6b7280", fontWeight: 500 }}>(14)</span>
+          <div className="hidden md:flex items-center gap-1.5 ml-2">
+            <span className="px-2.5 py-0.5 rounded-md text-xs font-semibold bg-slate-100 text-slate-900">
+              Antrean Verifikasi <span className="text-slate-500 font-normal">(14)</span>
             </span>
-            <span
-              style={{
-                padding: "3px 10px",
-                borderRadius: "6px",
-                fontSize: "0.75rem",
-                fontWeight: 500,
-                color: "#6b7280",
-              }}
-            >
-              Pencairan Otomatis <span style={{ color: "#9ca3af" }}>(32)</span>
+            <span className="px-2.5 py-0.5 rounded-md text-xs font-medium text-slate-500">
+              Pencairan Otomatis <span className="text-slate-400">(32)</span>
             </span>
           </div>
         </div>
 
         {/* Right: Status indicator */}
-        <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-          <div
-            style={{
-              display: "inline-flex",
-              alignItems: "center",
-              gap: "6px",
-              fontSize: "0.6875rem",
-              color: "#059669",
-              fontWeight: 600,
-              backgroundColor: "#f0fdf4",
-              padding: "3px 9px",
-              borderRadius: "9999px",
-              border: "1px solid #dcfce7",
-            }}
-          >
-            <span style={{ width: "6px", height: "6px", borderRadius: "50%", backgroundColor: "#10b981" }} />
+        <div className="flex items-center gap-2 self-end sm:self-auto">
+          <div className="inline-flex items-center gap-1.5 text-[11px] text-emerald-700 font-semibold bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200/60">
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
             <span>AI Oracle Live</span>
           </div>
 
-          <div
-            style={{
-              width: "26px",
-              height: "26px",
-              borderRadius: "50%",
-              backgroundColor: "#f3f4f6",
-              color: "#374151",
-              fontSize: "0.6875rem",
-              fontWeight: 700,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              border: "1px solid #e5e7eb",
-            }}
-          >
+          <div className="w-6 h-6 rounded-full bg-slate-100 text-slate-700 text-[10px] font-bold flex items-center justify-center border border-slate-200">
             CS
           </div>
         </div>
       </div>
 
       {/* ── 2. Subheader Toolbar ── */}
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-          padding: "8px 18px",
-          borderBottom: "1px solid #f1f5f9",
-          backgroundColor: "#fafafa",
-          fontSize: "0.75rem",
-          color: "#6b7280",
-        }}
-      >
-        <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-          <span style={{ fontWeight: 600, color: "#374151" }}>Klip Terbaru ({SAMPLE_CLIPS.length})</span>
-          <span style={{ color: "#d1d5db" }}>•</span>
-          <span style={{ fontSize: "0.6875rem" }}>Filter: Semua Platform</span>
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between px-3 sm:px-4 py-2 border-b border-slate-100 bg-slate-50 text-xs text-slate-500 gap-1.5 sm:gap-4">
+        <div className="flex items-center gap-2 flex-wrap">
+          <span className="font-bold text-slate-800">Klip Masuk ({SAMPLE_CLIPS.length})</span>
+          <span className="text-slate-300">•</span>
+          <span className="text-[11px] text-slate-600">Semua Platform</span>
         </div>
 
-        <div style={{ display: "flex", alignItems: "center", gap: "12px", fontSize: "0.6875rem" }}>
-          <span>Urutkan: Recency</span>
-          <span style={{ color: "#d1d5db" }}>•</span>
-          <span>Diverifikasi AI Whisper &amp; Gemini</span>
+        <div className="flex items-center gap-2 text-[11px] text-slate-600 flex-wrap">
+          <span>Urutkan: Terbaru</span>
+          <span className="text-slate-300">•</span>
+          <span className="text-emerald-700 font-medium">Whisper &amp; Gemini Vision Live</span>
         </div>
       </div>
 
-      {/* ── 3. Main Dashboard Body (2 Columns) ── */}
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "40% 60%",
-          flex: 1,
-          backgroundColor: "#ffffff",
-        }}
-      >
+      {/* ── Mobile Viewport Switcher (< md screens) ── */}
+      <div className="flex md:hidden p-1.5 bg-slate-100 border-b border-slate-200 gap-1.5">
+        <button
+          type="button"
+          onClick={() => setActiveMobileTab("list")}
+          className={`flex-1 py-2 px-3 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-1.5 ${
+            activeMobileTab === "list"
+              ? "bg-white text-slate-900 shadow-sm border border-black/5"
+              : "text-slate-600 hover:text-slate-900"
+          }`}
+        >
+          <span>📋 Daftar Klip ({SAMPLE_CLIPS.length})</span>
+        </button>
+        <button
+          type="button"
+          onClick={() => setActiveMobileTab("detail")}
+          className={`flex-1 py-2 px-3 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-1.5 ${
+            activeMobileTab === "detail"
+              ? "bg-white text-slate-900 shadow-sm border border-black/5"
+              : "text-slate-600 hover:text-slate-900"
+          }`}
+        >
+          <span>🔍 Audit AI ({selectedClip.creator})</span>
+        </button>
+      </div>
+
+      {/* ── 3. Main Dashboard Body (Responsive 12-Column Grid) ── */}
+      <div className="flex-1 grid grid-cols-1 md:grid-cols-12 bg-white">
         {/* ── Left Column: Clean List of Clips ── */}
         <div
-          style={{
-            borderRight: "1px solid #f1f5f9",
-            backgroundColor: "#ffffff",
-            display: "flex",
-            flexDirection: "column",
-          }}
+          className={`md:col-span-5 md:border-r md:border-slate-100 bg-white flex-col divide-y divide-slate-50 ${
+            activeMobileTab === "list" ? "flex" : "hidden md:flex"
+          }`}
         >
           {SAMPLE_CLIPS.map((clip) => {
             const isSelected = clip.id === selectedId;
             return (
               <div
                 key={clip.id}
-                onClick={() => setSelectedId(clip.id)}
-                style={{
-                  padding: "13px 18px",
-                  borderBottom: "1px solid #f8fafc",
-                  backgroundColor: isSelected ? "#f8fafc" : "#ffffff",
-                  borderLeft: isSelected ? "3px solid #111827" : "3px solid transparent",
-                  cursor: "pointer",
-                  transition: "background-color 0.15s ease",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "space-between",
-                  gap: "10px",
+                onClick={() => {
+                  setSelectedId(clip.id);
+                  setActiveMobileTab("detail");
                 }}
+                className={`p-3.5 sm:px-4 sm:py-3.5 cursor-pointer transition-all flex items-center justify-between gap-3 border-l-4 ${
+                  isSelected
+                    ? "bg-slate-50/80 border-slate-900"
+                    : "bg-white border-transparent hover:bg-slate-50/50"
+                }`}
               >
-                <div style={{ display: "flex", alignItems: "flex-start", gap: "10px", minWidth: 0 }}>
+                <div className="flex items-start gap-2.5 min-w-0">
                   <div
-                    style={{
-                      width: "8px",
-                      height: "8px",
-                      borderRadius: "50%",
-                      backgroundColor: clip.statusColor,
-                      marginTop: "5px",
-                      flexShrink: 0,
-                    }}
+                    className="w-2 h-2 rounded-full mt-1.5 flex-shrink-0"
+                    style={{ backgroundColor: clip.statusColor }}
                   />
-                  <div style={{ minWidth: 0 }}>
-                    <div
-                      style={{
-                        fontSize: "0.8125rem",
-                        fontWeight: isSelected ? 700 : 600,
-                        color: "#111827",
-                        lineHeight: 1.3,
-                        whiteSpace: "nowrap",
-                        overflow: "hidden",
-                        textOverflow: "ellipsis",
-                      }}
-                    >
+                  <div className="min-w-0">
+                    <div className={`text-xs sm:text-sm font-bold truncate ${isSelected ? "text-slate-900" : "text-slate-800"}`}>
                       {clip.title}
                     </div>
-                    <div
-                      style={{
-                        fontSize: "0.6875rem",
-                        color: "#6b7280",
-                        marginTop: "2px",
-                      }}
-                    >
+                    <div className="text-[11px] text-slate-500 mt-0.5 truncate">
                       {clip.creator} • {clip.views} views • {clip.platform}
                     </div>
                   </div>
                 </div>
 
-                <div style={{ textAlign: "right", flexShrink: 0 }}>
-                  <div style={{ fontSize: "0.75rem", fontWeight: 700, color: "#111827" }}>
+                <div className="text-right flex-shrink-0">
+                  <div className="text-xs sm:text-sm font-bold text-slate-900">
                     {clip.totalUsdt}
                   </div>
                   <div
-                    style={{
-                      fontSize: "0.625rem",
-                      color: clip.statusColor,
-                      fontWeight: 600,
-                    }}
+                    className="text-[10px] font-bold"
+                    style={{ color: clip.statusColor }}
                   >
                     {clip.statusText}
                   </div>
@@ -451,248 +364,132 @@ export function ClipstreamHeroProductScreen() {
 
         {/* ── Right Column: Clean White SaaS Inspector Panel ── */}
         <div
-          style={{
-            padding: "24px",
-            backgroundColor: "#ffffff",
-            display: "flex",
-            flexDirection: "column",
-            gap: "18px",
-          }}
+          className={`md:col-span-7 p-4 sm:p-6 bg-white flex-col gap-4 sm:gap-5 ${
+            activeMobileTab === "detail" ? "flex" : "hidden md:flex"
+          }`}
         >
           {/* Header of Inspector */}
-          <div
-            style={{
-              display: "flex",
-              alignItems: "flex-start",
-              justifyContent: "space-between",
-              paddingBottom: "16px",
-              borderBottom: "1px solid #f1f5f9",
-            }}
-          >
+          <div className="flex items-start justify-between pb-3 sm:pb-4 border-b border-slate-100 gap-3">
             <div>
-              <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                <span style={{ fontSize: "1.0625rem", fontWeight: 700, color: "#111827", letterSpacing: "-0.02em" }}>
+              <div className="flex items-center gap-2 flex-wrap">
+                <span className="text-base sm:text-lg font-extrabold text-slate-900 tracking-tight">
                   {selectedClip.creator}
                 </span>
-                <span
-                  style={{
-                    fontSize: "0.6875rem",
-                    padding: "2px 8px",
-                    borderRadius: "9999px",
-                    backgroundColor: "#f0fdf4",
-                    color: "#059669",
-                    fontWeight: 600,
-                    border: "1px solid #dcfce7",
-                    display: "inline-flex",
-                    alignItems: "center",
-                    gap: "4px",
-                  }}
-                >
+                <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 font-bold border border-emerald-200/60 inline-flex items-center gap-1">
                   <Check size={11} strokeWidth={2.5} />
                   <span>Terverifikasi AI</span>
                 </span>
               </div>
-              <div style={{ fontSize: "0.8125rem", color: "#6b7280", marginTop: "3px" }}>
+              <div className="text-xs text-slate-500 mt-1">
                 {selectedClip.title} • {selectedClip.platform} ({selectedClip.duration})
               </div>
             </div>
 
-            <div style={{ textAlign: "right" }}>
-              <div style={{ fontSize: "0.6875rem", color: "#6b7280" }}>Total Payout Escrow</div>
-              <div style={{ fontSize: "1.125rem", fontWeight: 700, color: "#111827" }}>
+            <div className="text-right flex-shrink-0">
+              <div className="text-[10px] text-slate-500 font-medium">Total Payout Escrow</div>
+              <div className="text-sm sm:text-base font-extrabold text-slate-900">
                 {selectedClip.totalUsdt}
               </div>
-              <div style={{ fontSize: "0.6875rem", color: "#9ca3af" }}>{selectedClip.totalIdr}</div>
+              <div className="text-[10px] text-slate-400">{selectedClip.totalIdr}</div>
             </div>
           </div>
 
-          {/* Section 1: Multimodal AI Verification Details (Clean White Card) */}
-          <div
-            style={{
-              padding: "16px",
-              borderRadius: "10px",
-              border: "1px solid #e5e7eb",
-              backgroundColor: "#ffffff",
-            }}
-          >
-            <div
-              style={{
-                fontSize: "0.6875rem",
-                fontWeight: 700,
-                color: "#6b7280",
-                textTransform: "uppercase",
-                letterSpacing: "0.5px",
-                marginBottom: "8px",
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-              }}
-            >
+          {/* Section 1: Multimodal AI Verification Details */}
+          <div className="p-3.5 sm:p-4 rounded-xl border border-slate-200 bg-white">
+            <div className="text-[10px] sm:text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-2 flex flex-col sm:flex-row justify-between sm:items-center gap-1">
               <span>Transkrip Audio Whisper &amp; Watermark Gemini</span>
-              <span style={{ color: "#059669", fontWeight: 600 }}>{selectedClip.audioMatch}% Akurasi Semantik</span>
+              <span className="text-emerald-700 font-bold">{selectedClip.audioMatch}% Akurasi Semantik</span>
             </div>
 
-            <p
-              style={{
-                fontSize: "0.8125rem",
-                lineHeight: 1.55,
-                color: "#374151",
-                fontStyle: "italic",
-                margin: "0 0 12px 0",
-                padding: "10px 12px",
-                backgroundColor: "#f9fafb",
-                borderRadius: "8px",
-                borderLeft: "3px solid #e5e7eb",
-              }}
-            >
+            <p className="text-xs sm:text-sm leading-relaxed text-slate-700 italic m-0 mb-3 p-2.5 sm:p-3 bg-slate-50 rounded-lg border-l-2 border-slate-300">
               &ldquo;{selectedClip.quote}&rdquo;
             </p>
 
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", fontSize: "0.75rem", color: "#4b5563" }}>
-              <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-                <CheckCircle2 size={13} color="#059669" />
-                <span>{selectedClip.watermarkStatus}</span>
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between text-xs text-slate-600 gap-1.5">
+              <div className="flex items-center gap-1.5">
+                <CheckCircle2 size={13} className="text-emerald-600 flex-shrink-0" />
+                <span className="truncate">{selectedClip.watermarkStatus}</span>
               </div>
-              <span style={{ fontSize: "0.6875rem", color: "#6b7280" }}>Resolusi: 1080×1920 (9:16)</span>
+              <span className="text-[10px] text-slate-400">Resolusi: 1080×1920 (9:16)</span>
             </div>
           </div>
 
-          {/* Section 2: Oracle Metrics (3 Clean White Cards) */}
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "10px" }}>
-            <div
-              style={{
-                padding: "14px",
-                borderRadius: "10px",
-                border: "1px solid #e5e7eb",
-                backgroundColor: "#ffffff",
-              }}
-            >
-              <div style={{ fontSize: "0.6875rem", color: "#6b7280", fontWeight: 600 }}>Views Terverifikasi</div>
-              <div style={{ fontSize: "1.125rem", fontWeight: 700, color: "#111827", marginTop: "4px" }}>
+          {/* Section 2: Oracle Metrics (3 Clean Responsive Cards) */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+            <div className="p-3 sm:p-3.5 rounded-xl border border-slate-200 bg-white">
+              <div className="text-[10px] sm:text-[11px] text-slate-500 font-bold">Views Terverifikasi</div>
+              <div className="text-base sm:text-lg font-extrabold text-slate-900 mt-1">
                 {selectedClip.views}
               </div>
-              <div style={{ fontSize: "0.625rem", color: "#059669", marginTop: "2px", fontWeight: 600 }}>
+              <div className="text-[10px] text-emerald-700 font-bold mt-0.5">
                 API Feed Valid
               </div>
             </div>
 
-            <div
-              style={{
-                padding: "14px",
-                borderRadius: "10px",
-                border: "1px solid #e5e7eb",
-                backgroundColor: "#ffffff",
-              }}
-            >
-              <div style={{ fontSize: "0.6875rem", color: "#6b7280", fontWeight: 600 }}>Keaslian Penonton</div>
-              <div style={{ fontSize: "1.125rem", fontWeight: 700, color: "#111827", marginTop: "4px" }}>
+            <div className="p-3 sm:p-3.5 rounded-xl border border-slate-200 bg-white">
+              <div className="text-[10px] sm:text-[11px] text-slate-500 font-bold">Keaslian Penonton</div>
+              <div className="text-base sm:text-lg font-extrabold text-slate-900 mt-1">
                 99.2%
               </div>
-              <div style={{ fontSize: "0.625rem", color: "#059669", marginTop: "2px", fontWeight: 600 }}>
+              <div className="text-[10px] text-emerald-700 font-bold mt-0.5">
                 Anti-Sybil Organik
               </div>
             </div>
 
-            <div
-              style={{
-                padding: "14px",
-                borderRadius: "10px",
-                border: "1px solid #e5e7eb",
-                backgroundColor: "#ffffff",
-              }}
-            >
-              <div style={{ fontSize: "0.6875rem", color: "#6b7280", fontWeight: 600 }}>Efektif CPM</div>
-              <div style={{ fontSize: "1.125rem", fontWeight: 700, color: "#111827", marginTop: "4px" }}>
+            <div className="p-3 sm:p-3.5 rounded-xl border border-slate-200 bg-white">
+              <div className="text-[10px] sm:text-[11px] text-slate-500 font-bold">Efektif CPM</div>
+              <div className="text-base sm:text-lg font-extrabold text-slate-900 mt-1">
                 Rp 24.500
               </div>
-              <div style={{ fontSize: "0.625rem", color: "#6b7280", marginTop: "2px" }}>
+              <div className="text-[10px] text-slate-500 mt-0.5">
                 / 1.000 views
               </div>
             </div>
           </div>
 
-          {/* Section 3: Smart Contract Timelock Escrow Breakdown (Clean White Card) */}
-          <div
-            style={{
-              padding: "16px",
-              borderRadius: "10px",
-              border: "1px solid #e5e7eb",
-              backgroundColor: "#ffffff",
-            }}
-          >
-            <div
-              style={{
-                fontSize: "0.6875rem",
-                fontWeight: 700,
-                color: "#6b7280",
-                textTransform: "uppercase",
-                letterSpacing: "0.5px",
-                marginBottom: "12px",
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-              }}
-            >
+          {/* Section 3: Smart Contract Timelock Escrow Breakdown */}
+          <div className="p-3.5 sm:p-4 rounded-xl border border-slate-200 bg-white">
+            <div className="text-[10px] sm:text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-2.5 flex justify-between items-center">
               <span>Alokasi Escrow Smart Contract</span>
-              <span style={{ fontSize: "0.625rem", color: "#9ca3af", textTransform: "none", fontWeight: 500 }}>
-                Smart Contract on BNB Chain
+              <span className="text-[10px] text-slate-400 lowercase font-normal">
+                bnb chain escrow
               </span>
             </div>
 
-            <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+            <div className="flex flex-col gap-2.5">
               {/* Step 1: 70% Instant */}
-              <div
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "space-between",
-                  padding: "10px 14px",
-                  borderRadius: "8px",
-                  backgroundColor: "#f9fafb",
-                  border: "1px solid #f3f4f6",
-                }}
-              >
-                <div>
-                  <div style={{ fontSize: "0.8125rem", fontWeight: 600, color: "#111827" }}>
+              <div className="flex items-center justify-between p-2.5 sm:p-3 rounded-lg bg-slate-50 border border-slate-100 gap-3">
+                <div className="min-w-0">
+                  <div className="text-xs sm:text-sm font-bold text-slate-900">
                     70% Pencairan Instan
                   </div>
-                  <div style={{ fontSize: "0.6875rem", color: "#6b7280" }}>
+                  <div className="text-[10px] sm:text-xs text-slate-500 truncate">
                     Ditransfer langsung via Poko BI-FAST / DANA ke rekening kreator
                   </div>
                 </div>
-                <div style={{ textAlign: "right" }}>
-                  <div style={{ fontSize: "0.8125rem", fontWeight: 700, color: "#059669" }}>
+                <div className="text-right flex-shrink-0">
+                  <div className="text-xs sm:text-sm font-extrabold text-emerald-700">
                     {selectedClip.instantUsdt}
                   </div>
-                  <div style={{ fontSize: "0.625rem", color: "#9ca3af" }}>Status: Terkirim</div>
+                  <div className="text-[10px] text-slate-400">Terkirim</div>
                 </div>
               </div>
 
               {/* Step 2: 30% Holdback */}
-              <div
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "space-between",
-                  padding: "10px 14px",
-                  borderRadius: "8px",
-                  backgroundColor: "#f9fafb",
-                  border: "1px solid #f3f4f6",
-                }}
-              >
-                <div>
-                  <div style={{ fontSize: "0.8125rem", fontWeight: 600, color: "#111827" }}>
-                    30% Escrow Holdback (Cooldown 72 Jam)
+              <div className="flex items-center justify-between p-2.5 sm:p-3 rounded-lg bg-slate-50 border border-slate-100 gap-3">
+                <div className="min-w-0">
+                  <div className="text-xs sm:text-sm font-bold text-slate-900">
+                    30% Escrow Holdback (72 Jam)
                   </div>
-                  <div style={{ fontSize: "0.6875rem", color: "#6b7280" }}>
+                  <div className="text-[10px] sm:text-xs text-slate-500 truncate">
                     Terkunci di smart contract untuk proteksi retensi views kampanye
                   </div>
                 </div>
-                <div style={{ textAlign: "right" }}>
-                  <div style={{ fontSize: "0.8125rem", fontWeight: 700, color: "#d97706" }}>
+                <div className="text-right flex-shrink-0">
+                  <div className="text-xs sm:text-sm font-extrabold text-amber-600">
                     {selectedClip.holdbackUsdt}
                   </div>
-                  <div style={{ fontSize: "0.625rem", color: "#9ca3af" }}>Timelock Aktif</div>
+                  <div className="text-[10px] text-slate-400">Timelock Aktif</div>
                 </div>
               </div>
             </div>

@@ -1019,20 +1019,21 @@ export function Nav() {
           {/* Backdrop Blur */}
           <div
             onClick={() => setMobileMenuOpen(false)}
-            className="fixed inset-0 bg-black/50 backdrop-blur-xs z-[99998] transition-opacity animate-in fade-in"
+            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[99998] transition-opacity animate-in fade-in duration-200"
           />
 
           {/* Floating Mobile Sheet Card */}
-          <div className="fixed top-16 left-3 right-3 max-w-lg mx-auto bg-white/95 backdrop-blur-2xl rounded-3xl border border-black/10 shadow-2xl p-5 z-[99999] max-h-[85vh] overflow-y-auto animate-in fade-in zoom-in-95 duration-150">
-            {/* Header with User Info or Quick Welcome */}
-            <div className="flex items-center justify-between pb-3 mb-3 border-b border-black/5">
-              <div className="flex items-center gap-2.5">
-                <Logo theme="light" width={120} height={28} />
+          <div className="fixed top-18 left-3.5 right-3.5 sm:left-auto sm:right-6 sm:w-[410px] max-w-lg mx-auto bg-white/98 backdrop-blur-2xl rounded-3xl border border-black/10 shadow-[0_25px_70px_-15px_rgba(0,0,0,0.25)] p-5 sm:p-6 z-[99999] max-h-[82vh] overflow-y-auto flex flex-col animate-in fade-in zoom-in-95 duration-200">
+            {/* Header: Logo & Close Button */}
+            <div className="flex items-center justify-between pb-3.5 border-b border-black/5">
+              <div className="flex items-center gap-2">
+                <Logo theme="light" width={130} height={30} />
               </div>
               <button
                 type="button"
                 onClick={() => setMobileMenuOpen(false)}
-                className="w-8 h-8 rounded-full bg-neutral-100 flex items-center justify-center text-neutral-600 hover:text-neutral-900 transition-colors border-none cursor-pointer"
+                className="w-8 h-8 rounded-full bg-neutral-100/90 hover:bg-neutral-200/80 flex items-center justify-center text-neutral-600 hover:text-neutral-900 transition-all border border-black/5 cursor-pointer active:scale-95"
+                aria-label="Tutup menu"
               >
                 <X size={16} />
               </button>
@@ -1040,67 +1041,81 @@ export function Nav() {
 
             {/* Authenticated User Status Card */}
             {isLoggedIn && (
-              <div className="mb-4 p-3.5 bg-neutral-50 rounded-2xl border border-black/5 flex items-center justify-between">
-                <div className="flex items-center gap-2.5 min-w-0">
-                  <div className="w-9 h-9 rounded-xl bg-orange-500 text-white flex items-center justify-center font-bold text-sm flex-shrink-0">
+              <div className="my-3.5 p-3.5 bg-neutral-50/90 rounded-2xl border border-black/8 flex items-center justify-between gap-3 shadow-xs">
+                <div className="flex items-center gap-3 min-w-0">
+                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-orange-500 to-amber-500 text-white flex items-center justify-center font-black text-sm flex-shrink-0 shadow-sm">
                     {(user?.displayName || "U")[0].toUpperCase()}
                   </div>
                   <div className="min-w-0">
-                    <div className="text-xs font-bold text-neutral-900 truncate">
+                    <div className="text-sm font-bold text-neutral-900 truncate">
                       {user?.displayName || "Pengguna Aktif"}
                     </div>
-                    <div className="text-[10px] text-neutral-500 font-mono truncate">
+                    <div className="text-[11px] text-neutral-500 font-mono truncate">
                       {user?.walletAddress ? `${user.walletAddress.slice(0, 6)}...${user.walletAddress.slice(-4)}` : user?.email || "Akun Terhubung"}
                     </div>
                   </div>
                 </div>
 
-                <span className="text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-orange-100 text-orange-700 uppercase tracking-wider flex-shrink-0">
+                <span
+                  className={`text-[10px] font-extrabold px-2.5 py-1 rounded-full uppercase tracking-wider flex-shrink-0 border ${
+                    userRole === "ADMIN"
+                      ? "bg-purple-100 text-purple-800 border-purple-200"
+                      : userRole === "BRAND"
+                      ? "bg-amber-100 text-amber-800 border-amber-200"
+                      : "bg-emerald-100 text-emerald-800 border-emerald-200"
+                  }`}
+                >
                   {userRole}
                 </span>
               </div>
             )}
 
             {/* Navigation List */}
-            <div className="flex flex-col gap-1.5 mb-4">
-              <div className="text-[10px] font-bold text-neutral-400 uppercase tracking-wider px-2 mb-1">
+            <div className="flex flex-col gap-1.5 my-2">
+              <div className="text-[11px] font-bold text-neutral-400 uppercase tracking-wider px-1 mb-1">
                 Navigasi Utama
               </div>
 
               <Link
                 href="/campaigns"
                 onClick={() => setMobileMenuOpen(false)}
-                className="flex items-center justify-between p-3 rounded-xl text-neutral-800 hover:bg-neutral-100/80 transition-all font-semibold text-sm no-underline"
+                className="flex items-center justify-between p-2.5 sm:p-3 rounded-2xl text-neutral-800 hover:bg-neutral-100/90 transition-all font-semibold text-sm no-underline group"
               >
-                <span className="flex items-center gap-2.5">
-                  <Flame size={18} className="text-orange-600" />
-                  <span>Marketplace Kampanye</span>
+                <span className="flex items-center gap-3">
+                  <span className="w-8 h-8 rounded-xl bg-orange-50 text-orange-600 flex items-center justify-center border border-orange-100 flex-shrink-0">
+                    <Flame size={16} />
+                  </span>
+                  <span className="font-semibold text-neutral-900">Marketplace Kampanye</span>
                 </span>
-                <ArrowRight size={14} className="text-neutral-400" />
+                <ArrowRight size={14} className="text-neutral-400 group-hover:translate-x-0.5 transition-transform" />
               </Link>
 
               <Link
                 href="/clipper"
                 onClick={() => setMobileMenuOpen(false)}
-                className="flex items-center justify-between p-3 rounded-xl text-neutral-800 hover:bg-neutral-100/80 transition-all font-semibold text-sm no-underline"
+                className="flex items-center justify-between p-2.5 sm:p-3 rounded-2xl text-neutral-800 hover:bg-neutral-100/90 transition-all font-semibold text-sm no-underline group"
               >
-                <span className="flex items-center gap-2.5">
-                  <Scissors size={18} className="text-orange-600" />
-                  <span>Clipper Studio</span>
+                <span className="flex items-center gap-3">
+                  <span className="w-8 h-8 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center border border-amber-100 flex-shrink-0">
+                    <Scissors size={16} />
+                  </span>
+                  <span className="font-semibold text-neutral-900">Clipper Studio</span>
                 </span>
-                <ArrowRight size={14} className="text-neutral-400" />
+                <ArrowRight size={14} className="text-neutral-400 group-hover:translate-x-0.5 transition-transform" />
               </Link>
 
               <Link
                 href="/clipper/wallet"
                 onClick={() => setMobileMenuOpen(false)}
-                className="flex items-center justify-between p-3 rounded-xl text-emerald-800 bg-emerald-50/60 hover:bg-emerald-50 transition-all font-semibold text-sm no-underline border border-emerald-100"
+                className="flex items-center justify-between p-2.5 sm:p-3 rounded-2xl text-neutral-900 bg-emerald-50/70 hover:bg-emerald-50 transition-all font-semibold text-sm no-underline border border-emerald-200/80 group"
               >
-                <span className="flex items-center gap-2.5">
-                  <Wallet size={18} className="text-emerald-600" />
-                  <span>Dompet &amp; Penarikan Poko</span>
+                <span className="flex items-center gap-3 min-w-0">
+                  <span className="w-8 h-8 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center border border-emerald-200 flex-shrink-0">
+                    <Wallet size={16} />
+                  </span>
+                  <span className="font-bold text-emerald-950 truncate">Dompet &amp; Poko Off-Ramp</span>
                 </span>
-                <span className="text-[10px] font-bold bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-full">
+                <span className="text-[10px] font-extrabold bg-emerald-200/80 text-emerald-800 px-2.5 py-0.5 rounded-full flex-shrink-0 ml-2">
                   Instan
                 </span>
               </Link>
@@ -1108,50 +1123,56 @@ export function Nav() {
               <Link
                 href="/brand/new"
                 onClick={() => setMobileMenuOpen(false)}
-                className="flex items-center justify-between p-3 rounded-xl text-neutral-800 hover:bg-neutral-100/80 transition-all font-semibold text-sm no-underline"
+                className="flex items-center justify-between p-2.5 sm:p-3 rounded-2xl text-neutral-800 hover:bg-neutral-100/90 transition-all font-semibold text-sm no-underline group"
               >
-                <span className="flex items-center gap-2.5">
-                  <Rocket size={18} className="text-sky-600" />
-                  <span>Pasang Bounty Brand</span>
+                <span className="flex items-center gap-3">
+                  <span className="w-8 h-8 rounded-xl bg-sky-50 text-sky-600 flex items-center justify-center border border-sky-100 flex-shrink-0">
+                    <Rocket size={16} />
+                  </span>
+                  <span className="font-semibold text-neutral-900">Pasang Bounty Brand</span>
                 </span>
-                <ArrowRight size={14} className="text-neutral-400" />
+                <ArrowRight size={14} className="text-neutral-400 group-hover:translate-x-0.5 transition-transform" />
               </Link>
 
               <Link
                 href="/admin/ai-monitoring"
                 onClick={() => setMobileMenuOpen(false)}
-                className="flex items-center justify-between p-3 rounded-xl text-neutral-800 hover:bg-neutral-100/80 transition-all font-semibold text-sm no-underline"
+                className="flex items-center justify-between p-2.5 sm:p-3 rounded-2xl text-neutral-800 hover:bg-neutral-100/90 transition-all font-semibold text-sm no-underline group"
               >
-                <span className="flex items-center gap-2.5">
-                  <Bot size={18} className="text-violet-600" />
-                  <span>Observabilitas AI &amp; Token</span>
+                <span className="flex items-center gap-3">
+                  <span className="w-8 h-8 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center border border-purple-100 flex-shrink-0">
+                    <Bot size={16} />
+                  </span>
+                  <span className="font-semibold text-neutral-900">Observabilitas AI &amp; Token</span>
                 </span>
-                <ArrowRight size={14} className="text-neutral-400" />
+                <ArrowRight size={14} className="text-neutral-400 group-hover:translate-x-0.5 transition-transform" />
               </Link>
 
               <Link
                 href="/blog"
                 onClick={() => setMobileMenuOpen(false)}
-                className="flex items-center justify-between p-3 rounded-xl text-neutral-800 hover:bg-neutral-100/80 transition-all font-semibold text-sm no-underline"
+                className="flex items-center justify-between p-2.5 sm:p-3 rounded-2xl text-neutral-800 hover:bg-neutral-100/90 transition-all font-semibold text-sm no-underline group"
               >
-                <span className="flex items-center gap-2.5">
-                  <BookOpen size={18} className="text-neutral-600" />
-                  <span>Blog &amp; Panduan Komunitas</span>
+                <span className="flex items-center gap-3">
+                  <span className="w-8 h-8 rounded-xl bg-neutral-100 text-neutral-700 flex items-center justify-center border border-neutral-200 flex-shrink-0">
+                    <BookOpen size={16} />
+                  </span>
+                  <span className="font-semibold text-neutral-900">Blog &amp; Panduan Komunitas</span>
                 </span>
-                <ArrowRight size={14} className="text-neutral-400" />
+                <ArrowRight size={14} className="text-neutral-400 group-hover:translate-x-0.5 transition-transform" />
               </Link>
             </div>
 
             {/* Auth Actions: Logged In vs Logged Out */}
             {isLoggedIn ? (
-              <div className="pt-3 border-t border-black/5 flex flex-col gap-2">
+              <div className="pt-3.5 mt-2 border-t border-black/8 flex flex-col gap-2.5">
                 <Link
                   href={dashboardHref}
                   onClick={() => setMobileMenuOpen(false)}
-                  className="w-full py-3 px-4 rounded-xl bg-neutral-900 text-white font-bold text-sm text-center flex items-center justify-center gap-2 no-underline shadow-md shadow-black/10"
+                  className="w-full py-3.5 px-4 rounded-2xl bg-neutral-900 hover:bg-neutral-800 text-white font-bold text-sm text-center flex items-center justify-center gap-2 no-underline shadow-md transition-all active:scale-[0.99]"
                 >
                   <span>Buka {dashboardLabel}</span>
-                  <ArrowRight size={14} />
+                  <ArrowRight size={15} />
                 </Link>
 
                 <button
@@ -1160,25 +1181,25 @@ export function Nav() {
                     setMobileMenuOpen(false);
                     handleLogout();
                   }}
-                  className="w-full py-2.5 px-4 rounded-xl bg-red-50 hover:bg-red-100/80 text-red-600 font-bold text-xs flex items-center justify-center gap-1.5 cursor-pointer border border-red-200/60 transition-all"
+                  className="w-full py-3 px-4 rounded-2xl bg-red-50/80 hover:bg-red-100 text-red-600 font-bold text-xs flex items-center justify-center gap-2 cursor-pointer border border-red-200/70 transition-all active:scale-[0.99]"
                 >
-                  <LogOut size={14} />
+                  <LogOut size={15} />
                   <span>Keluar Akun ({user?.displayName || "Saya"})</span>
                 </button>
               </div>
             ) : (
-              <div className="pt-3 border-t border-black/5 grid grid-cols-2 gap-2">
+              <div className="pt-3.5 mt-2 border-t border-black/8 grid grid-cols-2 gap-2.5">
                 <Link
                   href="/login"
                   onClick={() => setMobileMenuOpen(false)}
-                  className="py-3 px-3 rounded-xl bg-neutral-100 hover:bg-neutral-200/70 text-neutral-800 font-bold text-xs text-center no-underline border border-black/5"
+                  className="py-3 px-3 rounded-2xl bg-neutral-100 hover:bg-neutral-200/80 text-neutral-900 font-bold text-xs text-center no-underline border border-black/5 transition-all"
                 >
                   Masuk ke Akun
                 </Link>
                 <Link
                   href="/register"
                   onClick={() => setMobileMenuOpen(false)}
-                  className="py-3 px-3 rounded-xl bg-neutral-900 text-white font-bold text-xs text-center no-underline flex items-center justify-center gap-1 shadow-sm"
+                  className="py-3 px-3 rounded-2xl bg-neutral-900 hover:bg-neutral-800 text-white font-bold text-xs text-center no-underline flex items-center justify-center gap-1.5 shadow-sm transition-all"
                 >
                   <span>Mulai Gratis</span>
                   <Rocket size={13} />

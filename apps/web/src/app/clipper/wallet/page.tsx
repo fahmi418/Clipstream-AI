@@ -657,7 +657,7 @@ export default function ClipperWalletPage() {
             {/* Left Column: Form Penarikan & Riwayat */}
             <div className="w-full lg:col-span-7 bg-white rounded-3xl border border-black/10 p-5 sm:p-7 shadow-sm">
               {/* Sleek Tab Selector */}
-              <div className="flex items-center gap-1 p-1 bg-[#f4f3f0] rounded-2xl mb-6 border border-black/5">
+              <div className="grid grid-cols-3 p-1.5 bg-neutral-100 rounded-2xl mb-6 border border-black/5 gap-1.5">
                 <button
                   type="button"
                   onClick={() => {
@@ -665,13 +665,13 @@ export default function ClipperWalletPage() {
                     setErrorMsg(null);
                     setSuccessReceipt(null);
                   }}
-                  className={`flex-1 py-2.5 px-2 rounded-xl text-xs sm:text-sm font-bold transition-all flex items-center justify-center gap-1.5 ${
+                  className={`py-2.5 px-2 rounded-xl text-xs sm:text-sm font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
                     activeTab === "FIAT"
                       ? "bg-white text-sky-600 shadow-sm border border-black/5"
                       : "text-neutral-500 hover:text-neutral-800"
                   }`}
                 >
-                  <Zap size={14} />
+                  <Zap size={14} className="flex-shrink-0" />
                   <span className="truncate">DANA / Bank</span>
                 </button>
 
@@ -682,13 +682,13 @@ export default function ClipperWalletPage() {
                     setErrorMsg(null);
                     setSuccessReceipt(null);
                   }}
-                  className={`flex-1 py-2.5 px-2 rounded-xl text-xs sm:text-sm font-bold transition-all flex items-center justify-center gap-1.5 ${
+                  className={`py-2.5 px-2 rounded-xl text-xs sm:text-sm font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
                     activeTab === "CRYPTO"
                       ? "bg-white text-neutral-900 shadow-sm border border-black/5"
                       : "text-neutral-500 hover:text-neutral-800"
                   }`}
                 >
-                  <Wallet size={14} />
+                  <Wallet size={14} className="flex-shrink-0" />
                   <span className="truncate">MetaMask</span>
                 </button>
 
@@ -699,13 +699,13 @@ export default function ClipperWalletPage() {
                     setErrorMsg(null);
                     setSuccessReceipt(null);
                   }}
-                  className={`flex-1 py-2.5 px-2 rounded-xl text-xs sm:text-sm font-bold transition-all flex items-center justify-center gap-1.5 ${
+                  className={`py-2.5 px-2 rounded-xl text-xs sm:text-sm font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
                     activeTab === "HISTORY"
                       ? "bg-white text-neutral-900 shadow-sm border border-black/5"
                       : "text-neutral-500 hover:text-neutral-800"
                   }`}
                 >
-                  <History size={14} />
+                  <History size={14} className="flex-shrink-0" />
                   <span className="truncate">Riwayat</span>
                 </button>
               </div>
@@ -824,26 +824,27 @@ export default function ClipperWalletPage() {
                       <div
                         style={{
                           backgroundColor: "#f8fafc",
-                          borderRadius: "16px",
+                          borderRadius: "18px",
                           padding: "16px",
                           border: "1px solid rgba(17, 142, 234, 0.2)",
                         }}
                       >
-                        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "8px" }}>
-                          <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 mb-3">
+                          <div className="flex items-center gap-2.5">
                             <div
                               style={{
-                                width: "28px",
-                                height: "28px",
-                                borderRadius: "8px",
+                                width: "32px",
+                                height: "32px",
+                                borderRadius: "10px",
                                 backgroundColor: "#118eea",
                                 color: "#fff",
                                 display: "flex",
                                 alignItems: "center",
                                 justifyContent: "center",
+                                flexShrink: 0,
                               }}
                             >
-                              <Zap size={15} />
+                              <Zap size={16} />
                             </div>
                             <div>
                               <div style={{ fontSize: "0.875rem", fontWeight: 800, color: "#0f172a" }}>
@@ -855,18 +856,8 @@ export default function ClipperWalletPage() {
                             </div>
                           </div>
 
-                          <span
-                            style={{
-                              fontSize: "0.625rem",
-                              fontWeight: 800,
-                              color: "#059669",
-                              backgroundColor: "#ecfdf5",
-                              padding: "2px 8px",
-                              borderRadius: "9999px",
-                              border: "1px solid rgba(5, 150, 105, 0.2)",
-                            }}
-                          >
-                            BI-FAST 0 DETIK
+                          <span className="self-start sm:self-auto text-[10px] font-extrabold text-emerald-800 bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-200 flex-shrink-0">
+                            ⚡ BI-FAST 0 DETIK
                           </span>
                         </div>
 
@@ -883,7 +874,7 @@ export default function ClipperWalletPage() {
                             fontSize: "0.75rem",
                           }}
                         >
-                          <span style={{ color: "#64748b" }}>Kurs Real-Time:</span>
+                          <span style={{ color: "#64748b", fontWeight: 500 }}>Kurs Real-Time:</span>
                           <span style={{ fontWeight: 800, color: "#0f172a" }}>
                             1 USDT = Rp {idrRate.toLocaleString("id-ID")}
                           </span>
@@ -892,7 +883,7 @@ export default function ClipperWalletPage() {
 
                       {/* Quick 1-Click Sandbox Presets */}
                       <div>
-                        <label style={{ display: "block", fontSize: "0.75rem", fontWeight: 700, color: "#475569", marginBottom: "6px" }}>
+                        <label style={{ display: "block", fontSize: "0.75rem", fontWeight: 700, color: "#475569", marginBottom: "8px" }}>
                           Pilihan Cepat Akun E-Wallet / Bank:
                         </label>
                         <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
@@ -903,24 +894,10 @@ export default function ClipperWalletPage() {
                               setAccountNumber("081298765432");
                               setShowPokoModal(true);
                             }}
-                            style={{
-                              padding: "8px 6px",
-                              borderRadius: "10px",
-                              border: "1px solid #118eea",
-                              backgroundColor: "#eef7fe",
-                              color: "#118eea",
-                              fontSize: "0.75rem",
-                              fontWeight: 700,
-                              cursor: "pointer",
-                              textAlign: "center",
-                              display: "inline-flex",
-                              alignItems: "center",
-                              justifyContent: "center",
-                              gap: "4px",
-                            }}
+                            className="p-2.5 rounded-xl border border-sky-300 bg-sky-50/70 hover:bg-sky-100 text-sky-700 text-xs font-bold cursor-pointer flex items-center justify-center gap-1.5 transition-all active:scale-[0.98]"
                           >
-                            <Smartphone size={13} />
-                            <span>DANA: 0812-9876-5432</span>
+                            <Smartphone size={14} className="flex-shrink-0" />
+                            <span className="truncate">DANA: 0812-9876-5432</span>
                           </button>
 
                           <button
@@ -930,24 +907,10 @@ export default function ClipperWalletPage() {
                               setAccountNumber("081311223344");
                               setShowPokoModal(true);
                             }}
-                            style={{
-                              padding: "8px 6px",
-                              borderRadius: "10px",
-                              border: "1px solid #00aed6",
-                              backgroundColor: "#e6f8fc",
-                              color: "#00aed6",
-                              fontSize: "0.75rem",
-                              fontWeight: 700,
-                              cursor: "pointer",
-                              textAlign: "center",
-                              display: "inline-flex",
-                              alignItems: "center",
-                              justifyContent: "center",
-                              gap: "4px",
-                            }}
+                            className="p-2.5 rounded-xl border border-cyan-300 bg-cyan-50/70 hover:bg-cyan-100 text-cyan-700 text-xs font-bold cursor-pointer flex items-center justify-center gap-1.5 transition-all active:scale-[0.98]"
                           >
-                            <CheckCircle2 size={13} />
-                            <span>GoPay: 0813-1122-3344</span>
+                            <CheckCircle2 size={14} className="flex-shrink-0" />
+                            <span className="truncate">GoPay: 0813-1122-3344</span>
                           </button>
 
                           <button
@@ -957,24 +920,10 @@ export default function ClipperWalletPage() {
                               setAccountNumber("8830192812");
                               setShowPokoModal(true);
                             }}
-                            style={{
-                              padding: "8px 6px",
-                              borderRadius: "10px",
-                              border: "1px solid #005baa",
-                              backgroundColor: "#e6eff7",
-                              color: "#005baa",
-                              fontSize: "0.75rem",
-                              fontWeight: 700,
-                              cursor: "pointer",
-                              textAlign: "center",
-                              display: "inline-flex",
-                              alignItems: "center",
-                              justifyContent: "center",
-                              gap: "4px",
-                            }}
+                            className="p-2.5 rounded-xl border border-blue-300 bg-blue-50/70 hover:bg-blue-100 text-blue-700 text-xs font-bold cursor-pointer flex items-center justify-center gap-1.5 transition-all active:scale-[0.98]"
                           >
-                            <Building size={13} />
-                            <span>BCA: 8830-1928-12</span>
+                            <Building size={14} className="flex-shrink-0" />
+                            <span className="truncate">BCA: 8830-1928-12</span>
                           </button>
                         </div>
                       </div>
@@ -983,33 +932,15 @@ export default function ClipperWalletPage() {
                       <button
                         type="button"
                         onClick={() => setShowPokoModal(true)}
-                        style={{
-                          width: "100%",
-                          padding: "14px",
-                          borderRadius: "14px",
-                          background: "linear-gradient(135deg, #118eea 0%, #00aed6 100%)",
-                          color: "#ffffff",
-                          fontSize: "0.9375rem",
-                          fontWeight: 800,
-                          border: "none",
-                          cursor: "pointer",
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "center",
-                          gap: "10px",
-                          boxShadow: "0 4px 16px rgba(17, 142, 234, 0.35)",
-                          transition: "transform 0.15s ease",
-                        }}
-                        onMouseOver={(e) => (e.currentTarget.style.transform = "translateY(-1px)")}
-                        onMouseOut={(e) => (e.currentTarget.style.transform = "translateY(0)")}
+                        className="w-full p-3.5 rounded-2xl bg-gradient-to-r from-sky-600 to-cyan-600 hover:from-sky-700 hover:to-cyan-700 text-white font-extrabold text-sm border-none cursor-pointer flex items-center justify-center gap-2 shadow-lg shadow-sky-500/25 transition-all active:scale-[0.99]"
                       >
-                        <Zap size={18} />
+                        <Zap size={17} />
                         <span>Buka Poko Off-Ramp Gateway</span>
                         <ArrowRight size={16} />
                       </button>
 
-                      <div style={{ textAlign: "center", fontSize: "0.6875rem", color: "#64748b", display: "flex", alignItems: "center", justifyContent: "center", gap: "4px" }}>
-                        <Lock size={11} />
+                      <div className="flex items-center justify-center gap-1.5 text-center text-[11px] text-slate-500 flex-wrap pt-1">
+                        <Lock size={12} className="flex-shrink-0 text-slate-400" />
                         <span>Didukung oleh Poko On/Off Ramp SDK • Terkoneksi ke BI-FAST Switcher</span>
                       </div>
                     </div>
