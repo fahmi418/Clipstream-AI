@@ -1,5 +1,15 @@
-const API_BASE =
-  process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3001";
+export function getApiBase(): string {
+  if (typeof window === "undefined") {
+    return process.env.INTERNAL_API_URL || process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:3001";
+  }
+  if (process.env.NEXT_PUBLIC_API_URL) {
+    return process.env.NEXT_PUBLIC_API_URL;
+  }
+  if (window.location.port === "3000") {
+    return `${window.location.protocol}//${window.location.hostname}:3001`;
+  }
+  return "";
+}
 
 // ── Types ──────────────────────────────────────────────────────────────
 
@@ -162,9 +172,10 @@ async function request<T>(
     ...((init?.headers as Record<string, string>) ?? {}),
   };
 
+  const apiBase = getApiBase();
   let res: Response;
   try {
-    res = await fetch(`${API_BASE}${path}`, {
+    res = await fetch(`${apiBase}${path}`, {
       credentials: "include",
       headers,
       ...init,
@@ -173,7 +184,7 @@ async function request<T>(
     // Retry once after 600ms in case backend API is momentarily restarting
     try {
       await new Promise((r) => setTimeout(r, 600));
-      res = await fetch(`${API_BASE}${path}`, {
+      res = await fetch(`${apiBase}${path}`, {
         credentials: "include",
         headers,
         ...init,
@@ -181,7 +192,7 @@ async function request<T>(
     } catch {
       throw new ApiRequestError(
         "NETWORK_ERROR",
-        `Koneksi ke backend API terputus (${API_BASE}${path}).`,
+        `Koneksi ke backend API terputus (${apiBase}${path}).`,
         0
       );
     }
