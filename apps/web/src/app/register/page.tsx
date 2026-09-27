@@ -22,6 +22,7 @@ import {
 } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
 import type { UserRole } from "@/lib/api";
+import { requestAccounts, getInjectedProvider } from "@/lib/wallet-helper";
 
 function RegisterFormContent() {
   const router = useRouter();
@@ -130,19 +131,16 @@ function RegisterFormContent() {
       setLoading(true);
       let address = manualWallet.trim();
 
-      const eth = (window as unknown as { ethereum?: { request: (args: { method: string }) => Promise<string[]> } }).ethereum;
-      if (eth) {
-        const accounts = await eth.request({
-          method: "eth_requestAccounts",
-        });
-
+      const provider = getInjectedProvider();
+      if (provider) {
+        const accounts = await requestAccounts();
         if (!accounts || accounts.length === 0) {
-          throw new Error("Tidak ada akun Web3 wallet yang dipilih.");
+          throw new Error("Tidak ada akun Web3 wallet (Trust Wallet / MetaMask) yang dipilih.");
         }
         address = accounts[0];
       } else {
         if (!address) {
-          throw new Error("Silakan masukkan alamat wallet EVM publik Anda.");
+          throw new Error("Browser wallet tidak terdeteksi. Silakan masukkan alamat wallet EVM publik Anda di bawah.");
         }
       }
 
