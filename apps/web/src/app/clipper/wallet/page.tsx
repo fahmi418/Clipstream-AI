@@ -656,8 +656,8 @@ export default function ClipperWalletPage() {
           <div className="flex flex-col lg:grid lg:grid-cols-12 gap-6 items-start">
             {/* Left Column: Form Penarikan & Riwayat */}
             <div className="w-full lg:col-span-7 bg-white rounded-3xl border border-black/10 p-5 sm:p-7 shadow-sm">
-              {/* Tab Selector */}
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-1.5 p-1 bg-[#f0eeea] rounded-xl mb-6">
+              {/* Sleek Tab Selector */}
+              <div className="flex items-center gap-1 p-1 bg-[#f4f3f0] rounded-2xl mb-6 border border-black/5">
                 <button
                   type="button"
                   onClick={() => {
@@ -665,25 +665,14 @@ export default function ClipperWalletPage() {
                     setErrorMsg(null);
                     setSuccessReceipt(null);
                   }}
-                  style={{
-                    padding: "8px 12px",
-                    borderRadius: "9px",
-                    fontSize: "0.8125rem",
-                    fontWeight: 700,
-                    border: "none",
-                    cursor: "pointer",
-                    transition: "all 0.15s ease",
-                    backgroundColor: activeTab === "FIAT" ? "#ffffff" : "transparent",
-                    color: activeTab === "FIAT" ? "#118eea" : "#777777",
-                    boxShadow: activeTab === "FIAT" ? "0 1px 3px rgba(0,0,0,0.06)" : "none",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    gap: "6px",
-                  }}
+                  className={`flex-1 py-2.5 px-2 rounded-xl text-xs sm:text-sm font-bold transition-all flex items-center justify-center gap-1.5 ${
+                    activeTab === "FIAT"
+                      ? "bg-white text-sky-600 shadow-sm border border-black/5"
+                      : "text-neutral-500 hover:text-neutral-800"
+                  }`}
                 >
                   <Zap size={14} />
-                  <span>DANA / Bank (Poko)</span>
+                  <span className="truncate">DANA / Bank</span>
                 </button>
 
                 <button
@@ -693,25 +682,14 @@ export default function ClipperWalletPage() {
                     setErrorMsg(null);
                     setSuccessReceipt(null);
                   }}
-                  style={{
-                    padding: "8px 12px",
-                    borderRadius: "9px",
-                    fontSize: "0.8125rem",
-                    fontWeight: 600,
-                    border: "none",
-                    cursor: "pointer",
-                    transition: "all 0.15s ease",
-                    backgroundColor: activeTab === "CRYPTO" ? "#ffffff" : "transparent",
-                    color: activeTab === "CRYPTO" ? "#111111" : "#777777",
-                    boxShadow: activeTab === "CRYPTO" ? "0 1px 3px rgba(0,0,0,0.06)" : "none",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    gap: "6px",
-                  }}
+                  className={`flex-1 py-2.5 px-2 rounded-xl text-xs sm:text-sm font-bold transition-all flex items-center justify-center gap-1.5 ${
+                    activeTab === "CRYPTO"
+                      ? "bg-white text-neutral-900 shadow-sm border border-black/5"
+                      : "text-neutral-500 hover:text-neutral-800"
+                  }`}
                 >
                   <Wallet size={14} />
-                  <span>MetaMask / Web3</span>
+                  <span className="truncate">MetaMask</span>
                 </button>
 
                 <button
@@ -721,25 +699,14 @@ export default function ClipperWalletPage() {
                     setErrorMsg(null);
                     setSuccessReceipt(null);
                   }}
-                  style={{
-                    padding: "8px 12px",
-                    borderRadius: "9px",
-                    fontSize: "0.8125rem",
-                    fontWeight: 600,
-                    border: "none",
-                    cursor: "pointer",
-                    transition: "all 0.15s ease",
-                    backgroundColor: activeTab === "HISTORY" ? "#ffffff" : "transparent",
-                    color: activeTab === "HISTORY" ? "#111111" : "#777777",
-                    boxShadow: activeTab === "HISTORY" ? "0 1px 3px rgba(0,0,0,0.06)" : "none",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    gap: "6px",
-                  }}
+                  className={`flex-1 py-2.5 px-2 rounded-xl text-xs sm:text-sm font-bold transition-all flex items-center justify-center gap-1.5 ${
+                    activeTab === "HISTORY"
+                      ? "bg-white text-neutral-900 shadow-sm border border-black/5"
+                      : "text-neutral-500 hover:text-neutral-800"
+                  }`}
                 >
                   <History size={14} />
-                  <span>Riwayat</span>
+                  <span className="truncate">Riwayat</span>
                 </button>
               </div>
 

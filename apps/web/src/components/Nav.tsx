@@ -986,8 +986,8 @@ export function Nav() {
                   {/* Mobile Drawer Hamburger Button */}
                   <button
                     type="button"
-                    onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                    className="flex lg:hidden items-center justify-center p-1.5 rounded-full hover:bg-black/5"
+                    onClick={() => setMobileMenuOpen((prev) => !prev)}
+                    className="flex lg:hidden items-center justify-center p-2 rounded-full hover:bg-black/5 active:scale-95 transition-all text-neutral-800"
                     style={{
                       background: "none",
                       border: "none",
@@ -997,261 +997,197 @@ export function Nav() {
                     aria-label="Toggle menu"
                   >
                     {mobileMenuOpen ? (
-                      <X size={20} color="#111" />
+                      <X size={20} />
                     ) : (
-                      <div style={{ display: "flex", flexDirection: "column", gap: "3.5px" }}>
-                        <div style={{ width: "18px", height: "2px", backgroundColor: "#111", borderRadius: "2px" }} />
-                        <div style={{ width: "18px", height: "2px", backgroundColor: "#111", borderRadius: "2px" }} />
-                        <div style={{ width: "18px", height: "2px", backgroundColor: "#111", borderRadius: "2px" }} />
+                      <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
+                        <div style={{ width: "20px", height: "2px", backgroundColor: "#111", borderRadius: "2px" }} />
+                        <div style={{ width: "20px", height: "2px", backgroundColor: "#111", borderRadius: "2px" }} />
+                        <div style={{ width: "20px", height: "2px", backgroundColor: "#111", borderRadius: "2px" }} />
                       </div>
                     )}
                   </button>
                 </div>
               </div>
-
-              {/* Mobile Drawer Menu */}
-              {mobileMenuOpen && (
-                <div
-                  className="am-navbar-mobile-menu-wrapper"
-                  style={{
-                    backgroundColor: "#ffffff",
-                    padding: "1.25rem",
-                    borderRadius: "1.25rem",
-                    marginTop: "0.5rem",
-                    border: "1px solid rgba(17,17,17,0.08)",
-                    boxShadow: "0 20px 45px -10px rgba(0,0,0,0.15)",
-                    maxHeight: "80vh",
-                    overflowY: "auto",
-                  }}
-                >
-                  <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
-                    {/* Public Navigation */}
-                    <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
-                      <div style={{ fontSize: "0.6875rem", fontWeight: 700, color: "rgba(17,17,17,0.4)", textTransform: "uppercase", letterSpacing: "0.05em", paddingLeft: "0.25rem" }}>
-                        Navigasi Utama
-                      </div>
-                      <Link
-                        href="/campaigns"
-                        onClick={() => setMobileMenuOpen(false)}
-                        style={{
-                          fontSize: "0.9375rem",
-                          fontWeight: 600,
-                          color: "#111",
-                          textDecoration: "none",
-                          padding: "0.625rem 0.75rem",
-                          borderRadius: "10px",
-                          backgroundColor: "rgba(17,17,17,0.03)",
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "space-between",
-                        }}
-                      >
-                        <span style={{ display: "inline-flex", alignItems: "center", gap: "8px" }}>
-                          <Flame size={17} color="#e8400d" />
-                          <span>Marketplace Kampanye</span>
-                        </span>
-                        <ArrowRight size={14} color="#888" />
-                      </Link>
-
-                      <Link
-                        href="/clipper"
-                        onClick={() => setMobileMenuOpen(false)}
-                        style={{
-                          fontSize: "0.9375rem",
-                          fontWeight: 600,
-                          color: "#111",
-                          textDecoration: "none",
-                          padding: "0.625rem 0.75rem",
-                          borderRadius: "10px",
-                          backgroundColor: "rgba(17,17,17,0.03)",
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "space-between",
-                        }}
-                      >
-                        <span style={{ display: "inline-flex", alignItems: "center", gap: "8px" }}>
-                          <Scissors size={17} color="#e8400d" />
-                          <span>Clipper Studio</span>
-                        </span>
-                        <ArrowRight size={14} color="#888" />
-                      </Link>
-
-                      {userRole === "CLIPPER" ? (
-                        <Link
-                          href="/clipper/wallet"
-                          onClick={() => setMobileMenuOpen(false)}
-                          style={{
-                            fontSize: "0.9375rem",
-                            fontWeight: 600,
-                            color: "#059669",
-                            textDecoration: "none",
-                            padding: "0.625rem 0.75rem",
-                            borderRadius: "10px",
-                            backgroundColor: "#ecfdf5",
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "space-between",
-                          }}
-                        >
-                          <span style={{ display: "inline-flex", alignItems: "center", gap: "8px" }}>
-                            <Wallet size={17} color="#059669" />
-                            <span>Dompet &amp; Saldo</span>
-                          </span>
-                          <ArrowRight size={14} color="#059669" />
-                        </Link>
-                      ) : (
-                        <Link
-                          href="/brand/new"
-                          onClick={() => setMobileMenuOpen(false)}
-                          style={{
-                            fontSize: "0.9375rem",
-                            fontWeight: 600,
-                            color: "#111",
-                            textDecoration: "none",
-                            padding: "0.625rem 0.75rem",
-                            borderRadius: "10px",
-                            backgroundColor: "rgba(17,17,17,0.03)",
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "space-between",
-                          }}
-                        >
-                          <span style={{ display: "inline-flex", alignItems: "center", gap: "8px" }}>
-                            <Rocket size={17} color="#e8400d" />
-                            <span>Pasang Bounty Brand</span>
-                          </span>
-                          <ArrowRight size={14} color="#888" />
-                        </Link>
-                      )}
-
-                      <Link
-                        href="/blog"
-                        onClick={() => setMobileMenuOpen(false)}
-                        style={{
-                          fontSize: "0.9375rem",
-                          fontWeight: 600,
-                          color: "#111",
-                          textDecoration: "none",
-                          padding: "0.625rem 0.75rem",
-                          borderRadius: "10px",
-                          backgroundColor: "rgba(17,17,17,0.03)",
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "space-between",
-                        }}
-                      >
-                        <span style={{ display: "inline-flex", alignItems: "center", gap: "8px" }}>
-                          <BookOpen size={17} color="#e8400d" />
-                          <span>Blog &amp; Tutorial</span>
-                        </span>
-                        <ArrowRight size={14} color="#888" />
-                      </Link>
-                    </div>
-
-                    <div style={{ height: "1px", backgroundColor: "rgba(17,17,17,0.08)" }} />
-
-                    {/* Account Section */}
-                    {isLoggedIn ? (
-                      <div style={{ display: "flex", flexDirection: "column", gap: "0.625rem" }}>
-                        <Link
-                          href={dashboardHref}
-                          onClick={() => setMobileMenuOpen(false)}
-                          style={{
-                            fontSize: "0.9375rem",
-                            fontWeight: 700,
-                            color: "#fff",
-                            backgroundColor: "#111",
-                            padding: "0.75rem 1rem",
-                            borderRadius: "12px",
-                            textDecoration: "none",
-                            textAlign: "center",
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "center",
-                            gap: "0.5rem",
-                          }}
-                        >
-                          <span>Masuk ke {dashboardLabel}</span>
-                          <ArrowRight size={14} />
-                        </Link>
-
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setMobileMenuOpen(false);
-                            handleLogout();
-                          }}
-                          style={{
-                            background: "none",
-                            border: "none",
-                            color: "#dc2626",
-                            fontSize: "0.875rem",
-                            fontWeight: 600,
-                            cursor: "pointer",
-                            padding: "0.5rem",
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "center",
-                            gap: "0.35rem",
-                            marginTop: "0.25rem",
-                          }}
-                        >
-                          <LogOut size={14} />
-                          <span>Keluar Akun</span>
-                        </button>
-                      </div>
-                    ) : (
-                      <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
-                        <Link
-                          href="/login"
-                          onClick={() => setMobileMenuOpen(false)}
-                          className="am-nav-btn is-secondary"
-                          style={{
-                            padding: "0.75rem",
-                            borderRadius: "12px",
-                            fontWeight: 600,
-                            textAlign: "center",
-                            display: "block",
-                            textDecoration: "none",
-                            backgroundColor: "rgba(17,17,17,0.04)",
-                            border: "1px solid rgba(17,17,17,0.08)",
-                            color: "#111",
-                            fontSize: "0.9375rem",
-                          }}
-                        >
-                          Masuk ke Akun
-                        </Link>
-                        <Link
-                          href="/register"
-                          onClick={() => setMobileMenuOpen(false)}
-                          className="am-nav-btn"
-                          style={{
-                            backgroundColor: "#111",
-                            color: "#fff",
-                            padding: "0.75rem",
-                            borderRadius: "12px",
-                            fontWeight: 600,
-                            textAlign: "center",
-                            display: "block",
-                            textDecoration: "none",
-                            border: "none",
-                            fontSize: "0.9375rem",
-                          }}
-                        >
-                          <span style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", gap: "8px" }}>
-                            <span>Mulai Gratis</span>
-                            <Rocket size={16} />
-                          </span>
-                        </Link>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              )}
             </div>
           </div>
         </nav>
       </div>
+
+      {/* Floating Standalone Mobile Drawer with Backdrop */}
+      {mobileMenuOpen && (
+        <>
+          {/* Backdrop Blur */}
+          <div
+            onClick={() => setMobileMenuOpen(false)}
+            className="fixed inset-0 bg-black/50 backdrop-blur-xs z-[99998] transition-opacity animate-in fade-in"
+          />
+
+          {/* Floating Mobile Sheet Card */}
+          <div className="fixed top-16 left-3 right-3 max-w-lg mx-auto bg-white/95 backdrop-blur-2xl rounded-3xl border border-black/10 shadow-2xl p-5 z-[99999] max-h-[85vh] overflow-y-auto animate-in fade-in zoom-in-95 duration-150">
+            {/* Header with User Info or Quick Welcome */}
+            <div className="flex items-center justify-between pb-3 mb-3 border-b border-black/5">
+              <div className="flex items-center gap-2.5">
+                <Logo theme="light" width={120} height={28} />
+              </div>
+              <button
+                type="button"
+                onClick={() => setMobileMenuOpen(false)}
+                className="w-8 h-8 rounded-full bg-neutral-100 flex items-center justify-center text-neutral-600 hover:text-neutral-900 transition-colors border-none cursor-pointer"
+              >
+                <X size={16} />
+              </button>
+            </div>
+
+            {/* Authenticated User Status Card */}
+            {isLoggedIn && (
+              <div className="mb-4 p-3.5 bg-neutral-50 rounded-2xl border border-black/5 flex items-center justify-between">
+                <div className="flex items-center gap-2.5 min-w-0">
+                  <div className="w-9 h-9 rounded-xl bg-orange-500 text-white flex items-center justify-center font-bold text-sm flex-shrink-0">
+                    {(user?.displayName || "U")[0].toUpperCase()}
+                  </div>
+                  <div className="min-w-0">
+                    <div className="text-xs font-bold text-neutral-900 truncate">
+                      {user?.displayName || "Pengguna Aktif"}
+                    </div>
+                    <div className="text-[10px] text-neutral-500 font-mono truncate">
+                      {user?.walletAddress ? `${user.walletAddress.slice(0, 6)}...${user.walletAddress.slice(-4)}` : user?.email || "Akun Terhubung"}
+                    </div>
+                  </div>
+                </div>
+
+                <span className="text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-orange-100 text-orange-700 uppercase tracking-wider flex-shrink-0">
+                  {userRole}
+                </span>
+              </div>
+            )}
+
+            {/* Navigation List */}
+            <div className="flex flex-col gap-1.5 mb-4">
+              <div className="text-[10px] font-bold text-neutral-400 uppercase tracking-wider px-2 mb-1">
+                Navigasi Utama
+              </div>
+
+              <Link
+                href="/campaigns"
+                onClick={() => setMobileMenuOpen(false)}
+                className="flex items-center justify-between p-3 rounded-xl text-neutral-800 hover:bg-neutral-100/80 transition-all font-semibold text-sm no-underline"
+              >
+                <span className="flex items-center gap-2.5">
+                  <Flame size={18} className="text-orange-600" />
+                  <span>Marketplace Kampanye</span>
+                </span>
+                <ArrowRight size={14} className="text-neutral-400" />
+              </Link>
+
+              <Link
+                href="/clipper"
+                onClick={() => setMobileMenuOpen(false)}
+                className="flex items-center justify-between p-3 rounded-xl text-neutral-800 hover:bg-neutral-100/80 transition-all font-semibold text-sm no-underline"
+              >
+                <span className="flex items-center gap-2.5">
+                  <Scissors size={18} className="text-orange-600" />
+                  <span>Clipper Studio</span>
+                </span>
+                <ArrowRight size={14} className="text-neutral-400" />
+              </Link>
+
+              <Link
+                href="/clipper/wallet"
+                onClick={() => setMobileMenuOpen(false)}
+                className="flex items-center justify-between p-3 rounded-xl text-emerald-800 bg-emerald-50/60 hover:bg-emerald-50 transition-all font-semibold text-sm no-underline border border-emerald-100"
+              >
+                <span className="flex items-center gap-2.5">
+                  <Wallet size={18} className="text-emerald-600" />
+                  <span>Dompet &amp; Penarikan Poko</span>
+                </span>
+                <span className="text-[10px] font-bold bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-full">
+                  Instan
+                </span>
+              </Link>
+
+              <Link
+                href="/brand/new"
+                onClick={() => setMobileMenuOpen(false)}
+                className="flex items-center justify-between p-3 rounded-xl text-neutral-800 hover:bg-neutral-100/80 transition-all font-semibold text-sm no-underline"
+              >
+                <span className="flex items-center gap-2.5">
+                  <Rocket size={18} className="text-sky-600" />
+                  <span>Pasang Bounty Brand</span>
+                </span>
+                <ArrowRight size={14} className="text-neutral-400" />
+              </Link>
+
+              <Link
+                href="/admin/ai-monitoring"
+                onClick={() => setMobileMenuOpen(false)}
+                className="flex items-center justify-between p-3 rounded-xl text-neutral-800 hover:bg-neutral-100/80 transition-all font-semibold text-sm no-underline"
+              >
+                <span className="flex items-center gap-2.5">
+                  <Bot size={18} className="text-violet-600" />
+                  <span>Observabilitas AI &amp; Token</span>
+                </span>
+                <ArrowRight size={14} className="text-neutral-400" />
+              </Link>
+
+              <Link
+                href="/blog"
+                onClick={() => setMobileMenuOpen(false)}
+                className="flex items-center justify-between p-3 rounded-xl text-neutral-800 hover:bg-neutral-100/80 transition-all font-semibold text-sm no-underline"
+              >
+                <span className="flex items-center gap-2.5">
+                  <BookOpen size={18} className="text-neutral-600" />
+                  <span>Blog &amp; Panduan Komunitas</span>
+                </span>
+                <ArrowRight size={14} className="text-neutral-400" />
+              </Link>
+            </div>
+
+            {/* Auth Actions: Logged In vs Logged Out */}
+            {isLoggedIn ? (
+              <div className="pt-3 border-t border-black/5 flex flex-col gap-2">
+                <Link
+                  href={dashboardHref}
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="w-full py-3 px-4 rounded-xl bg-neutral-900 text-white font-bold text-sm text-center flex items-center justify-center gap-2 no-underline shadow-md shadow-black/10"
+                >
+                  <span>Buka {dashboardLabel}</span>
+                  <ArrowRight size={14} />
+                </Link>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    setMobileMenuOpen(false);
+                    handleLogout();
+                  }}
+                  className="w-full py-2.5 px-4 rounded-xl bg-red-50 hover:bg-red-100/80 text-red-600 font-bold text-xs flex items-center justify-center gap-1.5 cursor-pointer border border-red-200/60 transition-all"
+                >
+                  <LogOut size={14} />
+                  <span>Keluar Akun ({user?.displayName || "Saya"})</span>
+                </button>
+              </div>
+            ) : (
+              <div className="pt-3 border-t border-black/5 grid grid-cols-2 gap-2">
+                <Link
+                  href="/login"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="py-3 px-3 rounded-xl bg-neutral-100 hover:bg-neutral-200/70 text-neutral-800 font-bold text-xs text-center no-underline border border-black/5"
+                >
+                  Masuk ke Akun
+                </Link>
+                <Link
+                  href="/register"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="py-3 px-3 rounded-xl bg-neutral-900 text-white font-bold text-xs text-center no-underline flex items-center justify-center gap-1 shadow-sm"
+                >
+                  <span>Mulai Gratis</span>
+                  <Rocket size={13} />
+                </Link>
+              </div>
+            )}
+          </div>
+        </>
+      )}
 
       {/* Role Selection & Login Modal */}
       <RoleSelectModal

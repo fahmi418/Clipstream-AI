@@ -448,17 +448,10 @@ export default function CampaignDetailPage({
           </div>
 
           {/* ── MAIN TWO-COLUMN GRID ───────────────────────────── */}
-          <div
-            style={{
-              display: "grid",
-              gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))",
-              gap: "2rem",
-              alignItems: "start",
-            }}
-          >
+          <div className="flex flex-col lg:grid lg:grid-cols-12 gap-8 items-start">
 
             {/* ── LEFT COLUMN: VIDEO SHOWCASE & TABS (65%) ─── */}
-            <div style={{ display: "flex", flexDirection: "column", gap: "1.75rem", gridColumn: "span 2" }}>
+            <div className="w-full lg:col-span-8 flex flex-col gap-6">
 
               {/* Video Player Card */}
               <div
@@ -1043,7 +1036,7 @@ export default function CampaignDetailPage({
             </div>
 
             {/* ── RIGHT COLUMN: HERO REWARD & ACTIONS (35%) ─────── */}
-            <div style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}>
+            <div className="w-full lg:col-span-4 flex flex-col gap-6">
 
               {/* Card 1: Main Payout Hero Box */}
               <div
@@ -1065,8 +1058,9 @@ export default function CampaignDetailPage({
                   <div style={{ fontSize: "2rem", fontWeight: 800, color: "#111111", letterSpacing: "-0.02em", marginTop: "0.25rem" }}>
                     {formatCpm(campaign.cpmRate)}
                   </div>
-                  <div style={{ display: "inline-flex", alignItems: "center", gap: "0.4rem", marginTop: "0.5rem", padding: "0.25rem 0.65rem", borderRadius: "9999px", backgroundColor: "#ecfdf5", color: "#059669", fontSize: "0.6875rem", fontWeight: 700 }}>
-                    <span>• 70% Cair Langsung • 30% Holdback 3 Hari</span>
+                  <div className="inline-flex items-center gap-1.5 mt-2 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200/60 text-emerald-700 text-xs font-bold">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                    <span>70% Cair Langsung · 30% Holdback 3 Hari</span>
                   </div>
                 </div>
 
