@@ -153,6 +153,13 @@ function AuthProvider({ children }: { children: ReactNode }) {
 export function Providers({ children }: { children: ReactNode }) {
   const queryClient = getQueryClient();
 
+  const isSecureContext =
+    typeof window !== "undefined"
+      ? window.location.protocol === "https:" ||
+        window.location.hostname === "localhost" ||
+        window.location.hostname === "127.0.0.1"
+      : false;
+
   return (
     <PrivyProvider
       appId={privyAppId}
@@ -162,11 +169,15 @@ export function Providers({ children }: { children: ReactNode }) {
           theme: "light",
           accentColor: "#111111",
         },
-        embeddedWallets: {
-          ethereum: {
-            createOnLogin: "users-without-wallets",
-          },
-        },
+        ...(isSecureContext
+          ? {
+              embeddedWallets: {
+                ethereum: {
+                  createOnLogin: "users-without-wallets",
+                },
+              },
+            }
+          : {}),
       }}
     >
       <WagmiProvider config={wagmiConfig}>
