@@ -21,7 +21,6 @@ export function Logo({
   const bgGradId = `cs-bg-${id}`;
 
   const iconBg = isDark ? "#09090b" : "#0f172a";
-  const iconBorder = isDark ? "rgba(255,255,255,0.18)" : "rgba(255,255,255,0.12)";
   const textColor = isDark ? "#FFFFFF" : "#0f172a";
 
   return (
@@ -65,8 +64,6 @@ export function Logo({
           height="32"
           rx="9"
           fill={`url(#${bgGradId})`}
-          stroke={iconBorder}
-          strokeWidth="1.2"
         />
 
         {/* ── THE KINETIC PLAY-STREAM MARK ── */}

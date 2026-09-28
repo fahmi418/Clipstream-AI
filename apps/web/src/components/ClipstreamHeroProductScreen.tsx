@@ -207,7 +207,6 @@ export function ClipstreamHeroProductScreen() {
       style={{
         backgroundColor: "#ffffff",
         borderRadius: "16px",
-        border: "1px solid rgba(0, 0, 0, 0.08)",
         boxShadow:
           "0 18px 45px -10px rgba(0, 0, 0, 0.1), 0 2px 8px rgba(0, 0, 0, 0.03)",
         overflow: "hidden",

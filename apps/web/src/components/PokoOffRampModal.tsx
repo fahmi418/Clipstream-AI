@@ -41,6 +41,32 @@ const SUPPORTED_EWALLETS = EWALLET_PROVIDERS;
 const SUPPORTED_BANKS = BANK_PROVIDERS;
 const HACKATHON_PRESETS = HACKATHON_DEMO_PRESETS;
 
+const PROVIDER_LOGO_SRC: Record<string, string> = {
+  DANA: "/assets/logos/dana.svg",
+  GOPAY: "/assets/logos/gopay.svg",
+  OVO: "/assets/logos/ovo.svg",
+  SHOPEEPAY: "/assets/logos/shopeepay.svg",
+  BCA: "/assets/logos/bca.svg",
+  MANDIRI: "/assets/logos/mandiri.svg",
+  BRI: "/assets/logos/bri.svg",
+  BNI: "/assets/logos/bni.svg",
+};
+
+function ProviderLogo({ id, size = 34 }: { id: string; size?: number }) {
+  const src = PROVIDER_LOGO_SRC[id];
+  if (!src) return null;
+  return (
+    <img
+      src={src}
+      alt={`${id} logo`}
+      width={size}
+      height={size}
+      style={{ width: size, height: size, objectFit: "contain", flexShrink: 0 }}
+      draggable={false}
+    />
+  );
+}
+
 export function PokoOffRampModal({
   isOpen,
   onClose,
@@ -216,6 +242,9 @@ export function PokoOffRampModal({
           style={{
             width: "100%",
             maxWidth: "560px",
+            maxHeight: "calc(100vh - 2rem)",
+            display: "flex",
+            flexDirection: "column",
             backgroundColor: "#ffffff",
             borderRadius: "28px",
             border: "1px solid rgba(0, 0, 0, 0.08)",
@@ -268,7 +297,7 @@ export function PokoOffRampModal({
                   </span>
                   <span
                     style={{
-                      fontSize: "0.5625rem",
+                      fontSize: "0.6875rem",
                       fontWeight: 800,
                       color: "#118eea",
                       backgroundColor: "#eef7fe",
@@ -309,7 +338,7 @@ export function PokoOffRampModal({
           </div>
 
           {/* Body Content */}
-          <div style={{ padding: "1.5rem 1.75rem", maxHeight: "85vh", overflowY: "auto" }}>
+          <div style={{ padding: "1.5rem 1.75rem", flex: "1 1 auto", minHeight: 0, overflowY: "auto" }}>
             {/* Step 1: Input Form */}
             {step === "INPUT" && (
               <form onSubmit={handleStartWithdrawal} style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
@@ -723,7 +752,7 @@ export function PokoOffRampModal({
                   </div>
 
                   {/* Provider Pills */}
-                  <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "6px" }}>
+                  <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "8px" }}>
                     {(method === "EWALLET" ? SUPPORTED_EWALLETS : SUPPORTED_BANKS).map((item) => {
                       const isSelected = provider === item.id;
                       return (
@@ -732,8 +761,8 @@ export function PokoOffRampModal({
                           type="button"
                           onClick={() => setProvider(item.id)}
                           style={{
-                            padding: "8px 4px",
-                            borderRadius: "12px",
+                            padding: "10px 6px",
+                            borderRadius: "14px",
                             border: `1.5px solid ${isSelected ? item.color : "rgba(0,0,0,0.08)"}`,
                             backgroundColor: isSelected ? item.bg : "#ffffff",
                             cursor: "pointer",
@@ -741,14 +770,16 @@ export function PokoOffRampModal({
                             flexDirection: "column",
                             alignItems: "center",
                             justifyContent: "center",
-                            gap: "2px",
+                            gap: "6px",
                             transition: "all 0.15s ease",
+                            position: "relative",
                           }}
                         >
+                          <ProviderLogo id={item.id} size={34} />
                           <span
                             style={{
-                              fontSize: "0.75rem",
-                              fontWeight: 800,
+                              fontSize: "0.6875rem",
+                              fontWeight: 700,
                               color: isSelected ? item.color : "#333",
                             }}
                           >
@@ -757,12 +788,20 @@ export function PokoOffRampModal({
                           {isSelected && (
                             <div
                               style={{
-                                width: "4px",
-                                height: "4px",
+                                position: "absolute",
+                                top: "6px",
+                                right: "6px",
+                                width: "16px",
+                                height: "16px",
                                 borderRadius: "50%",
                                 backgroundColor: item.color,
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "center",
                               }}
-                            />
+                            >
+                              <Check size={10} color="#fff" strokeWidth={3.5} />
+                            </div>
                           )}
                         </button>
                       );
@@ -770,7 +809,7 @@ export function PokoOffRampModal({
                   </div>
 
                   {/* Account Input Fields */}
-                  <div style={{ display: "grid", gridTemplateColumns: "1.2fr 1fr", gap: "8px" }}>
+                  <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))", gap: "8px" }}>
                     <div>
                       <label style={{ fontSize: "0.6875rem", fontWeight: 600, color: "#666", display: "block", marginBottom: "3px" }}>
                         {method === "EWALLET" ? "No. HP Akun E-Wallet" : "No. Rekening Bank"}

@@ -40,21 +40,12 @@ export function Nav() {
   const pathname = usePathname();
   const { login: privyLogin, authenticated, logout: privyLogout } = usePrivy();
   const { user, logout: authLogout } = useAuth();
-  const [scrolled, setScrolled] = useState(false);
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
   const [activeProductTab, setActiveProductTab] = useState<string>("ai-verifier");
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [showRoleModal, setShowRoleModal] = useState(false);
 
   const navRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const handleScroll = () => {
-      setScrolled(window.scrollY > 20);
-    };
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
 
   // Close dropdown on click outside or escape key
   useEffect(() => {
@@ -81,6 +72,18 @@ export function Nav() {
     setActiveDropdown(null);
     setMobileMenuOpen(false);
   }, [pathname]);
+
+  // Lock body scroll while mobile drawer is open
+  useEffect(() => {
+    if (mobileMenuOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [mobileMenuOpen]);
 
   const toggleDropdown = (name: string) => {
     setActiveDropdown((prev) => (prev === name ? null : name));
@@ -143,13 +146,12 @@ export function Nav() {
               }`}
             >
               <div
-                className={`am-nav-content is-big ${
-                  scrolled ? "is-minified" : ""
-                }`}
+                className="am-nav-content is-big"
                 style={{
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "space-between",
+                  gap: "0.5rem",
                   maxWidth: "70rem",
                   width: "100%",
                   padding: "0.35rem 0.5rem 0.35rem 1.125rem",
@@ -174,6 +176,7 @@ export function Nav() {
                   <Link
                     href="/"
                     aria-current="page"
+                    className="am-nav-logo"
                     style={{
                       textDecoration: "none",
                       display: "inline-flex",
@@ -1016,14 +1019,19 @@ export function Nav() {
       {/* Floating Standalone Mobile Drawer with Backdrop */}
       {mobileMenuOpen && (
         <>
-          {/* Backdrop Blur */}
+          {/* Backdrop Blur — stays below the navbar (z-1000) so the pill & toggle remain visible/usable */}
           <div
             onClick={() => setMobileMenuOpen(false)}
-            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[99998] transition-opacity animate-in fade-in duration-200"
+            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[998] am-drawer-backdrop"
           />
 
           {/* Floating Mobile Sheet Card */}
-          <div className="fixed top-18 left-3.5 right-3.5 sm:left-auto sm:right-6 sm:w-[410px] max-w-lg mx-auto bg-white/98 backdrop-blur-2xl rounded-3xl border border-black/10 shadow-[0_25px_70px_-15px_rgba(0,0,0,0.25)] p-5 sm:p-6 z-[99999] max-h-[82vh] overflow-y-auto flex flex-col animate-in fade-in zoom-in-95 duration-200">
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-label="Menu navigasi"
+            className="fixed top-18 left-3.5 right-3.5 sm:left-auto sm:right-6 sm:w-[410px] max-w-lg mx-auto bg-white/98 backdrop-blur-2xl rounded-3xl border border-black/10 shadow-[0_25px_70px_-15px_rgba(0,0,0,0.25)] p-5 sm:p-6 z-[999] max-h-[82vh] overflow-y-auto overscroll-contain flex flex-col am-drawer-card"
+          >
             {/* Header: Logo & Close Button */}
             <div className="flex items-center justify-between pb-3.5 border-b border-black/5">
               <div className="flex items-center gap-2">

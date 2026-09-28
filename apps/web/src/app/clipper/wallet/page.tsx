@@ -296,7 +296,7 @@ export default function ClipperWalletPage() {
           {/* Hackathon Sandbox Faucet Control Bar */}
           <div
             style={{
-              backgroundColor: "linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%)",
+              background: "linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%)",
               borderRadius: "16px",
               padding: "12px 18px",
               border: "1px solid rgba(17, 142, 234, 0.25)",
@@ -332,7 +332,7 @@ export default function ClipperWalletPage() {
                   </span>
                   <span
                     style={{
-                      fontSize: "0.5625rem",
+                      fontSize: "0.6875rem",
                       fontWeight: 800,
                       color: "#118eea",
                       backgroundColor: "#eef7fe",
@@ -428,7 +428,7 @@ export default function ClipperWalletPage() {
           <div
             style={{
               display: "grid",
-              gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))",
+              gridTemplateColumns: "repeat(auto-fit, minmax(min(260px, 100%), 1fr))",
               gap: "1rem",
               marginBottom: "2rem",
             }}
@@ -491,12 +491,14 @@ export default function ClipperWalletPage() {
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "space-between",
+                  flexWrap: "wrap",
+                  gap: "0.5rem",
                   fontSize: "0.75rem",
                 }}
               >
-                <div style={{ display: "flex", alignItems: "center", gap: "0.4rem", color: "rgba(255,255,255,0.6)" }}>
-                  <Wallet size={13} />
-                  <span>
+                <div style={{ display: "flex", alignItems: "center", gap: "0.4rem", color: "rgba(255,255,255,0.6)", minWidth: 0 }}>
+                  <Wallet size={13} style={{ flexShrink: 0 }} />
+                  <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                     Alamat On-Chain:{" "}
                     <strong style={{ color: "#ffffff", fontFamily: "monospace" }}>
                       {currentWalletAddress.slice(0, 6)}...{currentWalletAddress.slice(-4)}
@@ -544,14 +546,16 @@ export default function ClipperWalletPage() {
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
+                  flexWrap: "wrap",
                   gap: "8px",
+                  lineHeight: 1.3,
                   boxShadow: "0 4px 14px rgba(17, 142, 234, 0.3)",
                   transition: "transform 0.15s ease",
                 }}
               >
-                <Zap size={15} />
+                <Zap size={15} style={{ flexShrink: 0 }} />
                 <span>Tarik Instan ke DANA / Bank (Poko SDK)</span>
-                <ArrowRight size={14} />
+                <ArrowRight size={14} style={{ flexShrink: 0 }} />
               </button>
             </div>
 
@@ -671,7 +675,7 @@ export default function ClipperWalletPage() {
                       : "text-neutral-500 hover:text-neutral-800"
                   }`}
                 >
-                  <Zap size={14} className="flex-shrink-0" />
+                  <Zap size={14} className="hidden sm:block flex-shrink-0" />
                   <span className="truncate">DANA / Bank</span>
                 </button>
 
@@ -688,7 +692,7 @@ export default function ClipperWalletPage() {
                       : "text-neutral-500 hover:text-neutral-800"
                   }`}
                 >
-                  <Wallet size={14} className="flex-shrink-0" />
+                  <Wallet size={14} className="hidden sm:block flex-shrink-0" />
                   <span className="truncate">MetaMask</span>
                 </button>
 
@@ -705,7 +709,7 @@ export default function ClipperWalletPage() {
                       : "text-neutral-500 hover:text-neutral-800"
                   }`}
                 >
-                  <History size={14} className="flex-shrink-0" />
+                  <History size={14} className="hidden sm:block flex-shrink-0" />
                   <span className="truncate">Riwayat</span>
                 </button>
               </div>
@@ -1083,9 +1087,11 @@ export default function ClipperWalletPage() {
                               display: "flex",
                               alignItems: "center",
                               justifyContent: "space-between",
+                              flexWrap: "wrap",
+                              gap: "0.5rem",
                             }}
                           >
-                            <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
+                            <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", flex: "1 1 180px", minWidth: 0 }}>
                               <div
                                 style={{
                                   width: "36px",
@@ -1096,21 +1102,22 @@ export default function ClipperWalletPage() {
                                   alignItems: "center",
                                   justifyContent: "center",
                                   color: "#059669",
+                                  flexShrink: 0,
                                 }}
                               >
                                 <CheckCircle2 size={18} />
                               </div>
-                              <div>
-                                <div style={{ fontSize: "0.8125rem", fontWeight: 700, color: "#111" }}>
+                              <div style={{ minWidth: 0 }}>
+                                <div style={{ fontSize: "0.8125rem", fontWeight: 700, color: "#111", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                                   {w.provider} • {w.accountNumber}
                                 </div>
-                                <div style={{ fontSize: "0.6875rem", color: "#888", marginTop: "2px" }}>
+                                <div style={{ fontSize: "0.6875rem", color: "#888", marginTop: "2px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                                   {w.id} • {w.date}
                                 </div>
                               </div>
                             </div>
 
-                            <div style={{ textAlign: "right" }}>
+                            <div style={{ textAlign: "right", flexShrink: 0 }}>
                               <div style={{ fontSize: "0.875rem", fontWeight: 700, color: "#059669" }}>
                                 +Rp {w.amountIdr.toLocaleString("id-ID")}
                               </div>

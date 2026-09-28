@@ -444,7 +444,7 @@ export function ClipperWalletModal({
               <div
                 style={{
                   display: "grid",
-                  gridTemplateColumns: "1.2fr 1fr 0.8fr",
+                  gridTemplateColumns: "repeat(3, minmax(0, 1fr))",
                   padding: "4px",
                   backgroundColor: "#f1f0ec",
                   borderRadius: "14px",
@@ -556,7 +556,7 @@ export function ClipperWalletModal({
               {activeTab === "WITHDRAW" && (
                 <form onSubmit={handleWithdrawSubmit} style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
                   {/* Sub-selector: E-Wallet vs Bank */}
-                  <div style={{ display: "flex", gap: "8px" }}>
+                  <div style={{ display: "flex", flexWrap: "wrap", gap: "8px" }}>
                     <button
                       type="button"
                       onClick={() => {
@@ -564,7 +564,7 @@ export function ClipperWalletModal({
                         setSelectedProvider("DANA");
                       }}
                       style={{
-                        flex: 1,
+                        flex: "1 1 160px",
                         padding: "8px",
                         borderRadius: "10px",
                         border: withdrawType === "EWALLET" ? "2px solid #e8400d" : "1px solid rgba(0,0,0,0.1)",
@@ -573,6 +573,8 @@ export function ClipperWalletModal({
                         fontWeight: 700,
                         color: withdrawType === "EWALLET" ? "#e8400d" : "#666",
                         cursor: "pointer",
+                        textAlign: "center",
+                        lineHeight: 1.35,
                       }}
                     >
                       E-Wallet (DANA/GoPay/OVO)
@@ -585,7 +587,7 @@ export function ClipperWalletModal({
                         setSelectedProvider("BCA");
                       }}
                       style={{
-                        flex: 1,
+                        flex: "1 1 160px",
                         padding: "8px",
                         borderRadius: "10px",
                         border: withdrawType === "BANK" ? "2px solid #005baa" : "1px solid rgba(0,0,0,0.1)",
@@ -594,6 +596,8 @@ export function ClipperWalletModal({
                         fontWeight: 700,
                         color: withdrawType === "BANK" ? "#005baa" : "#666",
                         cursor: "pointer",
+                        textAlign: "center",
+                        lineHeight: 1.35,
                       }}
                     >
                       Transfer Bank (BCA/Mandiri/BRI)
@@ -605,7 +609,7 @@ export function ClipperWalletModal({
                     <label style={{ display: "block", fontSize: "0.75rem", fontWeight: 700, color: "#333", marginBottom: "6px" }}>
                       Pilih {withdrawType === "EWALLET" ? "E-Wallet Tujuan" : "Bank Tujuan"}
                     </label>
-                    <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "6px" }}>
+                    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(100px, 1fr))", gap: "6px" }}>
                       {(withdrawType === "EWALLET" ? EWALLET_PROVIDERS : BANK_PROVIDERS).map((p) => {
                         const isSelected = selectedProvider === p.id;
                         return (
@@ -633,7 +637,7 @@ export function ClipperWalletModal({
                   </div>
 
                   {/* Account Number & Name */}
-                  <div style={{ display: "grid", gridTemplateColumns: "1.2fr 1fr", gap: "8px" }}>
+                  <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))", gap: "8px" }}>
                     <div>
                       <label style={{ display: "block", fontSize: "0.75rem", fontWeight: 700, color: "#333", marginBottom: "4px" }}>
                         {withdrawType === "EWALLET" ? "Nomor HP Akun" : "Nomor Rekening"} <span style={{ color: "#e8400d" }}>*</span>
