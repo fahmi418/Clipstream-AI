@@ -16,6 +16,7 @@ export interface CampaignRecord {
   brandId: string;
   sourceVideoId: string;
   title: string;
+  description?: string;
   rules: string;
   cpmRate: bigint;
   totalBudget: bigint;

@@ -54,7 +54,9 @@ export class VerifyClipWorker {
         ? new WhisperAdapter(process.env.WHISPER_ENDPOINT_URL)
         : new MockWhisperAdapter());
     this.embedding = deps.embedding || new MockEmbeddingAdapter();
-    this.llm = deps.llm || createLlmAdapter();
+    this.llm =
+      deps.llm ||
+      (process.env.NODE_ENV === 'test' ? new MockLlmAdapter() : createLlmAdapter());
 
     const privateKey =
       (process.env.AGENT_PRIVATE_KEY as `0x${string}`) ||
@@ -91,15 +93,20 @@ export class VerifyClipWorker {
     const traceId = randomUUID();
     const run = await this.repo.createVerificationRun(clipId, traceId);
 
-    // 2. Fetch source chunks or synthesize default chunks
+    // 2. Fetch source chunks or synthesize chunks from source video / campaign
     let dbChunks = await this.repo.getSourceChunks(sourceVideo.id);
     if (dbChunks.length === 0) {
-      const defaultText =
-        sourceVideo.transcript ||
-        'Halo semua, episode podcast bincang teknologi mendiskusikan Web3 dan ekosistem AI agent secara komprehensif.';
+      let sourceText = sourceVideo.transcript;
+      if (!sourceText && this.youtube.fetchTranscriptCaptions) {
+        sourceText = await this.youtube.fetchTranscriptCaptions(sourceVideo.videoId).catch(() => null);
+      }
+      if (!sourceText) {
+        sourceText = `${campaign.title}. ${sourceVideo.title}. Aturan: ${campaign.rules}`.trim();
+      }
+      const half = Math.min(120, Math.ceil(sourceText.length / 2));
       const segments = [
-        { start: 0, end: 30, text: defaultText.slice(0, 60) },
-        { start: 30, end: 60, text: defaultText.slice(60) || defaultText },
+        { start: 0, end: 30, text: sourceText.slice(0, half) },
+        { start: 30, end: 60, text: sourceText.slice(half) || sourceText },
       ];
       const rawChunks = chunkTranscript(segments, 15, 5);
       const embeddings = await this.embedding.embedBatch(rawChunks.map((c) => c.text));
@@ -114,6 +121,23 @@ export class VerifyClipWorker {
           embedding: embeddings[i],
         }))
       );
+    }
+
+    // 2b. Extract real clip content (captions or real metadata) for accurate transcript evaluation
+    if (this.whisper instanceof MockWhisperAdapter && !this.whisper.hasTranscript(clip.videoId)) {
+      let clipText: string | null = null;
+      if (this.youtube.fetchTranscriptCaptions) {
+        clipText = await this.youtube.fetchTranscriptCaptions(clip.videoId).catch(() => null);
+      }
+      if (!clipText) {
+        const details = await this.youtube.getVideoDetails(clip.videoId).catch(() => null);
+        if (details) {
+          clipText = `${details.title}. ${details.description}`.trim();
+        }
+      }
+      if (clipText && clipText.length > 5) {
+        this.whisper.setTranscript(clip.videoId, clipText);
+      }
     }
 
     const sourceChunks = dbChunks.map((c) => ({
@@ -147,6 +171,7 @@ export class VerifyClipWorker {
           brandId: campaign.brandId,
           sourceVideoId: campaign.sourceVideoId,
           title: campaign.title,
+          description: campaign.description,
           rules: campaign.rules,
           cpmRate: campaign.cpmRate,
           totalBudget: campaign.totalBudget,
@@ -395,6 +420,7 @@ export class VerifyClipWorker {
 
       sseService.broadcast(clipId, {
         type: 'rejected',
+        stage: outcome.failedStage,
         code: outcome.failedStage.toUpperCase(),
         reason: outcome.reason,
         suggestion: outcome.reason,

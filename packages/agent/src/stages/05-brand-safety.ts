@@ -1,6 +1,7 @@
 import type { StageResult } from '@clipstream/shared';
 import {
   type BrandSafetyOutput,
+  type CampaignContext,
   type ILlmAdapter,
   sanitize,
 } from '../adapters/llm.js';
@@ -11,7 +12,7 @@ export async function executeBrandSafetyStage(
   title: string,
   description: string,
   transcript: string,
-  campaignRules: string,
+  campaignRulesOrContext: string | CampaignContext,
   llmAdapter: ILlmAdapter
 ): Promise<StageResult<BrandSafetyStageData>> {
   const startTime = Date.now();
@@ -27,7 +28,7 @@ export async function executeBrandSafetyStage(
       cleanTitle,
       cleanDescription,
       cleanTranscript,
-      campaignRules
+      campaignRulesOrContext
     );
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : 'LLM safety evaluation failed';

@@ -155,21 +155,23 @@ export function VerificationTimeline({
     let eventSource: EventSource | null = null;
     let fallbackPollTimer: NodeJS.Timeout | null = null;
 
+    const normId = (id?: string) => (id || "").toLowerCase().replace(/[-_]/g, "");
+
     const handleSseEvent = (data: SsePayload) => {
       if (!isMounted) return;
 
-      const stageKey = data.stage?.toLowerCase() ?? "";
+      const stageKey = data.stage ?? "";
 
       if (data.type === "stage_start") {
         addLog(
-          stageKey.toUpperCase() || "PIPELINE",
-          data.label || `Memulai evaluasi: ${stageKey}`,
+          (data.stage || "PIPELINE").toUpperCase(),
+          data.label || `Memulai evaluasi: ${data.stage || "tahap"}`,
           "info"
         );
 
         setStages((prev) =>
           prev.map((s) => {
-            if (s.id === stageKey || (stageKey === "metrics" && s.id === "metrics")) {
+            if (normId(s.id) === normId(stageKey)) {
               return { ...s, status: "running" };
             }
             return s;
@@ -183,15 +185,18 @@ export function VerificationTimeline({
             : null;
 
         addLog(
-          stageKey.toUpperCase() || "STAGE",
-          `${data.label || `${stageKey} selesai`} ${scorePercent ? `[Skor: ${scorePercent}]` : ""}`,
+          (data.stage || "STAGE").toUpperCase(),
+          `${data.label || `${data.stage} selesai`} ${scorePercent ? `[Skor: ${scorePercent}]` : ""}`,
           isPass ? "success" : "warn"
         );
 
         setStages((prev) => {
           const nextStages = [...prev];
           const currentIndex = nextStages.findIndex(
-            (s) => s.id === stageKey || s.id.includes(stageKey) || stageKey.includes(s.id)
+            (s) =>
+              normId(s.id) === normId(stageKey) ||
+              normId(s.id).includes(normId(stageKey)) ||
+              normId(stageKey).includes(normId(s.id))
           );
 
           return nextStages.map((s, idx) => {
@@ -221,13 +226,33 @@ export function VerificationTimeline({
       } else if (data.type === "rejected") {
         completedRef.current = true;
         setFinalStatus("REJECTED");
+        const failedTarget = normId(data.stage || data.code || "");
+        setStages((prev) =>
+          prev.map((s) => {
+            const isTarget =
+              normId(s.id) === failedTarget ||
+              failedTarget.includes(normId(s.id)) ||
+              normId(s.id).includes(failedTarget);
+            if (isTarget || (s.status === "running" && !failedTarget)) {
+              return {
+                ...s,
+                status: "failed",
+                reason: data.reason,
+                detail: data.reason || undefined,
+              };
+            }
+            return s;
+          })
+        );
         addLog("REJECTED", `Klip tidak disetujui: ${data.reason}`, "error");
-        onComplete?.("REJECTED", {
-          status: "REJECTED",
-          rejectionCode: data.code,
-          rejectionReason: data.reason,
-          suggestion: data.suggestion,
-        });
+        setTimeout(() => {
+          onComplete?.("REJECTED", {
+            status: "REJECTED",
+            rejectionCode: data.code,
+            rejectionReason: data.reason,
+            suggestion: data.suggestion,
+          });
+        }, 1200);
       } else if (data.type === "deferred") {
         completedRef.current = true;
         setFinalStatus("PENDING_VIEWS");
@@ -285,7 +310,6 @@ export function VerificationTimeline({
       };
 
       eventSource.onerror = () => {
-        // Close SSE if broken and activate smooth fallback
         if (eventSource) {
           eventSource.close();
           eventSource = null;
@@ -295,8 +319,7 @@ export function VerificationTimeline({
       // Fallback
     }
 
-    // 2. Backup / Fallback Sync Timer
-    let simulatedStep = 0;
+    // 2. Synchronous Database Status Polling (No fake pass simulation)
     fallbackPollTimer = setInterval(async () => {
       if (completedRef.current) return;
 
@@ -315,7 +338,7 @@ export function VerificationTimeline({
                 prev.map((s) => ({
                   ...s,
                   status: "completed",
-                  durationSeconds: s.durationSeconds ?? Math.floor(Math.random() * 4 + 1),
+                  durationSeconds: s.durationSeconds ?? Math.floor(Math.random() * 3 + 1),
                 }))
               );
               addLog("SYNC", "Status verifikasi klip dikonfirmasi: ACTIVE (Lolos)", "success");
@@ -324,8 +347,23 @@ export function VerificationTimeline({
             } else if (clip.status === "REJECTED") {
               completedRef.current = true;
               setFinalStatus("REJECTED");
+              const failedCode = normId(clip.rejectionCode || "");
+              setStages((prev) =>
+                prev.map((s) => {
+                  const isMatch =
+                    normId(s.id) === failedCode ||
+                    failedCode.includes(normId(s.id)) ||
+                    normId(s.id).includes(failedCode);
+                  if (isMatch || s.status === "running") {
+                    return { ...s, status: "failed", reason: clip.rejectionReason };
+                  }
+                  return s;
+                })
+              );
               addLog("SYNC", `Klip ditolak: ${clip.rejectionReason}`, "error");
-              onComplete?.("REJECTED", clip);
+              setTimeout(() => {
+                onComplete?.("REJECTED", clip);
+              }, 1200);
               return;
             } else if (clip.status === "PENDING_VIEWS") {
               completedRef.current = true;
@@ -337,76 +375,9 @@ export function VerificationTimeline({
           }
         }
       } catch {
-        // Fallback simulation for offline/preview mode
+        // Polling error ignored
       }
-
-      // Smooth progressive simulation if backend worker takes time
-      simulatedStep++;
-      if (simulatedStep === 1) {
-        handleSseEvent({
-          type: "stage_complete",
-          stage: "ownership",
-          status: "PASS",
-          score: 1.0,
-          label: "Kode verifikasi valid pada deskripsi video YouTube",
-        });
-      } else if (simulatedStep === 3) {
-        handleSseEvent({
-          type: "stage_complete",
-          stage: "metrics",
-          status: "PASS",
-          score: 0.98,
-          label: "Jumlah views, likes, dan comments berhasil terbaca via YouTube Data API",
-        });
-      } else if (simulatedStep === 5) {
-        handleSseEvent({
-          type: "stage_complete",
-          stage: "transcript",
-          status: "PASS",
-          score: 0.95,
-          label: "Transkrip audio selesai di-generate dengan OpenAI Whisper",
-        });
-      } else if (simulatedStep === 7) {
-        handleSseEvent({
-          type: "stage_complete",
-          stage: "source_match",
-          status: "PASS",
-          score: 0.88,
-          label: "Kecocokan semantik klip dengan video sumber: 88% (Threshold 72%)",
-        });
-      } else if (simulatedStep === 9) {
-        handleSseEvent({
-          type: "stage_complete",
-          stage: "brand_safety",
-          status: "PASS",
-          score: 0.96,
-          label: "Brand safety lolos tanpa pelanggaran rubrik sponsor",
-        });
-      } else if (simulatedStep === 11) {
-        handleSseEvent({
-          type: "stage_complete",
-          stage: "anomaly",
-          status: "PASS",
-          score: 0.92,
-          label: "Distribusi views organik, tidak ada pola bot terdeteksi",
-        });
-      } else if (simulatedStep === 13) {
-        handleSseEvent({
-          type: "payout",
-          releasedAmount: "10990000",
-          holdbackAmount: "4710000",
-          holdbackUnlockAt: new Date(Date.now() + 72 * 3600_000).toISOString(),
-          txHash: "0x7a8b9c1d2e3f405162738495a6b7c8d9e0f1a2b3c4d5e6f7a8b9c0d1e2f3a4b5",
-          explorerUrl: "https://testnet.opbnbscan.com/tx/0x7a8b9c1d2e3f...",
-          at: new Date().toISOString(),
-        });
-        handleSseEvent({
-          type: "done",
-          finalStatus: "ACTIVE",
-          at: new Date().toISOString(),
-        });
-      }
-    }, 2800);
+    }, 2000);
 
     return () => {
       isMounted = false;

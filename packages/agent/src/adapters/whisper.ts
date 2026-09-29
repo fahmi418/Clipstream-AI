@@ -59,6 +59,10 @@ export class WhisperAdapter implements IWhisperAdapter {
 export class MockWhisperAdapter implements IWhisperAdapter {
   private readonly transcripts: Map<string, { segments: TranscriptSegment[]; fullText: string; language?: string }> = new Map();
 
+  hasTranscript(videoId: string): boolean {
+    return this.transcripts.has(videoId);
+  }
+
   setTranscript(videoId: string, fullText: string, segments?: TranscriptSegment[], language = 'id'): void {
     const segs = segments || [{ start: 0, end: 30, text: fullText }];
     this.transcripts.set(videoId, { segments: segs, fullText, language });

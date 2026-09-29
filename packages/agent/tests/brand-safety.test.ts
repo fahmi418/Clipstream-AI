@@ -75,4 +75,25 @@ describe('Stage 5 — Brand Safety & Prompt Injection Defense', () => {
     expect(result.score).toBeGreaterThanOrEqual(0.7);
     expect(result.data.violations.length).toBe(0);
   });
+
+  it('fails when clip topic is completely unrelated to the campaign topic', async () => {
+    const adapter = new MockLlmAdapter();
+
+    const result = await executeBrandSafetyStage(
+      'Gameplay Minecraft Survival Episode 1',
+      'Mencari diamond dan membuat rumah baru di survival world',
+      'Halo kawan-kawan hari ini kita main game petualangan seru sekali di minecraft',
+      {
+        title: 'BNB Chain Ecosystem Spotlight',
+        description: 'Highlight inovasi dApps dan proyek Web3 unggulan di BNB Chain',
+        rules: 'Wajib menyertakan watermark sponsor dan tagar #BNBChain. Tanpa SARA.',
+      },
+      adapter
+    );
+
+    expect(result.status).toBe('FAIL');
+    expect(result.data.violations.some((v) => v.rule === 'topic_mismatch')).toBe(true);
+    expect(result.score).toBeLessThan(0.5);
+    expect(result.reason).toContain('tidak berhubungan dengan materi kampanye');
+  });
 });

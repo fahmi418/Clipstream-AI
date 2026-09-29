@@ -156,7 +156,12 @@ export async function runVerificationPipeline(
     videoDetails.title,
     videoDetails.description,
     transcriptData.fullText,
-    input.campaign.rules,
+    {
+      title: input.campaign.title,
+      description: (input.campaign as any).description,
+      rules: input.campaign.rules,
+      sourceTitle: input.sourceVideo.title,
+    },
     adapters.llm
   );
   results.set('brandSafety', brandSafetyRes);
