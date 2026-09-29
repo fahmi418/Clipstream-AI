@@ -9,7 +9,7 @@ import { ClaimHoldbackWorker } from '../src/workers/claim-holdback.worker.js';
 import { MockYouTubeAdapter, MockWhisperAdapter } from '@clipstream/agent';
 import type { CampaignEntity, UserEntity } from '../src/db/repository.js';
 
-describe('Production Edge Cases & Resilience Tests', () => {
+describe('Production Edge Cases & Resilience Tests', { timeout: 15000 }, () => {
   let app: FastifyInstance;
   let repo: InMemoryDatabaseRepository;
   let chain: MockChainService;

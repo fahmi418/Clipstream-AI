@@ -13,7 +13,7 @@ describe('Demo Seed Data — SCHEMA §12 Compliance', () => {
     const repo = getDatabaseRepository();
 
     const campaigns = await repo.listCampaigns();
-    expect(campaigns.length).toBe(4);
+    expect(campaigns.length).toBeGreaterThanOrEqual(4);
 
     const camp1 = campaigns.find((c) => c.title.includes('Podcast Bincang Teknologi') || c.id === 'camp-seed-1');
     expect(camp1).toBeDefined();

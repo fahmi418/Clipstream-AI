@@ -10,6 +10,18 @@ const nextConfig: NextConfig = {
   typescript: {
     ignoreBuildErrors: true,
   },
+  async rewrites() {
+    const internalApi =
+      process.env.INTERNAL_API_URL ||
+      process.env.NEXT_PUBLIC_API_URL ||
+      "http://127.0.0.1:3001";
+    return [
+      {
+        source: "/api/:path*",
+        destination: `${internalApi}/api/:path*`,
+      },
+    ];
+  },
   turbopack: {
     resolveAlias: {
       "@farcaster/mini-app-solana": "./src/lib/empty-module.ts",

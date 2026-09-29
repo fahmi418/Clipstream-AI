@@ -2,8 +2,10 @@ import { keccak256, encodePacked } from 'viem';
 import bcrypt from 'bcryptjs';
 import { getDatabaseRepository } from './client.js';
 
-export async function seedDemoData(): Promise<void> {
-  const repo = getDatabaseRepository();
+import type { IDatabaseRepository } from './repository.js';
+
+export async function seedDemoData(targetRepo?: IDatabaseRepository): Promise<void> {
+  const repo = targetRepo || getDatabaseRepository();
   const demoPasswordHash = await bcrypt.hash('password123', 10);
 
   // 1. Create Brands & Clippers

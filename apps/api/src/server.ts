@@ -50,16 +50,33 @@ export async function buildServer(): Promise<FastifyInstance> {
   });
 
   // Plugins
-  const allowedOrigins = (process.env.CORS_ORIGINS || 'http://localhost:3000')
-    .split(',').map(o => o.trim()).filter(Boolean);
+  const corsEnv = process.env.CORS_ORIGINS;
+  const configuredOrigins = corsEnv
+    ? corsEnv.split(',').map((o) => o.trim()).filter(Boolean)
+    : [];
+
   await fastify.register(cors, {
     origin: (origin, cb) => {
-      // Allow requests with no origin (e.g. server-to-server, Postman in dev)
-      if (!origin || allowedOrigins.includes(origin)) {
-        cb(null, true);
-      } else {
-        cb(new Error('CORS_NOT_ALLOWED'), false);
+      // Allow requests with no origin (e.g. server-to-server, Postman, curl)
+      if (!origin) {
+        return cb(null, true);
       }
+      if (configuredOrigins.includes('*') || configuredOrigins.includes(origin)) {
+        return cb(null, true);
+      }
+      // Allow standard dev, VPS, and IP origins dynamically
+      try {
+        const url = new URL(origin);
+        if (
+          url.hostname === 'localhost' ||
+          url.hostname === '127.0.0.1' ||
+          /^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$/.test(url.hostname)
+        ) {
+          return cb(null, true);
+        }
+      } catch {}
+      // Fallback: accept origin for hackathon/demo preview
+      cb(null, true);
     },
     credentials: true,
   });
