@@ -18,7 +18,7 @@ import {
   Coins,
   Info,
 } from "lucide-react";
-import type { ClipStatus } from "@/lib/api";
+import { getApiBase, type ClipStatus } from "@/lib/api";
 
 export interface VerificationStage {
   id: string;
@@ -118,14 +118,14 @@ export function VerificationTimeline({
   const [showConsole, setShowConsole] = useState(true);
   const [elapsedSeconds, setElapsedSeconds] = useState(0);
 
-  const terminalEndRef = useRef<HTMLDivElement>(null);
+  const terminalBoxRef = useRef<HTMLDivElement>(null);
   const startTimeRef = useRef<number>(Date.now());
   const completedRef = useRef(false);
 
-  // Auto-scroll terminal log
+  // Auto-scroll strictly inside terminal box only, keeping the page viewport completely stationary
   useEffect(() => {
-    if (showConsole && terminalEndRef.current) {
-      terminalEndRef.current.scrollIntoView({ behavior: "smooth" });
+    if (showConsole && terminalBoxRef.current) {
+      terminalBoxRef.current.scrollTop = terminalBoxRef.current.scrollHeight;
     }
   }, [logs, showConsole]);
 
@@ -151,7 +151,7 @@ export function VerificationTimeline({
 
   useEffect(() => {
     let isMounted = true;
-    const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3001";
+    const API_BASE = getApiBase();
     let eventSource: EventSource | null = null;
     let fallbackPollTimer: NodeJS.Timeout | null = null;
 
@@ -701,7 +701,7 @@ export function VerificationTimeline({
         </div>
 
         {showConsole && (
-          <div className="p-4 font-mono text-[11px] leading-relaxed max-h-48 overflow-y-auto space-y-1.5 select-text">
+          <div ref={terminalBoxRef} className="p-4 font-mono text-[11px] leading-relaxed max-h-48 overflow-y-auto space-y-1.5 select-text">
             {logs.map((log, i) => {
               const tagColor =
                 log.type === "success"
@@ -732,7 +732,6 @@ export function VerificationTimeline({
                 </div>
               );
             })}
-            <div ref={terminalEndRef} />
           </div>
         )}
       </div>
