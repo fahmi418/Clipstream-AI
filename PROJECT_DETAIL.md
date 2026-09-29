@@ -176,6 +176,6 @@ struct VerificationAttestation {
 - **Live Web Application**: [https://clipstreamai.biz.id](https://clipstreamai.biz.id)
 - **GitHub Repository**: [https://github.com/fahmi418/Clipstream-AI](https://github.com/fahmi418/Clipstream-AI)
 - **Network**: opBNB Testnet (Chain ID: `5611`)
-- **CampaignEscrow Contract**: `0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0`
-- **ClipperRegistry Contract**: `0xCf7Ed3236131e56266c1f20a483844149751493A`
-- **Block Explorer**: [https://testnet.opbnbscan.com/address/0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0](https://testnet.opbnbscan.com/address/0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0)
+- **CampaignEscrow Contract**: `0xdd98b26cab175aa47c128c1f893e9b95d7cb27b1`
+- **ClipperRegistry Contract**: `0x929cea9bbf93c979ef8ee3ce04d8292cfaf652ea`
+- **Block Explorer**: [https://testnet.opbnbscan.com/address/0xdd98b26cab175aa47c128c1f893e9b95d7cb27b1](https://testnet.opbnbscan.com/address/0xdd98b26cab175aa47c128c1f893e9b95d7cb27b1)
