@@ -72,6 +72,13 @@ export interface Campaign {
   onchainId: string | null;
   txHash: string | null;
   createdAt: string;
+  thumbnailUrl?: string;
+  sourceVideo?: {
+    title?: string;
+    thumbnailUrl?: string;
+    durationSec?: number;
+    videoId?: string;
+  };
   clipsCount?: number;
   clippersCount?: number;
 }
@@ -522,34 +529,19 @@ export function fetchStats() {
 
 export const defaultCuratedCampaigns: Campaign[] = [
   {
-    id: "abd87056-b996-4337-a09e-abdf60b8fd3d",
-    onchainId: "5",
-    brandId: "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
-    title: "Panduan AI Whisper & Gemini Vision Clipstream",
-    description:
-      "Cuplikan seputar validasi OCR dan Whisper AI Clipstream.",
-    sourceUrl: "https://www.youtube.com/watch?v=P-Z7Mj9Pifo",
-    rules: "Wajib menyertakan watermark sponsor dan tagar #BNBChain. Tanpa SARA.",
-    cpmRate: "306748",
-    totalBudget: "46012269",
-    remainingBudget: "45000000",
-    maxPayoutPerClip: "10000000",
-    minViews: 1000,
-    deadline: new Date(Date.now() + 14 * 86400000).toISOString(),
-    status: "ACTIVE",
-    clippersCount: 0,
-    clipsCount: 0,
-    txHash: "0x7a3f89e2c1409d5b8821a719c8f02938472199ac2b44910283748291023948aa",
-    createdAt: new Date().toISOString(),
-  },
-  {
     id: "camp-seed-1",
     onchainId: "1",
     brandId: "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
     title: "BNB Chain Ecosystem Spotlight",
     description:
       "Highlight inovasi dApps dan proyek Web3 unggulan di BNB Chain. Fokus pada kecepatan transaksi, ekosistem DeFi, dan efisiensi gas fee.",
-    sourceUrl: "https://www.youtube.com/watch?v=5-gWpX231y0",
+    sourceUrl: "https://www.youtube.com/watch?v=SSo_EIwHSd4",
+    thumbnailUrl: "https://img.youtube.com/vi/SSo_EIwHSd4/hqdefault.jpg",
+    sourceVideo: {
+      videoId: "SSo_EIwHSd4",
+      thumbnailUrl: "https://img.youtube.com/vi/SSo_EIwHSd4/hqdefault.jpg",
+      durationSec: 2400,
+    },
     rules: "Wajib menyertakan watermark sponsor dan tagar #BNBChain. Durasi klip minimal 30 detik. Tanpa SARA.",
     cpmRate: "1748466",
     totalBudget: "1500000000",
@@ -570,7 +562,13 @@ export const defaultCuratedCampaigns: Campaign[] = [
     title: "DeFi DEX Launch Campaign",
     description:
       "Promosikan peluncuran DEX generasi terbaru di BNB Chain dengan fitur gasless swap dan yield farming terdesentralisasi.",
-    sourceUrl: "https://www.youtube.com/watch?v=k891023948a",
+    sourceUrl: "https://www.youtube.com/watch?v=jxLkbJozKbY",
+    thumbnailUrl: "https://img.youtube.com/vi/jxLkbJozKbY/hqdefault.jpg",
+    sourceVideo: {
+      videoId: "jxLkbJozKbY",
+      thumbnailUrl: "https://img.youtube.com/vi/jxLkbJozKbY/hqdefault.jpg",
+      durationSec: 1800,
+    },
     rules: "Highlight fitur auto-routing dan keamanan kontrak audit. Tanpa klaim keuntungan finansial berlebihan.",
     cpmRate: "1503067",
     totalBudget: "800000000",
@@ -592,6 +590,12 @@ export const defaultCuratedCampaigns: Campaign[] = [
     description:
       "Bagikan cuplikan highlight tim dan ide autonomous agent terbaik di ajang AI Agent Hackathon 2026. Fokus pada integrasi Web3 & LLM.",
     sourceUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+    thumbnailUrl: "https://img.youtube.com/vi/dQw4w9WgXcQ/hqdefault.jpg",
+    sourceVideo: {
+      videoId: "dQw4w9WgXcQ",
+      thumbnailUrl: "https://img.youtube.com/vi/dQw4w9WgXcQ/hqdefault.jpg",
+      durationSec: 212,
+    },
     rules: "Gunakan visual resolusi 1080p, audio jernih, dan watermark akun clipper terpasang.",
     cpmRate: "1963190",
     totalBudget: "2000000000",
@@ -612,7 +616,13 @@ export const defaultCuratedCampaigns: Campaign[] = [
     title: "Web3 Creator Showcase: Panduan Smart Contract BNB Chain",
     description:
       "Edukasi developer pemula cara deploy contract Solidity dan escrow dengan gas fee murah. Klip harus fokus pada kemudahan ekosistem BNB.",
-    sourceUrl: "https://www.youtube.com/watch?v=sample-web3-bounty",
+    sourceUrl: "https://www.youtube.com/watch?v=M576WGiDBdQ",
+    thumbnailUrl: "https://img.youtube.com/vi/M576WGiDBdQ/hqdefault.jpg",
+    sourceVideo: {
+      videoId: "M576WGiDBdQ",
+      thumbnailUrl: "https://img.youtube.com/vi/M576WGiDBdQ/hqdefault.jpg",
+      durationSec: 1540,
+    },
     rules: "Highlight biaya gas murah dan kecepatan konfirmasi di BNB Chain.",
     cpmRate: "1595092",
     totalBudget: "1200000000",
@@ -624,6 +634,33 @@ export const defaultCuratedCampaigns: Campaign[] = [
     clippersCount: 15,
     clipsCount: 37,
     txHash: "0xdddd0000111122223333444455556666777788889999aaaabbbbccccddddeeee",
+    createdAt: new Date().toISOString(),
+  },
+  {
+    id: "abd87056-b996-4337-a09e-abdf60b8fd3d",
+    onchainId: "5",
+    brandId: "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+    title: "Crypto Megan Podcast | The Future of Capital: How Web3 Makes Us All Investors",
+    description:
+      "Wawancara eksklusif seputar pergeseran modal ventura ke platform terdesentralisasi, automated clipper bounties, dan inovasi opBNB.",
+    sourceUrl: "https://www.youtube.com/watch?v=L_LUpnjgPso",
+    thumbnailUrl: "https://img.youtube.com/vi/L_LUpnjgPso/hqdefault.jpg",
+    sourceVideo: {
+      videoId: "L_LUpnjgPso",
+      thumbnailUrl: "https://img.youtube.com/vi/L_LUpnjgPso/hqdefault.jpg",
+      durationSec: 2800,
+    },
+    rules: "Wajib menyertakan watermark sponsor dan tagar #BNBChain. Durasi klip minimal 30 detik.",
+    cpmRate: "1850000",
+    totalBudget: "1500000000",
+    remainingBudget: "1250000000",
+    maxPayoutPerClip: "250000000",
+    minViews: 1500,
+    deadline: new Date(Date.now() + 15 * 86400000).toISOString(),
+    status: "ACTIVE",
+    clippersCount: 22,
+    clipsCount: 57,
+    txHash: "0x7a3f89e2c1409d5b8821a719c8f02938472199ac2b44910283748291023948aa",
     createdAt: new Date().toISOString(),
   },
 ];
@@ -647,13 +684,41 @@ export async function listCampaigns(query: ListCampaignsQuery = {}): Promise<Cam
     const rawItems = Array.isArray(res) ? res : res?.items;
     let list: Campaign[] = [];
     if (Array.isArray(rawItems) && rawItems.length > 0) {
-      list = rawItems.map((item: any) => ({
-        ...item,
-        brandId: item.brandId || item.brand?.address || item.brand?.displayName || "0x70997970C51812dc3A010C7d01b50e0d17dc79C8",
-        sourceUrl: item.sourceUrl || (item.sourceVideo ? `https://www.youtube.com/watch?v=${item.sourceVideo.videoId || ""}` : ""),
-        clippersCount: item.clippersCount ?? item.clipperCount ?? 0,
-        clipsCount: item.clipsCount ?? item.clipCount ?? 0,
-      }));
+      list = rawItems.map((item: any) => {
+        const vidId = item.sourceVideo?.videoId;
+        const ytMatch = (item.sourceUrl || "").match(
+          /(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|shorts\/|live\/|watch\?.+&v=))([\w-]{11})/
+        );
+        const resolvedYtId =
+          vidId && vidId.length === 11 && vidId !== "5-gWpX231y0" && vidId !== "k891023948a"
+            ? vidId
+            : ytMatch
+            ? ytMatch[1]
+            : null;
+        const autoThumb = resolvedYtId
+          ? `https://img.youtube.com/vi/${resolvedYtId}/hqdefault.jpg`
+          : "/assets/blog-cover-clipper.jpg";
+
+        return {
+          ...item,
+          brandId:
+            item.brandId ||
+            item.brand?.address ||
+            item.brand?.displayName ||
+            "0x70997970C51812dc3A010C7d01b50e0d17dc79C8",
+          sourceUrl:
+            item.sourceUrl ||
+            (resolvedYtId ? `https://www.youtube.com/watch?v=${resolvedYtId}` : ""),
+          thumbnailUrl: item.thumbnailUrl || item.sourceVideo?.thumbnailUrl || autoThumb,
+          sourceVideo: {
+            ...item.sourceVideo,
+            thumbnailUrl: item.sourceVideo?.thumbnailUrl || autoThumb,
+            videoId: resolvedYtId || item.sourceVideo?.videoId || "",
+          },
+          clippersCount: item.clippersCount ?? item.clipperCount ?? 0,
+          clipsCount: item.clipsCount ?? item.clipCount ?? 0,
+        };
+      });
     } else {
       list = [...defaultCuratedCampaigns];
     }
@@ -665,6 +730,14 @@ export async function listCampaigns(query: ListCampaignsQuery = {}): Promise<Cam
         if (stored) {
           const customList: Campaign[] = JSON.parse(stored);
           for (const c of customList) {
+            if (!c.thumbnailUrl) {
+              const ytMatch = (c.sourceUrl || "").match(
+                /(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|shorts\/|live\/|watch\?.+&v=))([\w-]{11})/
+              );
+              c.thumbnailUrl = ytMatch
+                ? `https://img.youtube.com/vi/${ytMatch[1]}/hqdefault.jpg`
+                : "/assets/blog-cover-clipper.jpg";
+            }
             if (!list.some((existing) => existing.id === c.id || existing.title === c.title)) {
               list.unshift(c);
             }
@@ -682,6 +755,14 @@ export async function listCampaigns(query: ListCampaignsQuery = {}): Promise<Cam
         if (stored) {
           const customList: Campaign[] = JSON.parse(stored);
           for (const c of customList) {
+            if (!c.thumbnailUrl) {
+              const ytMatch = (c.sourceUrl || "").match(
+                /(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|shorts\/|live\/|watch\?.+&v=))([\w-]{11})/
+              );
+              c.thumbnailUrl = ytMatch
+                ? `https://img.youtube.com/vi/${ytMatch[1]}/hqdefault.jpg`
+                : "/assets/blog-cover-clipper.jpg";
+            }
             if (!list.some((existing) => existing.id === c.id || existing.title === c.title)) {
               list.unshift(c);
             }

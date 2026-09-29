@@ -359,6 +359,14 @@ export default function BrandNewCampaignPage() {
         // Persist to local cache for instant UI availability
         if (typeof window !== "undefined") {
           try {
+            const ytMatch = sourceUrl.match(
+              /(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|shorts\/|live\/|watch\?.+&v=))([\w-]{11})/
+            );
+            const ytId = ytMatch ? ytMatch[1] : null;
+            const thumbUrl = ytId
+              ? `https://img.youtube.com/vi/${ytId}/hqdefault.jpg`
+              : "/assets/blog-cover-clipper.jpg";
+
             const stored = localStorage.getItem("clipstream_created_campaigns");
             const list = stored ? JSON.parse(stored) : [];
             list.unshift({
@@ -368,6 +376,13 @@ export default function BrandNewCampaignPage() {
               title,
               description,
               sourceUrl,
+              thumbnailUrl: thumbUrl,
+              sourceVideo: {
+                title,
+                thumbnailUrl: thumbUrl,
+                videoId: ytId || "",
+                durationSec: 1800,
+              },
               rules,
               cpmRate: cpmUsdtWei.toString(),
               totalBudget: totalUsdtWei.toString(),

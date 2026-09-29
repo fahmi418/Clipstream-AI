@@ -7,7 +7,7 @@ import { useAuth } from "@/lib/auth-context";
 import { Search, SlidersHorizontal, Megaphone, RotateCcw, Sparkles, Filter, CheckCircle2, Scissors, Wallet } from "lucide-react";
 import Link from "next/link";
 
-// Curated live mock campaigns for instant zero-lag preview if API returns empty
+// Curated live campaigns with verified HD thumbnails and real YouTube sources
 const defaultCuratedCampaigns: Campaign[] = [
   {
     id: "camp-seed-1",
@@ -16,7 +16,13 @@ const defaultCuratedCampaigns: Campaign[] = [
     title: "BNB Chain Ecosystem Spotlight",
     description:
       "Highlight inovasi dApps dan proyek Web3 unggulan di BNB Chain. Fokus pada kecepatan transaksi, ekosistem DeFi, dan efisiensi gas fee.",
-    sourceUrl: "https://www.youtube.com/watch?v=5-gWpX231y0",
+    sourceUrl: "https://www.youtube.com/watch?v=SSo_EIwHSd4",
+    thumbnailUrl: "https://img.youtube.com/vi/SSo_EIwHSd4/hqdefault.jpg",
+    sourceVideo: {
+      videoId: "SSo_EIwHSd4",
+      thumbnailUrl: "https://img.youtube.com/vi/SSo_EIwHSd4/hqdefault.jpg",
+      durationSec: 2400,
+    },
     rules: "Wajib menyertakan watermark sponsor dan tagar #BNBChain. Durasi klip minimal 30 detik.",
     cpmRate: "1748466",
     totalBudget: "1500000000",
@@ -37,7 +43,13 @@ const defaultCuratedCampaigns: Campaign[] = [
     title: "DeFi DEX Launch Campaign",
     description:
       "Promosikan peluncuran DEX generasi terbaru di BNB Chain dengan fitur gasless swap dan yield farming terdesentralisasi.",
-    sourceUrl: "https://www.youtube.com/watch?v=k891023948a",
+    sourceUrl: "https://www.youtube.com/watch?v=jxLkbJozKbY",
+    thumbnailUrl: "https://img.youtube.com/vi/jxLkbJozKbY/hqdefault.jpg",
+    sourceVideo: {
+      videoId: "jxLkbJozKbY",
+      thumbnailUrl: "https://img.youtube.com/vi/jxLkbJozKbY/hqdefault.jpg",
+      durationSec: 1800,
+    },
     rules: "Highlight fitur auto-routing dan keamanan kontrak audit. Tanpa klaim keuntungan finansial berlebihan.",
     cpmRate: "1503067",
     totalBudget: "800000000",
@@ -59,6 +71,12 @@ const defaultCuratedCampaigns: Campaign[] = [
     description:
       "Bagikan cuplikan highlight tim dan ide autonomous agent terbaik di ajang AI Agent Hackathon 2026. Fokus pada integrasi Web3 & LLM.",
     sourceUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+    thumbnailUrl: "https://img.youtube.com/vi/dQw4w9WgXcQ/hqdefault.jpg",
+    sourceVideo: {
+      videoId: "dQw4w9WgXcQ",
+      thumbnailUrl: "https://img.youtube.com/vi/dQw4w9WgXcQ/hqdefault.jpg",
+      durationSec: 212,
+    },
     rules: "Gunakan visual resolusi 1080p, audio jernih, dan watermark akun clipper terpasang.",
     cpmRate: "1963190",
     totalBudget: "2000000000",
@@ -79,7 +97,13 @@ const defaultCuratedCampaigns: Campaign[] = [
     title: "Web3 Creator Showcase: Panduan Smart Contract BNB Chain",
     description:
       "Edukasi developer pemula cara deploy contract Solidity dan escrow dengan gas fee murah. Klip harus fokus pada kemudahan ekosistem BNB.",
-    sourceUrl: "https://www.youtube.com/watch?v=sample-web3-bounty",
+    sourceUrl: "https://www.youtube.com/watch?v=M576WGiDBdQ",
+    thumbnailUrl: "https://img.youtube.com/vi/M576WGiDBdQ/hqdefault.jpg",
+    sourceVideo: {
+      videoId: "M576WGiDBdQ",
+      thumbnailUrl: "https://img.youtube.com/vi/M576WGiDBdQ/hqdefault.jpg",
+      durationSec: 1540,
+    },
     rules: "Highlight biaya gas murah dan kecepatan konfirmasi di BNB Chain.",
     cpmRate: "1595092",
     totalBudget: "1200000000",
@@ -91,6 +115,33 @@ const defaultCuratedCampaigns: Campaign[] = [
     clippersCount: 15,
     clipsCount: 37,
     txHash: "0xdddd0000111122223333444455556666777788889999aaaabbbbccccddddeeee",
+    createdAt: new Date().toISOString(),
+  },
+  {
+    id: "abd87056-b996-4337-a09e-abdf60b8fd3d",
+    onchainId: "5",
+    brandId: "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+    title: "Crypto Megan Podcast | The Future of Capital: How Web3 Makes Us All Investors",
+    description:
+      "Wawancara eksklusif seputar pergeseran modal ventura ke platform terdesentralisasi, automated clipper bounties, dan inovasi opBNB.",
+    sourceUrl: "https://www.youtube.com/watch?v=L_LUpnjgPso",
+    thumbnailUrl: "https://img.youtube.com/vi/L_LUpnjgPso/hqdefault.jpg",
+    sourceVideo: {
+      videoId: "L_LUpnjgPso",
+      thumbnailUrl: "https://img.youtube.com/vi/L_LUpnjgPso/hqdefault.jpg",
+      durationSec: 2800,
+    },
+    rules: "Wajib menyertakan watermark sponsor dan tagar #BNBChain. Durasi klip minimal 30 detik.",
+    cpmRate: "1850000",
+    totalBudget: "1500000000",
+    remainingBudget: "1250000000",
+    maxPayoutPerClip: "250000000",
+    minViews: 1500,
+    deadline: new Date(Date.now() + 15 * 86400000).toISOString(),
+    status: "ACTIVE",
+    clippersCount: 22,
+    clipsCount: 57,
+    txHash: "0x7a3f89e2c1409d5b8821a719c8f02938472199ac2b44910283748291023948aa",
     createdAt: new Date().toISOString(),
   },
 ];

@@ -49,8 +49,10 @@ export interface CampaignListItem {
   id: string;
   onchainId: string;
   title: string;
+  sourceUrl?: string;
+  thumbnailUrl?: string;
   brand: { address: string; displayName: string | null };
-  sourceVideo: { title: string; thumbnailUrl: string; durationSec: number };
+  sourceVideo: { title: string; thumbnailUrl: string; durationSec: number; videoId?: string };
   cpmRate: string;
   cpmRateDisplay: string;
   totalBudget: string;
@@ -85,7 +87,7 @@ export class CampaignService {
 
     // 1. Create or retrieve source video record
     const videoIdMatch = input.sourceUrl.match(
-      /(?:youtube\.com\/(?:watch\?v=|shorts\/)|youtu\.be\/)([A-Za-z0-9_-]{11})/
+      /(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|shorts\/|live\/|watch\?.+&v=))([A-Za-z0-9_-]{11})/
     );
     const rawVideoId = videoIdMatch ? videoIdMatch[1] : 'source000000';
     const videoIdHash = keccak256(stringToBytes(`youtube:${rawVideoId}`));
@@ -209,20 +211,25 @@ export class CampaignService {
         ? (await this.chain.getCampaignBudget(c.onchainId)).remaining.toString()
         : c.totalBudget.toString();
 
+      const videoId = sourceVideo?.videoId || '';
+      const sourceUrl = videoId ? `https://www.youtube.com/watch?v=${videoId}` : '';
+      const thumbnailUrl = videoId ? `https://img.youtube.com/vi/${videoId}/hqdefault.jpg` : '';
+
       items.push({
         id: c.id,
         onchainId: c.onchainId ? c.onchainId.toString() : '0',
         title: c.title,
+        sourceUrl,
+        thumbnailUrl,
         brand: {
           address: brand?.walletAddress || '0x0000000000000000000000000000000000000000',
           displayName: brand?.displayName || null,
         },
         sourceVideo: {
           title: sourceVideo?.title || 'Video Sumber',
-          thumbnailUrl: sourceVideo
-            ? `https://img.youtube.com/vi/${sourceVideo.videoId}/hqdefault.jpg`
-            : '',
+          thumbnailUrl,
           durationSec: sourceVideo?.durationSec || 0,
+          videoId,
         },
         cpmRate: c.cpmRate.toString(),
         cpmRateDisplay: `${c.cpmRate.toString()} (${c.tokenAddress === '0x0000000000000000000000000000000000000000' ? 'BNB' : 'BEP-20'}) / 1.000 views`,
