@@ -1,20 +1,38 @@
 export function getApiBase(): string {
   if (typeof window === "undefined") {
-    return process.env.INTERNAL_API_URL || process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:3001";
+    return process.env.INTERNAL_API_URL || "http://127.0.0.1:3001";
   }
+
+  // If running in browser over HTTPS, modern browsers strictly block http:// requests (Mixed Content error).
+  // Always return relative path "" so requests route to https://<domain>/api/... cleanly.
+  if (window.location.protocol === "https:") {
+    if (process.env.NEXT_PUBLIC_API_URL && process.env.NEXT_PUBLIC_API_URL.startsWith("https://")) {
+      return process.env.NEXT_PUBLIC_API_URL.replace(/\/$/, "");
+    }
+    return "";
+  }
+
+  // If accessed remotely (domain name or remote IP), use relative path "" so requests go through reverse proxy
+  // without triggering cross-origin CORS or browser mixed content errors.
+  if (window.location.hostname !== "localhost" && window.location.hostname !== "127.0.0.1") {
+    if (
+      process.env.NEXT_PUBLIC_API_URL &&
+      !process.env.NEXT_PUBLIC_API_URL.includes("localhost") &&
+      !process.env.NEXT_PUBLIC_API_URL.includes("127.0.0.1")
+    ) {
+      if (/^[a-zA-Z]/.test(window.location.hostname) && /\d+\.\d+\.\d+\.\d+/.test(process.env.NEXT_PUBLIC_API_URL)) {
+        return "";
+      }
+      return process.env.NEXT_PUBLIC_API_URL.replace(/\/$/, "");
+    }
+    return "";
+  }
+
+  // Local development on localhost
   if (process.env.NEXT_PUBLIC_API_URL) {
-    return process.env.NEXT_PUBLIC_API_URL;
+    return process.env.NEXT_PUBLIC_API_URL.replace(/\/$/, "");
   }
-  // On local machine dev (localhost:3000), direct connection to :3001 can be used.
-  // On remote deployments (VPS IP or domain), use relative path "" so requests go to same origin (port 3000)
-  // and are smoothly proxied by Next.js rewrites to internal port 3001, avoiding cloud firewall blocks and CORS errors.
-  if (
-    window.location.port === "3000" &&
-    (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1")
-  ) {
-    return `${window.location.protocol}//${window.location.hostname}:3001`;
-  }
-  return "";
+  return `${window.location.protocol}//${window.location.hostname}:3001`;
 }
 
 // ── Types ──────────────────────────────────────────────────────────────
