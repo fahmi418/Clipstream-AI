@@ -62,10 +62,13 @@
 }
 
 /* ── Base ─────────────────────────────────────────────────── */
-*, *::before, *::after {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
+/* In @layer base: unlayered `*` reset would beat ALL Tailwind v4 utilities (they live in @layer utilities) and zero out every p-*/m-* class */
+@layer base {
+  *, *::before, *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
 }
 
 html {
@@ -431,6 +434,21 @@ html {
 
 .am-nav-btn.is-light:hover {
   background-color: #f6f5f3;
+}
+
+/* Tailwind display utilities lose ties to webflow .am-nav-btn (loaded later) */
+.am-nav-btn.hidden {
+  display: none;
+}
+@media (min-width: 640px) {
+  .am-nav-btn.hidden.sm\:inline-flex {
+    display: inline-flex;
+  }
+}
+@media (min-width: 768px) {
+  .am-nav-btn.hidden.md\:inline-flex {
+    display: inline-flex;
+  }
 }
 
 /* Featured Pill Link */
@@ -863,6 +881,29 @@ html, body {
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.05);
 }
 
+/* No doubled hairlines where tile borders meet the container border */
+.platform-tiles-grid .platform-tile:nth-child(4n) {
+  border-right: none;
+}
+.platform-tiles-grid .platform-tile:nth-last-child(-n + 4) {
+  border-bottom: none;
+}
+
+@media (max-width: 1024px) {
+  .platform-tiles-grid .platform-tile:nth-child(4n) {
+    border-right: 1px solid rgba(0, 0, 0, 0.06);
+  }
+  .platform-tiles-grid .platform-tile:nth-child(2n) {
+    border-right: none;
+  }
+  .platform-tiles-grid .platform-tile:nth-last-child(-n + 4) {
+    border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+  }
+  .platform-tiles-grid .platform-tile:nth-last-child(-n + 2) {
+    border-bottom: none;
+  }
+}
+
 @media (max-width: 1024px) {
   .platform-tiles-grid {
     grid-template-columns: repeat(2, 1fr) !important;
@@ -904,6 +945,445 @@ html, body {
 .am-social-proof-stripe {
   max-width: 100% !important;
   box-sizing: border-box !important;
+}
+
+/* ── Mobile Nav Drawer Animations ─────────────────────────── */
+@keyframes am-drawer-card-in {
+  from {
+    opacity: 0;
+    transform: translateY(-8px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes am-drawer-backdrop-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Focus visibility: inline outline:none must never kill the keyboard ring ── */
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible {
+  outline: 2px solid #118eea !important;
+  outline-offset: 1px;
+}
+
+.am-drawer-card {
+  animation: am-drawer-card-in 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.am-drawer-backdrop {
+  animation: am-drawer-backdrop-in 0.2s ease-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .am-drawer-card,
+  .am-drawer-backdrop,
+  .am-wave-bar,
+  .am-tl-step.is-active .am-tl-mark::after,
+  .am-term-live,
+  .am-term-cursor {
+    animation: none;
+  }
+}
+
+/* ── Nav Pill: never let the burger/logo row shift or overflow on small screens ── */
+@media (max-width: 479px) {
+  .am-nav-logo svg {
+    width: 118px;
+    height: auto;
+  }
+}
+
+/* ── Clipper Dashboard: stats grid (always balanced 1/2/4 col) ── */
+.clipper-stats-grid {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: 1fr;
+}
+@media (min-width: 640px) {
+  .clipper-stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+@media (min-width: 1024px) {
+  .clipper-stats-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+/* ── Bento feature grid: AI Agent section (reference-style) ─────────── */
+.am-bento-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+  width: 100%;
+}
+
+@media (min-width: 768px) {
+  .am-bento-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+  .am-bento-card.is-span-2 {
+    grid-column: span 2;
+  }
+}
+
+.am-bento-card {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  position: relative;
+  isolation: isolate;
+  min-height: 265px;
+  padding: 1.5rem;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 16px;
+}
+
+/* Dot texture lives on a pseudo layer so text sits on solid background
+   colors (keeps contrast analysis and rendering honest) */
+.am-bento-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  pointer-events: none;
+}
+
+.am-bento-card.is-light {
+  background-color: #f6f5f3;
+}
+
+.am-bento-card.is-light::before {
+  background-image: radial-gradient(rgba(17, 17, 17, 0.1) 1px, transparent 1px);
+  background-size: 16px 16px;
+}
+
+.am-bento-card.is-dark {
+  background-color: #171615;
+  border-color: rgba(255, 255, 255, 0.1);
+  color: #fff;
+  padding: 1.75rem;
+}
+
+.am-bento-card.is-dark::before {
+  background-image: radial-gradient(rgba(255, 255, 255, 0.09) 1px, transparent 1px),
+    linear-gradient(160deg, #4a4644 0%, #262423 45%, #171615 100%);
+  background-size: 16px 16px, cover;
+}
+
+.am-bento-card > .am-bento-body:last-child {
+  margin-top: auto;
+}
+
+.am-bento-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #111111;
+  line-height: 1.25;
+}
+
+.am-bento-title.is-white {
+  color: #ffffff;
+  font-size: 1.75rem;
+}
+
+.am-bento-desc {
+  margin-top: 0.5rem;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  color: #575654;
+  max-width: 42ch;
+}
+
+.am-bento-desc.is-on-dark {
+  color: rgba(255, 255, 255, 0.65);
+  margin-top: 0;
+}
+
+.am-bento-body.is-row {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1.5rem;
+}
+
+.am-bento-body.is-row .am-bento-desc {
+  max-width: 30ch;
+  text-align: right;
+}
+
+/* Card A: waveform equalizer (animated) */
+.am-bento-visual {
+  position: relative;
+}
+
+.am-wave {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 4px;
+  height: 150px;
+}
+
+.am-wave-bar {
+  flex: 0 1 6px;
+  min-width: 0;
+  border-radius: 3px;
+  background: #d8d6d3;
+  transform-origin: bottom;
+  animation: am-wave-dance 1.3s ease-in-out infinite alternate;
+}
+
+.am-wave-bar.is-match {
+  background: #e8400d;
+}
+
+@keyframes am-wave-dance {
+  from { transform: scaleY(0.45); }
+  to { transform: scaleY(1); }
+}
+
+.am-wave-meta {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-top: 0.875rem;
+}
+
+.am-wave-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: #e8400d;
+}
+
+.am-wave-match {
+  font-size: 0.9375rem;
+  font-weight: 800;
+  color: #e8400d;
+}
+
+.am-wave-sub {
+  font-size: 0.8125rem;
+  color: #575654;
+}
+
+/* Card B: platform list */
+.am-plat-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.625rem;
+  margin-top: auto;
+}
+
+.am-plat-row {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  padding: 0.625rem 0.75rem;
+  background: #ffffff;
+  border: 1px solid rgba(0, 0, 0, 0.07);
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+.am-plat-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 999px;
+  flex-shrink: 0;
+}
+
+.am-plat-name {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: #111111;
+}
+
+.am-plat-views {
+  margin-left: auto;
+  font-size: 0.8125rem;
+  font-weight: 800;
+  color: #e8400d;
+}
+
+/* Card C: escrow timeline */
+.am-tl {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-top: auto;
+  padding-left: 2px;
+}
+
+.am-tl::before {
+  content: "";
+  position: absolute;
+  left: 11px;
+  top: 14px;
+  bottom: 14px;
+  width: 2px;
+  background: rgba(17, 17, 17, 0.1);
+}
+
+.am-tl-step {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+}
+
+.am-tl-mark {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 999px;
+  background: #ecebea;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  color: #14532d;
+  flex-shrink: 0;
+}
+
+.am-tl-step.is-done .am-tl-mark {
+  background: #b7efb2;
+  border-color: transparent;
+}
+
+.am-tl-step.is-active .am-tl-mark {
+  background: #ffffff;
+  border: 2px solid #e8400d;
+}
+
+.am-tl-step.is-active .am-tl-mark::after {
+  content: "";
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: #e8400d;
+  animation: am-tl-pulse 1.6s ease-in-out infinite;
+}
+
+@keyframes am-tl-pulse {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(0.6); opacity: 0.5; }
+}
+
+.am-tl-text {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: #575654;
+}
+
+.am-tl-step.is-done .am-tl-text,
+.am-tl-step.is-active .am-tl-text {
+  color: #111111;
+}
+
+/* Card D: live audit terminal */
+.am-term {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  padding: 0.875rem 1rem;
+  background: #0e0d0c;
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  border-radius: 12px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+
+.am-term-line {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.625rem;
+  font-size: 0.8125rem;
+}
+
+.am-term-ok {
+  color: #b7efb2;
+}
+
+.am-term-live {
+  color: #e8400d;
+  animation: am-blink 1.2s steps(2) infinite;
+}
+
+.am-term-cmd {
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.am-term-val {
+  color: #ffef99;
+}
+
+.am-term-time {
+  margin-left: auto;
+  color: rgba(255, 255, 255, 0.35);
+}
+
+.am-term-cursor {
+  margin-left: auto;
+  width: 7px;
+  height: 14px;
+  background: #b7efb2;
+  animation: am-blink 1s steps(2) infinite;
+}
+
+@keyframes am-blink {
+  50% { opacity: 0; }
+}
+
+/* Mobile: stack cleanly, no cramped min-heights */
+@media (max-width: 767px) {
+  .am-bento-card {
+    min-height: 0;
+    padding: 1.25rem;
+  }
+  .am-bento-card.is-dark {
+    padding: 1.25rem;
+  }
+  .am-wave {
+    height: 110px;
+    gap: 3px;
+  }
+  .am-plat-row {
+    padding: 0.5rem 0.625rem;
+  }
+  .am-term {
+    padding: 0.75rem;
+  }
+  .am-term-line {
+    font-size: 0.6875rem;
+    gap: 0.5rem;
+  }
+  .am-bento-body.is-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+  .am-bento-body.is-row .am-bento-desc {
+    text-align: left;
+    max-width: none;
+  }
+  .am-bento-title.is-white {
+    font-size: 1.375rem;
+  }
 }
 
 

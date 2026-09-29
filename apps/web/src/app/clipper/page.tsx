@@ -422,14 +422,7 @@ export default function ClipperDashboardPage() {
         )}
 
         {/* 4 Financial Stat Cards Bento Grid */}
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))",
-            gap: "1rem",
-            marginBottom: "2rem",
-          }}
-        >
+        <div className="clipper-stats-grid" style={{ marginBottom: "2rem" }}>
           {/* Card 1: Saldo Tersedia */}
           <div
             style={{
@@ -743,6 +736,69 @@ export default function ClipperDashboardPage() {
           </div>
 
           {/* Clips List Cards */}
+          {clips.length === 0 ? (
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: "0.625rem",
+                padding: "3.5rem 1.5rem",
+                textAlign: "center",
+                backgroundColor: "#ffffff",
+                borderRadius: "18px",
+                border: "1px dashed rgba(17,17,17,0.16)",
+              }}
+            >
+              <div
+                style={{
+                  width: "52px",
+                  height: "52px",
+                  borderRadius: "14px",
+                  backgroundColor: "#f4f3f0",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                <Scissors size={22} color="rgba(17,17,17,0.45)" />
+              </div>
+              <p style={{ fontSize: "1.0625rem", fontWeight: 700, color: "#111", margin: 0 }}>
+                Belum ada klip
+              </p>
+              <p
+                style={{
+                  fontSize: "0.875rem",
+                  color: "rgba(17,17,17,0.55)",
+                  margin: 0,
+                  maxWidth: "26rem",
+                  lineHeight: 1.5,
+                }}
+              >
+                Potong video Shorts/TikTok kamu dan biarkan AI Agent memverifikasi otomatis — hasilnya muncul di sini.
+              </p>
+              <Link
+                href="/clipper/submit"
+                style={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: "0.4rem",
+                  marginTop: "0.5rem",
+                  padding: "0.625rem 1.25rem",
+                  borderRadius: "9999px",
+                  fontSize: "0.875rem",
+                  fontWeight: 600,
+                  backgroundColor: "#111111",
+                  color: "#ffffff",
+                  textDecoration: "none",
+                }}
+              >
+                <Scissors size={14} />
+                Submit Klip Pertama
+              </Link>
+            </div>
+          ) : (
           <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
             {clips
               .filter((clip) => {
@@ -936,6 +992,7 @@ export default function ClipperDashboardPage() {
                 );
               })}
           </div>
+          )}
         </div>
       </div>
 

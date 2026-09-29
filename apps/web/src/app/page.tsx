@@ -33,7 +33,6 @@ import { fetchStats, listCampaigns, type Stats, type Campaign } from "@/lib/api"
 import { formatUsdt, formatIdr, formatViews } from "@/lib/format";
 import { RoleSelectModal } from "@/components/RoleSelectModal";
 import { HeroCreatorRocket } from "@/components/HeroCreatorRocket";
-import { ClipstreamHeroProductScreen } from "@/components/ClipstreamHeroProductScreen";
 import { ScrollReveal } from "@/components/ScrollReveal";
 import { IconBadge } from "@/components/ui/IconBadge";
 import {
@@ -297,55 +296,40 @@ function HomePageContent() {
         }
       );
 
-      // 3. Section 3: Duo AI Agent Screen & Floating Signal Cards
+      // Bento cards: platform rows + timeline steps slide in, log lines type in
       gsap.fromTo(
-        ".gsap-duo-screen",
-        { opacity: 0, scale: 0.94, y: 35 },
+        ".am-plat-row, .am-tl-step",
+        { opacity: 0, x: -14 },
         {
           opacity: 1,
-          scale: 1,
-          y: 0,
-          duration: 0.85,
-          ease: "power3.out",
+          x: 0,
+          duration: 0.5,
+          stagger: 0.1,
+          ease: "power2.out",
           scrollTrigger: {
-            trigger: ".am-ai-assistant-interaction-wrapper",
-            start: "top 80%",
+            trigger: ".am-bento-grid",
+            start: "top 78%",
             once: true,
           },
         }
       );
 
-      // Signal cards pop-in
       gsap.fromTo(
-        ".gsap-signal-card",
-        { opacity: 0, scale: 0.7, y: 30 },
+        ".am-term-line",
+        { opacity: 0, y: 8 },
         {
           opacity: 1,
-          scale: 1,
           y: 0,
-          duration: 0.7,
-          stagger: 0.15,
-          ease: "back.out(1.6)",
+          duration: 0.45,
+          stagger: 0.12,
+          ease: "power2.out",
           scrollTrigger: {
-            trigger: ".am-ai-assistant-interaction-wrapper",
-            start: "top 75%",
+            trigger: ".am-bento-grid",
+            start: "top 78%",
             once: true,
           },
         }
       );
-
-      // Continuous sine-wave floating oscillation on signal cards
-      gsap.utils.toArray<HTMLElement>(".gsap-signal-card").forEach((card, idx) => {
-        gsap.to(card, {
-          y: "-=10",
-          rotation: idx % 2 === 0 ? "+=1.5" : "-=1.5",
-          duration: 2.4 + idx * 0.4,
-          repeat: -1,
-          yoyo: true,
-          ease: "sine.inOut",
-          delay: idx * 0.25,
-        });
-      });
 
       // Testimonial 2 reveal
       gsap.fromTo(
@@ -552,12 +536,12 @@ function HomePageContent() {
     <div ref={mainContainerRef} className="flex flex-col w-full">
       {/* ── 1. HERO SECTION (Amplemarket Reference Hero) ──────────────── */}
       <section
-        className="am-section am-max-width-1440 am-centered-margins"
+        className="am-section"
         style={{
           position: "relative",
           overflow: "hidden",
           backgroundColor: "#ffffff",
-          minHeight: "100vh",
+          minHeight: "100svh",
           display: "flex",
           flexDirection: "column",
           justifyContent: "center",
@@ -768,7 +752,7 @@ function HomePageContent() {
                     <ShieldCheck size={16} style={{ color: "#00d084", flexShrink: 0 }} />
                     <div
                       className="am-social-proof-gartner-text"
-                      style={{ fontSize: "0.75rem", fontWeight: 600, lineHeight: 1.4 }}
+                      style={{ fontSize: "0.75rem", fontWeight: 600, lineHeight: 1.4, whiteSpace: "normal" }}
                     >
                       Audit Keamanan Smart Contract oleh <span style={{ color: "#111", fontWeight: 700 }}>CertiK</span> &amp; Standar OpenZeppelin
                     </div>
@@ -1016,116 +1000,89 @@ function HomePageContent() {
                 </Link>
               </div>
 
-              {/* Duo Product Screen with Floating Signal Cards (Amplemarket Reference Layout) */}
-              <div data-w-id="duo-product-screen" className="am-ai-assistant-interaction-wrapper" style={{ position: "relative", marginTop: "3rem" }}>
-                <ClipstreamHeroProductScreen />
-
-                {/* Floating Signal Card 1: Whisper Audio Match */}
-                <div
-                  className="am-home-duo-product-screen-signal-container gsap-signal-card is-1 hidden md:block"
-                  style={{
-                    backgroundColor: "#ffffff",
-                    backdropFilter: "none",
-                    WebkitBackdropFilter: "none",
-                    border: "1px solid #e2e8f0",
-                    borderRadius: "14px",
-                    padding: "12px 16px",
-                    boxShadow: "0 16px 36px -6px rgba(15, 23, 42, 0.12), 0 4px 10px rgba(15, 23, 42, 0.04)",
-                    width: "230px",
-                    maxWidth: "90vw",
-                    zIndex: 10,
-                    textAlign: "left",
-                    top: "8%",
-                    left: "-3%",
-                    transform: "rotate(-4deg)",
-                    userSelect: "none",
-                  }}
-                >
-                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "6px" }}>
-                    <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-                      <div style={{ width: "8px", height: "8px", borderRadius: "50%", backgroundColor: "#e8400d" }} />
-                      <span style={{ fontSize: "0.6875rem", fontWeight: 700, color: "#ea580c" }}>Audio AI</span>
+              {/* Bento feature grid (original, reference-inspired style only) */}
+              <div className="am-ai-assistant-interaction-wrapper" style={{ position: "relative", marginTop: "3rem" }}>
+                <div className="am-bento-grid">
+                  {/* A — Audio Whisper waveform */}
+                  <ScrollReveal className="am-bento-card is-light is-span-2">
+                    <div className="am-bento-visual is-wave">
+                      <div className="am-wave" aria-hidden="true">
+                        {Array.from({ length: 44 }, (_, i) => (
+                          <span
+                            key={i}
+                            className={`am-wave-bar${i < 41 ? " is-match" : ""}`}
+                            style={{ height: `${30 + ((i * 37) % 65)}%`, animationDelay: `${(i % 12) * 0.07}s` }}
+                          />
+                        ))}
+                      </div>
+                      <div className="am-wave-meta">
+                        <span className="am-wave-dot" />
+                        <span className="am-wave-match">Match 92%</span>
+                        <span className="am-wave-sub">· deteksi 2.4 dtk</span>
+                      </div>
                     </div>
-                    <span style={{ fontSize: "0.625rem", fontWeight: 700, color: "#047857", backgroundColor: "#ecfdf5", border: "1px solid #a7f3d0", padding: "1px 6px", borderRadius: "9999px" }}>98.8% Match</span>
-                  </div>
-                  <div style={{ fontSize: "0.8125rem", fontWeight: 700, color: "#0f172a", marginBottom: "3px", lineHeight: 1.3 }}>
-                    Whisper Audio Match
-                  </div>
-                  <div style={{ fontSize: "0.6875rem", color: "#64748b", lineHeight: 1.45 }}>
-                    Mendeteksi kata kunci sponsor dan validasi transkrip audio klip secara otomatis.
-                  </div>
-                </div>
-
-                {/* Floating Signal Card 2: Gemini Vision + API Oracle */}
-                <div
-                  className="am-home-duo-product-screen-signal-container gsap-signal-card is-3 hidden md:block"
-                  style={{
-                    backgroundColor: "#ffffff",
-                    backdropFilter: "none",
-                    WebkitBackdropFilter: "none",
-                    border: "1px solid #e2e8f0",
-                    borderRadius: "14px",
-                    padding: "12px 16px",
-                    boxShadow: "0 16px 36px -6px rgba(15, 23, 42, 0.12), 0 4px 10px rgba(15, 23, 42, 0.04)",
-                    width: "240px",
-                    maxWidth: "90vw",
-                    zIndex: 10,
-                    textAlign: "left",
-                    top: "30%",
-                    right: "-3%",
-                    transform: "rotate(-5deg)",
-                    userSelect: "none",
-                  }}
-                >
-                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "6px" }}>
-                    <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-                      <div style={{ width: "8px", height: "8px", borderRadius: "50%", backgroundColor: "#059669" }} />
-                      <span style={{ fontSize: "0.6875rem", fontWeight: 700, color: "#047857" }}>Vision OCR</span>
+                    <div className="am-bento-body">
+                      <div className="am-bento-title">Deteksi Audio Whisper</div>
+                      <div className="am-bento-desc">Waveform klip dicocokkan otomatis dengan sumber asli — tahu match atau tidak dalam hitungan detik.</div>
                     </div>
-                    <span style={{ fontSize: "0.625rem", fontWeight: 700, color: "#047857", backgroundColor: "#ecfdf5", border: "1px solid #a7f3d0", padding: "1px 6px", borderRadius: "9999px" }}>Watermark OK</span>
-                  </div>
-                  <div style={{ fontSize: "0.8125rem", fontWeight: 700, color: "#0f172a", marginBottom: "3px", lineHeight: 1.3 }}>
-                    Gemini Vision + API Oracle
-                  </div>
-                  <div style={{ fontSize: "0.6875rem", color: "#64748b", lineHeight: 1.45 }}>
-                    Memverifikasi watermark sponsor dan durasi klip, lalu oracle memvalidasi views.
-                  </div>
-                </div>
+                  </ScrollReveal>
 
-                {/* Floating Signal Card 3: Smart Contract Timelock */}
-                <div
-                  className="am-home-duo-product-screen-signal-container gsap-signal-card is-2 hidden md:block"
-                  style={{
-                    backgroundColor: "#ffffff",
-                    backdropFilter: "none",
-                    WebkitBackdropFilter: "none",
-                    border: "1px solid #e2e8f0",
-                    borderRadius: "14px",
-                    padding: "12px 16px",
-                    boxShadow: "0 16px 36px -6px rgba(15, 23, 42, 0.12), 0 4px 10px rgba(15, 23, 42, 0.04)",
-                    width: "245px",
-                    maxWidth: "90vw",
-                    zIndex: 10,
-                    textAlign: "left",
-                    bottom: "-20px",
-                    right: "8%",
-                    transform: "rotate(3deg)",
-                    userSelect: "none",
-                  }}
-                >
-                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "6px" }}>
-                    <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-                      <div style={{ width: "8px", height: "8px", borderRadius: "50%", backgroundColor: "#0891b2" }} />
-                      <span style={{ fontSize: "0.6875rem", fontWeight: 700, color: "#0e7490" }}>BNB Chain</span>
+                  {/* B — Cross-platform view tracking */}
+                  <ScrollReveal className="am-bento-card is-light" delay={80}>
+                    <div className="am-bento-body">
+                      <div className="am-bento-title">16+ Platform Terdeteksi</div>
+                      <div className="am-bento-desc">Views terhitung otomatis lintas platform dalam satu dashboard.</div>
                     </div>
-                    <span style={{ fontSize: "0.625rem", fontWeight: 700, color: "#0284c7", backgroundColor: "#f0f9ff", border: "1px solid #bae6fd", padding: "1px 6px", borderRadius: "9999px" }}>Escrow Lock</span>
-                  </div>
-                  <div style={{ fontSize: "0.8125rem", fontWeight: 700, color: "#0f172a", marginBottom: "3px", lineHeight: 1.3 }}>
-                    Smart Contract Timelock
-                  </div>
-                  <div style={{ fontSize: "0.6875rem", color: "#64748b", lineHeight: 1.45 }}>
-                    Escrow BNB Chain mencairkan USDT langsung ke wallet kreator saat target tercapai.
-                  </div>
+                    <div className="am-plat-list">
+                      {[
+                        { name: "TikTok", color: "#ff4b6e", views: "2.4M" },
+                        { name: "YouTube Shorts", color: "#ff2e2e", views: "860K" },
+                        { name: "Instagram Reels", color: "#e1306c", views: "1.1M" },
+                      ].map((p) => (
+                        <div key={p.name} className="am-plat-row">
+                          <span className="am-plat-dot" style={{ backgroundColor: p.color }} />
+                          <span className="am-plat-name">{p.name}</span>
+                          <span className="am-plat-views">{p.views}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </ScrollReveal>
+
+                  {/* C — Escrow release timeline */}
+                  <ScrollReveal className="am-bento-card is-light" delay={160}>
+                    <div className="am-bento-body">
+                      <div className="am-bento-title">Escrow Otomatis</div>
+                      <div className="am-bento-desc">Smart contract menahan dan mencair dana tanpa pihak ketiga.</div>
+                    </div>
+                    <div className="am-tl">
+                      <div className="am-tl-step is-done">
+                        <span className="am-tl-mark"><Check size={12} strokeWidth={3} /></span>
+                        <span className="am-tl-text">Klip diverifikasi</span>
+                      </div>
+                      <div className="am-tl-step is-active">
+                        <span className="am-tl-mark" />
+                        <span className="am-tl-text">Target tercapai</span>
+                      </div>
+                      <div className="am-tl-step">
+                        <span className="am-tl-mark" />
+                        <span className="am-tl-text">Dana cair USDT</span>
+                      </div>
+                    </div>
+                  </ScrollReveal>
+
+                  {/* D — Live audit log (dark) */}
+                  <ScrollReveal className="am-bento-card is-dark is-span-2" delay={240}>
+                    <div className="am-term">
+                      <div className="am-term-line"><span className="am-term-ok">✓</span><span className="am-term-cmd">whisper.audio_match</span><span className="am-term-val">92%</span><span className="am-term-time">1.2s</span></div>
+                      <div className="am-term-line"><span className="am-term-ok">✓</span><span className="am-term-cmd">gemini.vision.watermark</span><span className="am-term-val">pass</span><span className="am-term-time">0.8s</span></div>
+                      <div className="am-term-line"><span className="am-term-ok">✓</span><span className="am-term-cmd">oracle.views</span><span className="am-term-val">860,432</span><span className="am-term-time">0.4s</span></div>
+                      <div className="am-term-line is-running"><span className="am-term-live">●</span><span className="am-term-cmd">escrow.release</span><span className="am-term-val">standby</span><span className="am-term-cursor" /></div>
+                    </div>
+                    <div className="am-bento-body is-row">
+                      <div className="am-bento-title is-white">Log Audit Real-Time</div>
+                      <div className="am-bento-desc is-on-dark">Setiap pemeriksaan AI agent tercatat dan bisa kamu buktikan ke brand.</div>
+                    </div>
+                  </ScrollReveal>
                 </div>
               </div>
             </div>
@@ -1478,8 +1435,8 @@ function HomePageContent() {
 
                   {/* SVG Graphic 1: Verification Mockup */}
                   <div style={{ width: "100%", maxWidth: "460px", margin: "0 auto" }}>
-                    <svg viewBox="0 0 420 260" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ width: "100%", height: "auto", borderRadius: "12px", border: "1px solid rgba(0,0,0,0.08)", background: "#fafafa" }}>
-                      <rect x="16" y="16" width="388" height="228" rx="8" fill="#ffffff" stroke="#eaeaea" strokeWidth="1" />
+                    <svg viewBox="0 0 420 260" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ width: "100%", height: "auto", borderRadius: "8px" }}>
+                      <rect x="16" y="16" width="388" height="228" rx="8" fill="#ffffff" />
                       <rect x="16" y="16" width="388" height="34" rx="8" fill="#f8f9fa" />
                       <circle cx="34" cy="33" r="5" fill="#ff5f56" />
                       <circle cx="48" cy="33" r="5" fill="#ffbd2e" />
@@ -1546,8 +1503,8 @@ function HomePageContent() {
 
                   {/* SVG Graphic 2: Tracking Mockup */}
                   <div style={{ width: "100%", maxWidth: "460px", margin: "0 auto" }}>
-                    <svg viewBox="0 0 420 260" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ width: "100%", height: "auto", borderRadius: "12px", border: "1px solid rgba(0,0,0,0.08)", background: "#fafafa" }}>
-                      <rect x="16" y="16" width="388" height="228" rx="8" fill="#ffffff" stroke="#eaeaea" strokeWidth="1" />
+                    <svg viewBox="0 0 420 260" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ width: "100%", height: "auto", borderRadius: "8px" }}>
+                      <rect x="16" y="16" width="388" height="228" rx="8" fill="#ffffff" />
                       <rect x="16" y="16" width="388" height="34" rx="8" fill="#f8f9fa" />
                       <text x="32" y="38" fontFamily="sans-serif" fontSize="12" fill="#111" fontWeight="700">Performa Tayangan Lintas Platform (24 Jam)</text>
                       
@@ -1612,8 +1569,8 @@ function HomePageContent() {
 
                   {/* SVG Graphic 3: Escrow Vault Mockup */}
                   <div style={{ width: "100%", maxWidth: "460px", margin: "0 auto" }}>
-                    <svg viewBox="0 0 420 260" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ width: "100%", height: "auto", borderRadius: "12px", border: "1px solid rgba(0,0,0,0.08)", background: "#fafafa" }}>
-                      <rect x="16" y="16" width="388" height="228" rx="8" fill="#ffffff" stroke="#eaeaea" strokeWidth="1" />
+                    <svg viewBox="0 0 420 260" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ width: "100%", height: "auto", borderRadius: "8px" }}>
+                      <rect x="16" y="16" width="388" height="228" rx="8" fill="#ffffff" />
                       <rect x="16" y="16" width="388" height="34" rx="8" fill="#f8f9fa" />
                       <text x="32" y="38" fontFamily="sans-serif" fontSize="12" fill="#111" fontWeight="700">BNB Chain Escrow Smart Contract</text>
                       <text x="290" y="38" fontFamily="monospace" fontSize="10" fill="#64748b">0x71C...B4e2</text>
@@ -1679,8 +1636,8 @@ function HomePageContent() {
 
                   {/* SVG Graphic 4: CPM Analytics Mockup */}
                   <div style={{ width: "100%", maxWidth: "460px", margin: "0 auto" }}>
-                    <svg viewBox="0 0 420 260" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ width: "100%", height: "auto", borderRadius: "12px", border: "1px solid rgba(0,0,0,0.08)", background: "#fafafa" }}>
-                      <rect x="16" y="16" width="388" height="228" rx="8" fill="#ffffff" stroke="#eaeaea" strokeWidth="1" />
+                    <svg viewBox="0 0 420 260" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ width: "100%", height: "auto", borderRadius: "8px" }}>
+                      <rect x="16" y="16" width="388" height="228" rx="8" fill="#ffffff" />
                       <rect x="16" y="16" width="388" height="34" rx="8" fill="#f8f9fa" />
                       <text x="32" y="38" fontFamily="sans-serif" fontSize="12" fill="#111" fontWeight="700">Kalkulasi CPM Transparan &amp; Penghasilan</text>
 

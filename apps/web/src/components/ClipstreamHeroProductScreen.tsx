@@ -199,7 +199,7 @@ export function ClipstreamHeroProductScreen() {
       className="am-home-duo-product-screen gsap-duo-screen"
       style={{
         backgroundColor: "#ffffff",
-        borderRadius: "18px",
+        borderRadius: "16px",
         border: "1px solid #e2e8f0",
         boxShadow:
           "0 24px 60px -12px rgba(15, 23, 42, 0.12), 0 4px 16px rgba(15, 23, 42, 0.04)",

@@ -169,6 +169,47 @@ export function HoldbackSchedule({
       </div>
 
       {/* List of Holdback Items */}
+      {items.length === 0 ? (
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: "0.5rem",
+            padding: "2.5rem 1.5rem",
+            textAlign: "center",
+          }}
+        >
+          <div
+            style={{
+              width: "44px",
+              height: "44px",
+              borderRadius: "12px",
+              backgroundColor: "#f4f3f0",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            <Lock size={20} color="rgba(17,17,17,0.4)" />
+          </div>
+          <p style={{ fontSize: "0.9375rem", fontWeight: 700, color: "#111", margin: 0 }}>
+            Belum ada saldo holdback
+          </p>
+          <p
+            style={{
+              fontSize: "0.8125rem",
+              color: "rgba(17,17,17,0.5)",
+              margin: 0,
+              maxWidth: "24rem",
+              lineHeight: 1.5,
+            }}
+          >
+            Klip yang terverifikasi AI akan masuk jadwal unlock 72 jam di sini.
+          </p>
+        </div>
+      ) : (
       <div
         style={{
           display: "grid",
@@ -346,6 +387,7 @@ export function HoldbackSchedule({
           );
         })}
       </div>
+      )}
 
       {/* Claim Modal Confirmation */}
       {selectedClaim && (
