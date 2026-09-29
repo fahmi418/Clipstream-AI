@@ -171,7 +171,7 @@ export class VerifyClipWorker {
           brandId: campaign.brandId,
           sourceVideoId: campaign.sourceVideoId,
           title: campaign.title,
-          description: campaign.description,
+          description: campaign.description ?? undefined,
           rules: campaign.rules,
           cpmRate: campaign.cpmRate,
           totalBudget: campaign.totalBudget,

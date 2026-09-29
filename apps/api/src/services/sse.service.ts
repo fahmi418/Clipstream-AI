@@ -26,6 +26,7 @@ export type VerificationEvent =
   }
   | {
     type: 'rejected';
+    stage?: string;
     code: string;
     reason: string;
     suggestion: string;
