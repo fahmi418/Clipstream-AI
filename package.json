@@ -3,6 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
+    "dev": "pnpm --filter @clipstream/api --filter @clipstream/web --parallel run dev",
+    "dev:api": "pnpm --filter @clipstream/api dev",
+    "dev:web": "pnpm --filter @clipstream/web dev",
     "build": "pnpm -r run build",
     "test": "pnpm -r run test"
   },
