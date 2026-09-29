@@ -66,6 +66,42 @@ function ClipperSubmitContent() {
   } | null>(null);
   const [appealModalOpen, setAppealModalOpen] = useState(false);
 
+  // Restore ongoing verification session if page was refreshed
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    try {
+      const saved = localStorage.getItem("clipstream_active_submission");
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (parsed.clipId) {
+          setActiveClipId(parsed.clipId);
+          if (parsed.selectedCampaignId) setSelectedCampaignId(parsed.selectedCampaignId);
+          if (parsed.videoUrl) setVideoUrl(parsed.videoUrl);
+        }
+      }
+    } catch {}
+  }, []);
+
+  const handleCancelVerification = () => {
+    const ok = window.confirm(
+      "Apakah kamu yakin ingin membatalkan proses verifikasi video ini? Seluruh progres saat ini akan dihentikan."
+    );
+    if (!ok) return;
+
+    if (activeClipId) {
+      try {
+        localStorage.removeItem(`clipstream_timeline_${activeClipId}`);
+      } catch {}
+    }
+    try {
+      localStorage.removeItem("clipstream_active_submission");
+    } catch {}
+
+    setActiveClipId(null);
+    setVerificationResult(null);
+    setSubmitting(false);
+  };
+
   useEffect(() => {
     listCampaigns({ status: "ACTIVE" })
       .then((data) => {
@@ -143,6 +179,19 @@ function ClipperSubmitContent() {
 
       setActiveClipId(clipId);
 
+      // Save submission state to localStorage so refresh keeps running without resetting
+      try {
+        localStorage.setItem(
+          "clipstream_active_submission",
+          JSON.stringify({
+            clipId,
+            selectedCampaignId,
+            videoUrl: videoUrl.trim(),
+            submittedAt: new Date().toISOString(),
+          })
+        );
+      } catch {}
+
       // Save initial clip record
       const initialClip: Clip = {
         id: clipId,
@@ -175,6 +224,10 @@ function ClipperSubmitContent() {
   const handleVerificationComplete = (status: ClipStatus, clipData?: any) => {
     setVerificationResult({ status, clip: clipData });
     setSubmitting(false);
+
+    try {
+      localStorage.removeItem("clipstream_active_submission");
+    } catch {}
 
     const updatedClip: Clip = {
       id: activeClipId || `clip-${Date.now()}`,
@@ -785,6 +838,7 @@ function ClipperSubmitContent() {
             <VerificationTimeline
               clipId={activeClipId}
               onComplete={handleVerificationComplete}
+              onCancel={handleCancelVerification}
             />
           </div>
         )}
@@ -1037,6 +1091,14 @@ function ClipperSubmitContent() {
                 <button
                   type="button"
                   onClick={() => {
+                    if (activeClipId) {
+                      try {
+                        localStorage.removeItem(`clipstream_timeline_${activeClipId}`);
+                      } catch {}
+                    }
+                    try {
+                      localStorage.removeItem("clipstream_active_submission");
+                    } catch {}
                     setActiveClipId(null);
                     setVerificationResult(null);
                     setVideoUrl("");
@@ -1176,6 +1238,14 @@ function ClipperSubmitContent() {
                   <button
                     type="button"
                     onClick={() => {
+                      if (activeClipId) {
+                        try {
+                          localStorage.removeItem(`clipstream_timeline_${activeClipId}`);
+                        } catch {}
+                      }
+                      try {
+                        localStorage.removeItem("clipstream_active_submission");
+                      } catch {}
                       setActiveClipId(null);
                       setVerificationResult(null);
                       setVideoUrl("");

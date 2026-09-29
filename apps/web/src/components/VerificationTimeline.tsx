@@ -17,6 +17,7 @@ import {
   Zap,
   Coins,
   Info,
+  X,
 } from "lucide-react";
 import { getApiBase, type ClipStatus } from "@/lib/api";
 
@@ -84,6 +85,7 @@ interface VerificationTimelineProps {
   clipId: string;
   initialStatus?: ClipStatus;
   onComplete?: (status: ClipStatus, clipData?: any) => void;
+  onCancel?: () => void;
   className?: string;
 }
 
@@ -91,36 +93,99 @@ export function VerificationTimeline({
   clipId,
   initialStatus = "SUBMITTED",
   onComplete,
+  onCancel,
   className = "",
 }: VerificationTimelineProps) {
-  const [stages, setStages] = useState<VerificationStage[]>(() =>
-    STAGE_CONFIGS.map((s, idx) => ({
+  const STORAGE_KEY = `clipstream_timeline_${clipId}`;
+
+  const loadSavedTimeline = () => {
+    if (typeof window === "undefined") return null;
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (raw) return JSON.parse(raw);
+    } catch {}
+    return null;
+  };
+
+  const savedTimelineRef = useRef(loadSavedTimeline());
+  const saved = savedTimelineRef.current;
+
+  const [stages, setStages] = useState<VerificationStage[]>(() => {
+    if (saved?.stages && Array.isArray(saved.stages) && saved.stages.length > 0) {
+      return saved.stages;
+    }
+    return STAGE_CONFIGS.map((s, idx) => ({
       id: s.id,
       name: s.name,
       status: idx === 0 ? "running" : "pending",
       durationSeconds: undefined,
       score: null,
       detail: undefined,
-    }))
+    }));
+  });
+
+  const [logs, setLogs] = useState<TelemetryLog[]>(() => {
+    if (saved?.logs && Array.isArray(saved.logs) && saved.logs.length > 0) {
+      return [
+        ...saved.logs,
+        {
+          timestamp: new Date().toLocaleTimeString("id-ID", { hour12: false }),
+          tag: "SESSION",
+          message: "Sesi verifikasi dipulihkan dari cache lokal. Melanjutkan inspeksi...",
+          type: "info",
+        },
+      ];
+    }
+    return [
+      {
+        timestamp: new Date().toLocaleTimeString("id-ID", { hour12: false }),
+        tag: "SYSTEM",
+        message: `Inisialisasi verifikasi untuk klip ID: ${clipId.slice(0, 8)}...`,
+        type: "info",
+      },
+    ];
+  });
+
+  const [finalStatus, setFinalStatus] = useState<ClipStatus>(() => {
+    return saved?.finalStatus || initialStatus;
+  });
+  const [payoutData, setPayoutData] = useState<any>(() => {
+    return saved?.payoutData || null;
+  });
+  const [showConsole, setShowConsole] = useState(true);
+
+  const startTimeRef = useRef<number>(
+    saved?.startTime && typeof saved.startTime === "number" ? saved.startTime : Date.now()
   );
 
-  const [logs, setLogs] = useState<TelemetryLog[]>([
-    {
-      timestamp: new Date().toLocaleTimeString("id-ID", { hour12: false }),
-      tag: "SYSTEM",
-      message: `Inisialisasi verifikasi untuk klip ID: ${clipId.slice(0, 8)}...`,
-      type: "info",
-    },
-  ]);
-
-  const [finalStatus, setFinalStatus] = useState<ClipStatus>(initialStatus);
-  const [payoutData, setPayoutData] = useState<any>(null);
-  const [showConsole, setShowConsole] = useState(true);
-  const [elapsedSeconds, setElapsedSeconds] = useState(0);
+  const [elapsedSeconds, setElapsedSeconds] = useState(() => {
+    const start = saved?.startTime || Date.now();
+    return Math.max(0, Math.floor((Date.now() - start) / 1000));
+  });
 
   const terminalBoxRef = useRef<HTMLDivElement>(null);
-  const startTimeRef = useRef<number>(Date.now());
-  const completedRef = useRef(false);
+  const completedRef = useRef(
+    saved?.finalStatus === "ACTIVE" ||
+    saved?.finalStatus === "SETTLED" ||
+    saved?.finalStatus === "REJECTED"
+  );
+
+  // Auto-persist timeline state in localStorage so reloading page never cancels the process
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    try {
+      localStorage.setItem(
+        STORAGE_KEY,
+        JSON.stringify({
+          stages,
+          logs,
+          finalStatus,
+          payoutData,
+          startTime: startTimeRef.current,
+        })
+      );
+    } catch {}
+  }, [stages, logs, finalStatus, payoutData, STORAGE_KEY]);
 
   // Auto-scroll strictly inside terminal box only, keeping the page viewport completely stationary
   useEffect(() => {
@@ -136,6 +201,13 @@ export function VerificationTimeline({
     }, 1000);
     return () => clearInterval(timer);
   }, []);
+
+  const handleCancelClick = () => {
+    try {
+      localStorage.removeItem(STORAGE_KEY);
+    } catch {}
+    onCancel?.();
+  };
 
   const addLog = (tag: string, message: string, type: TelemetryLog["type"] = "info") => {
     setLogs((prev) => [
@@ -321,7 +393,9 @@ export function VerificationTimeline({
 
     // 2. Synchronous Database Status Polling with Resilient Fallback Progression
     let failedPollCount = 0;
-    let fallbackStep = 0;
+    // Calculate fallback step based on stages already completed, so reload doesn't replay already finished steps
+    const completedCount = stages.filter((s) => s.status === "completed").length;
+    let fallbackStep = completedCount * 2;
     const isClientFallback = clipId.startsWith("clip-");
 
     fallbackPollTimer = setInterval(async () => {
@@ -543,12 +617,24 @@ export function VerificationTimeline({
           </h3>
         </div>
 
-        {/* Live Timer & Badge */}
-        <div className="flex items-center gap-3">
+        {/* Live Timer, Cancel Button & Badge */}
+        <div className="flex items-center gap-2 sm:gap-3 flex-wrap justify-end">
           <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-mono bg-[var(--color-cream-wash)] text-[var(--color-ink)] border border-[rgba(17,17,17,0.06)]">
             <Clock size={13} className="text-[var(--color-ash)]" />
             <span>{elapsedSeconds}s</span>
           </div>
+
+          {onCancel && (finalStatus === "SUBMITTED" || finalStatus === "VERIFYING") && (
+            <button
+              type="button"
+              onClick={handleCancelClick}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold text-[#dc2626] bg-[#fef2f2] hover:bg-[#fee2e2] border border-[#fecaca] transition-all cursor-pointer shadow-sm active:scale-95"
+              title="Batalkan proses verifikasi video ini"
+            >
+              <X size={13} className="text-[#dc2626]" />
+              <span>Batalkan Verifikasi</span>
+            </button>
+          )}
 
           {finalStatus === "SUBMITTED" || finalStatus === "VERIFYING" ? (
             <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium bg-[#fff3e6] text-[#b44800] border border-[rgba(235,94,40,0.2)]">
@@ -573,6 +659,16 @@ export function VerificationTimeline({
           )}
         </div>
       </div>
+
+      {/* Persistence Note */}
+      {(finalStatus === "SUBMITTED" || finalStatus === "VERIFYING") && (
+        <div className="flex items-center gap-2 px-3.5 py-2.5 rounded-xl bg-[#f8fafc] border border-[#e2e8f0] text-xs text-[#64748b]">
+          <Info size={14} className="text-[#0284c7] shrink-0" />
+          <span>
+            Proses verifikasi tetap berjalan di latar belakang bahkan jika browser di-refresh. Gunakan tombol <strong>Batalkan Verifikasi</strong> jika ingin menghentikan proses.
+          </span>
+        </div>
+      )}
 
       {/* Progress Bar */}
       <div className="w-full bg-[rgba(17,17,17,0.06)] h-1.5 rounded-full overflow-hidden">

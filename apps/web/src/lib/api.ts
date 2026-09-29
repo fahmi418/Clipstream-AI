@@ -1157,6 +1157,8 @@ export interface AiTelemetryLog {
   reasoning?: string;
   clipTitle?: string;
   clipId?: string;
+  promptSnippet?: string;
+  responseSnippet?: string;
 }
 
 export interface AiTelemetryResponse {

@@ -5,7 +5,7 @@ export interface AiCallRecord {
   timestamp: string;
   model: string;
   provider: string;
-  task: 'brand_safety' | 'watermark_detection' | 'audio_transcription' | 'code_extraction' | 'vector_embedding';
+  task: 'brand_safety' | 'watermark_detection' | 'audio_transcription' | 'code_extraction' | 'vector_embedding' | 'anomaly_detection' | 'live_audit';
   promptTokens: number;
   completionTokens: number;
   totalTokens: number;
@@ -16,6 +16,8 @@ export interface AiCallRecord {
   reasoning?: string;
   clipTitle?: string;
   clipId?: string;
+  promptSnippet?: string;
+  responseSnippet?: string;
 }
 
 export interface ModelHealthInfo {
@@ -42,16 +44,75 @@ class AiTelemetryService {
   }
 
   private seedInitialTelemetry(): void {
-    const models = [
-      { id: 'nvidia/nemotron-3.5-lightning-30b-a3b', provider: 'nvidia-nim', weight: 65 },
-      { id: 'meta/muse-glimmer-30b', provider: 'nvidia-nim', weight: 15 },
-      { id: 'gemini-3.8-flash', provider: 'google-gemini', weight: 10 },
-      { id: 'openai/gpt-oss-120b', provider: 'groq', weight: 8 },
-      { id: 'meta/llama-3.2-11b-vision-instruct', provider: 'nvidia-nim-vision', weight: 12 },
+    const taskConfigs: Array<{
+      task: AiCallRecord['task'];
+      models: Array<{ id: string; provider: string }>;
+      promptGen: (title: string) => { prompt: string; response: string; reasoning: string };
+    }> = [
+      {
+        task: 'brand_safety',
+        models: [
+          { id: 'nvidia/nemotron-3.5-lightning-30b-a3b', provider: 'nvidia-nim' },
+          { id: 'meta/muse-glimmer-30b', provider: 'nvidia-nim' },
+          { id: 'gemini-3.8-flash', provider: 'google-gemini' },
+          { id: 'openai/gpt-oss-120b', provider: 'groq' },
+        ],
+        promptGen: (title) => ({
+          prompt: `Instruksi Audit: Evaluasi transkrip klip '${title}' terhadap rubrik brand: dilarang SARA, dilarang promosi kompetitor, wajib mencantumkan tagar sponsor.`,
+          response: `Analisis multimodal selesai. Tidak ditemukan ujaran kebencian atau kompetitor terlarang. Brand hashtag terverifikasi.`,
+          reasoning: `Konten memenuhi 100% parameter kepatuhan sponsor brand.`,
+        }),
+      },
+      {
+        task: 'audio_transcription',
+        models: [
+          { id: 'whisper-large-v3', provider: 'Groq Cloud / CTranslate2' },
+          { id: 'whisper-medium-id', provider: 'Local CTranslate2' },
+        ],
+        promptGen: (title) => ({
+          prompt: `Ekstraksi audio stream (16kHz mono) dari video YouTube Shorts: '${title}'`,
+          response: `Transkripsi 42 detik selesai: 'Halo teman-teman semua, hari ini kita bahas cara monetisasi klip video pendek melalui Web3 protocol ClipStream AI...'`,
+          reasoning: `Fasilitas ASR menghasilkan kejelasan audio 98.4%, WER (Word Error Rate) < 2.1%.`,
+        }),
+      },
+      {
+        task: 'watermark_detection',
+        models: [
+          { id: 'meta/llama-3.2-11b-vision-instruct', provider: 'NVIDIA NIM Vision' },
+          { id: 'gemini-3.8-flash', provider: 'google-gemini' },
+        ],
+        promptGen: (title) => ({
+          prompt: `Deteksi bounding box logo brand dan teks watermark #CS-XXXX pada keyframe 0s, 15s, 30s untuk: '${title}'`,
+          response: `Bounding box terdeteksi di sudut kanan atas [x: 840, y: 45, w: 120, h: 48]. Watermark #CS- terverifikasi tajam tanpa distorsi.`,
+          reasoning: `Watermark sponsor terlihat jelas selama >80% total durasi video.`,
+        }),
+      },
+      {
+        task: 'vector_embedding',
+        models: [
+          { id: 'intfloat/multilingual-e5-small', provider: 'HuggingFace Local' },
+          { id: 'text-embedding-3-small', provider: 'OpenAI Embeddings' },
+        ],
+        promptGen: (title) => ({
+          prompt: `Hitung 384-dim dense embedding untuk 6 potongan chunk transkrip klip '${title}' dan bandingkan dengan video master.`,
+          response: `Cosine similarity rata-rata: 0.887 across top 3 matching chunks. Ambang batas 0.70 tercapai.`,
+          reasoning: `Topik klip relevan 88.7% terhadap narasi utama campaign.`,
+        }),
+      },
+      {
+        task: 'anomaly_detection',
+        models: [
+          { id: 'heuristic-engine-v2', provider: 'Statistical Engine' },
+        ],
+        promptGen: (title) => ({
+          prompt: `Audit pola pertumbuhan views, like-to-view ratio (7.2%), comment velocity, dan rentang geografis untuk: '${title}'`,
+          response: `Metrik views organik: rasio engagement normal, akselerasi kurva views konsisten dengan traffic YouTube Shorts recommendation.`,
+          reasoning: `Tidak ada pola anomali view-botting terdeteksi (skor anomali 0.08, batas aman < 0.35).`,
+        }),
+      },
     ];
 
-    const tasks: AiCallRecord['task'][] = ['brand_safety', 'watermark_detection', 'code_extraction'];
-    const verdicts: AiCallRecord['verdict'][] = ['PASS', 'PASS', 'PASS', 'REVIEW', 'FAIL'];
+    const verdicts: AiCallRecord['verdict'][] = ['PASS', 'PASS', 'PASS', 'PASS', 'REVIEW', 'FAIL'];
     const titles = [
       'Web3 & AI Agent Ecosystem Breakdown #shorts',
       'BNB Chain Zero-Knowledge Hackathon Recap',
@@ -61,18 +122,32 @@ class AiTelemetryService {
       'Top 5 Tools AI Generatif Buat Content Creator',
       'Review Smartphone Flagship 2026 Gaming Test',
       'Rahasia Algoritma YouTube Shorts Viral Organik',
+      'Solidity Smart Contract Escrow Explained',
+      'Prompt Engineering Tricks for Autonomous Agents',
+      'Cross-Chain Bridge Security & opBNB Fees',
+      'Creator Economy vs Traditional Advertising 2026',
     ];
 
     const now = Date.now();
-    for (let i = 0; i < 48; i++) {
-      const timeOffset = Math.floor(Math.random() * 24 * 3600 * 1000); // within last 24h
-      const m = models[Math.floor(Math.random() * models.length)];
-      const task = tasks[Math.floor(Math.random() * tasks.length)];
+    for (let i = 0; i < 75; i++) {
+      const timeOffset = Math.floor(Math.random() * 36 * 3600 * 1000); // within last 36h
+      const cfg = taskConfigs[i % taskConfigs.length];
+      const m = cfg.models[Math.floor(Math.random() * cfg.models.length)];
       const verdict = verdicts[Math.floor(Math.random() * verdicts.length)];
-      const promptTokens = Math.floor(250 + Math.random() * 450);
-      const completionTokens = Math.floor(80 + Math.random() * 200);
+      const title = titles[Math.floor(Math.random() * titles.length)];
+      const { prompt, response, reasoning } = cfg.promptGen(title);
+
+      const promptTokens = Math.floor(180 + Math.random() * 320);
+      const completionTokens = Math.floor(60 + Math.random() * 180);
       const totalTokens = promptTokens + completionTokens;
-      const durationMs = Math.floor(320 + Math.random() * 750);
+      const durationMs = m.id.includes('whisper')
+        ? Math.floor(280 + Math.random() * 250)
+        : m.id.includes('vision')
+        ? Math.floor(850 + Math.random() * 550)
+        : m.id.includes('e5')
+        ? Math.floor(45 + Math.random() * 40)
+        : Math.floor(320 + Math.random() * 480);
+
       const score = verdict === 'PASS' ? 0.95 : verdict === 'REVIEW' ? 0.72 : 0.35;
 
       this.records.push({
@@ -80,7 +155,7 @@ class AiTelemetryService {
         timestamp: new Date(now - timeOffset).toISOString(),
         model: m.id,
         provider: m.provider,
-        task,
+        task: cfg.task,
         promptTokens,
         completionTokens,
         totalTokens,
@@ -90,12 +165,14 @@ class AiTelemetryService {
         verdict,
         reasoning:
           verdict === 'PASS'
-            ? 'Konten memenuhi 100% parameter kepatuhan sponsor brand.'
+            ? reasoning
             : verdict === 'REVIEW'
-            ? 'Ditemukan potensi ambiguitas kata sponsor, diteruskan ke review admin.'
+            ? 'Ditemukan potensi ambiguitas kata kunci sponsor, diteruskan ke review admin.'
             : 'Terdeteksi pelanggaran aturan brand: dilarang mempromosikan kompetitor.',
-        clipTitle: titles[Math.floor(Math.random() * titles.length)],
+        clipTitle: title,
         clipId: `clip-${1000 + i}`,
+        promptSnippet: prompt,
+        responseSnippet: response,
       });
     }
 
@@ -313,7 +390,7 @@ class AiTelemetryService {
         groqKey: { status: process.env.GROQ_API_KEY ? 'CONFIGURED' : 'MISSING' },
         youtubeDataApi: { status: process.env.YOUTUBE_API_KEY ? 'CONFIGURED' : 'MISSING', dailyQuota: 10000, usedEstimate: 54 },
       },
-      recentLogs: this.records.slice(0, 30),
+      recentLogs: this.records.slice(0, 200),
     };
   }
 
@@ -438,6 +515,8 @@ class AiTelemetryService {
       reasoning: result.reasoning,
       clipTitle: title,
       clipId: `clip-${Date.now().toString().slice(-4)}`,
+      promptSnippet: `Konteks Evaluasi: Title="${title}", Rules="${rules}", Transcript="${transcript.slice(0, 160)}..."`,
+      responseSnippet: `Score=${result.score}, Safe=${result.safe}, Violations=${result.violations.length}. Penalaran: ${result.reasoning}`,
     });
 
     if (result.model) {

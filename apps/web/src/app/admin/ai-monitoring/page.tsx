@@ -36,7 +36,80 @@ import {
   ExternalLink,
   Sparkles,
   X,
+  FileText,
+  Copy,
+  ChevronLeft,
+  ChevronRight,
+  Filter,
+  ShieldAlert,
 } from "lucide-react";
+
+export interface TaskConfigMeta {
+  key: string;
+  name: string;
+  shortName: string;
+  desc: string;
+  bg: string;
+  text: string;
+  border: string;
+}
+
+export const AI_TASK_MAP: Record<string, TaskConfigMeta> = {
+  brand_safety: {
+    key: "brand_safety",
+    name: "Audit Brand Safety & Kepatuhan Rubrik",
+    shortName: "Brand Safety",
+    desc: "Evaluasi multimodal transkrip & konten klip terhadap larangan konten terlarang, kompetitor, SARA, dan tagar wajib.",
+    bg: "#fef2f2",
+    text: "#991b1b",
+    border: "#fecaca",
+  },
+  audio_transcription: {
+    key: "audio_transcription",
+    name: "Transkripsi Suara (Whisper ASR)",
+    shortName: "Whisper Audio",
+    desc: "Ekstraksi audio stream 16kHz dan transkripsi suara klip YouTube Shorts ke teks kata-per-kata.",
+    bg: "#f0fdf4",
+    text: "#166534",
+    border: "#bbf7d0",
+  },
+  watermark_detection: {
+    key: "watermark_detection",
+    name: "Deteksi Logo & Watermark Visual",
+    shortName: "Logo & Watermark",
+    desc: "Inspeksi visual Vision LLM pada keyframe video untuk bounding box logo brand & kode verifikasi #CS-.",
+    bg: "#faf5ff",
+    text: "#6b21a8",
+    border: "#e9d5ff",
+  },
+  vector_embedding: {
+    key: "vector_embedding",
+    name: "Pencocokan Vektor Semantik (Embedding)",
+    shortName: "Pencocokan Vektor",
+    desc: "Perhitungan 384-dimensi cosine similarity antara transkrip klip clipper dan narasi video sumber.",
+    bg: "#eff6ff",
+    text: "#1e40af",
+    border: "#bfdbfe",
+  },
+  anomaly_detection: {
+    key: "anomaly_detection",
+    name: "Deteksi Anomali Views & Fraud Anti-Bot",
+    shortName: "Deteksi Anomali",
+    desc: "Audit pola rasio views, like-to-view ratio, dan distribusi traffic untuk mendeteksi kecurangan bot.",
+    bg: "#fffbeb",
+    text: "#92400e",
+    border: "#fde68a",
+  },
+  live_audit: {
+    key: "live_audit",
+    name: "Uji Coba Live Orkestrasi AI (Admin)",
+    shortName: "Live Test Admin",
+    desc: "Simulasi eksekusi cascading pipeline AI real-time yang dipicu langsung dari tombol Audit Live.",
+    bg: "#f0fdfa",
+    text: "#115e59",
+    border: "#99f6e4",
+  },
+};
 
 export default function AdminAiMonitoringPage() {
   const [telemetry, setTelemetry] = useState<AiTelemetryResponse | null>(null);
@@ -50,6 +123,11 @@ export default function AdminAiMonitoringPage() {
   const [pingResult, setPingResult] = useState<{ modelId: string; status: string; latencyMs: number; error?: string } | null>(null);
   const [searchLog, setSearchLog] = useState("");
   const [selectedVerdictFilter, setSelectedVerdictFilter] = useState<"ALL" | "PASS" | "REVIEW" | "FAIL">("ALL");
+  const [selectedTaskFilter, setSelectedTaskFilter] = useState<string>("ALL");
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const [pageSize, setPageSize] = useState<number>(20);
+  const [copiedSnippet, setCopiedSnippet] = useState<string | null>(null);
+  const [showRawJsonModal, setShowRawJsonModal] = useState<boolean>(false);
   const [selectedLog, setSelectedLog] = useState<AiTelemetryLog | null>(null);
   const [connectionError, setConnectionError] = useState<string | null>(null);
 
@@ -131,10 +209,30 @@ export default function AdminAiMonitoringPage() {
     const matchesSearch =
       (log.clipTitle || "").toLowerCase().includes(searchLog.toLowerCase()) ||
       log.model.toLowerCase().includes(searchLog.toLowerCase()) ||
-      log.task.toLowerCase().includes(searchLog.toLowerCase());
+      log.task.toLowerCase().includes(searchLog.toLowerCase()) ||
+      (log.clipId || "").toLowerCase().includes(searchLog.toLowerCase()) ||
+      (log.reasoning || "").toLowerCase().includes(searchLog.toLowerCase());
     const matchesVerdict = selectedVerdictFilter === "ALL" || log.verdict === selectedVerdictFilter;
-    return matchesSearch && matchesVerdict;
+    const matchesTask = selectedTaskFilter === "ALL" || log.task === selectedTaskFilter;
+    return matchesSearch && matchesVerdict && matchesTask;
   });
+
+  const totalLogsCount = filteredLogs.length;
+  const effectivePageSize = pageSize === 9999 ? Math.max(1, totalLogsCount) : pageSize;
+  const totalPages = Math.max(1, Math.ceil(totalLogsCount / effectivePageSize));
+  const safeCurrentPage = Math.min(currentPage, totalPages);
+  const paginatedLogs = filteredLogs.slice(
+    (safeCurrentPage - 1) * effectivePageSize,
+    safeCurrentPage * effectivePageSize
+  );
+
+  const handleCopyText = (text: string, label: string) => {
+    try {
+      navigator.clipboard.writeText(text);
+      setCopiedSnippet(label);
+      setTimeout(() => setCopiedSnippet(null), 2000);
+    } catch {}
+  };
 
   const onlineCount = telemetry?.modelsHealth.filter((m) => m.status === "HEALTHY").length ?? 0;
   const totalCount = telemetry?.modelsHealth.length ?? 0;
@@ -1015,7 +1113,7 @@ export default function AdminAiMonitoringPage() {
             </div>
           </div>
 
-          {/* Section 4: Live Telemetry Audit Stream */}
+          {/* Section 4: Live Telemetry Audit Stream & Full AI Usage Logs */}
           <div
             style={{
               backgroundColor: "#ffffff",
@@ -1023,34 +1121,53 @@ export default function AdminAiMonitoringPage() {
               borderRadius: "12px",
               border: "1px solid #e2e8f0",
               boxShadow: "0 1px 3px rgba(0,0,0,0.04)",
+              marginBottom: "2rem",
             }}
           >
+            {/* Header */}
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "1.25rem", flexWrap: "wrap", gap: "12px" }}>
               <div>
-                <h2 style={{ fontSize: "1.125rem", fontWeight: 700, color: "#0f172a", margin: "0 0 4px 0" }}>
-                  Log Eksekusi &amp; Riwayat Audit AI
-                </h2>
-                <p style={{ fontSize: "0.8125rem", color: "#64748b", margin: 0 }}>
-                  Daftar transaksi evaluasi klip terbaru dengan token terpakai, skor kepatuhan, dan penalaran AI.
+                <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                  <h2 style={{ fontSize: "1.125rem", fontWeight: 700, color: "#0f172a", margin: 0 }}>
+                    Log Operasional &amp; Rincian Penggunaan AI
+                  </h2>
+                  <span
+                    style={{
+                      fontSize: "0.6875rem",
+                      fontWeight: 700,
+                      padding: "2px 8px",
+                      borderRadius: "12px",
+                      backgroundColor: "#e0f2fe",
+                      color: "#0369a1",
+                    }}
+                  >
+                    {totalLogsCount} Log Ditemukan
+                  </span>
+                </div>
+                <p style={{ fontSize: "0.8125rem", color: "#64748b", margin: "4px 0 0 0" }}>
+                  Transparansi audit lengkap: transkripsi Whisper, deteksi watermark visual, audit brand safety, embedding vektor semantik, dan deteksi anomali views.
                 </p>
               </div>
 
-              {/* Filters */}
+              {/* Search & Verdict Filter */}
               <div style={{ display: "flex", alignItems: "center", gap: "8px", flexWrap: "wrap" }}>
                 <div style={{ position: "relative" }}>
                   <Search size={14} style={{ position: "absolute", left: "10px", top: "50%", transform: "translateY(-50%)", color: "#94a3b8" }} />
                   <input
                     type="text"
-                    placeholder="Cari judul klip atau model..."
+                    placeholder="Cari klip, model, task, teks..."
                     value={searchLog}
-                    onChange={(e) => setSearchLog(e.target.value)}
+                    onChange={(e) => {
+                      setSearchLog(e.target.value);
+                      setCurrentPage(1);
+                    }}
                     style={{
                       padding: "6px 12px 6px 30px",
                       borderRadius: "6px",
                       border: "1px solid #cbd5e1",
                       fontSize: "0.8125rem",
                       outline: "none",
-                      width: "220px",
+                      width: "230px",
                     }}
                   />
                 </div>
@@ -1059,7 +1176,10 @@ export default function AdminAiMonitoringPage() {
                   {(["ALL", "PASS", "REVIEW", "FAIL"] as const).map((v) => (
                     <button
                       key={v}
-                      onClick={() => setSelectedVerdictFilter(v)}
+                      onClick={() => {
+                        setSelectedVerdictFilter(v);
+                        setCurrentPage(1);
+                      }}
                       style={{
                         padding: "5px 10px",
                         fontSize: "0.75rem",
@@ -1079,115 +1199,427 @@ export default function AdminAiMonitoringPage() {
               </div>
             </div>
 
-            <div style={{ overflowX: "auto" }}>
+            {/* Task Breakdown Cards — Interactive Quick Filters */}
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))",
+                gap: "10px",
+                marginBottom: "1.25rem",
+              }}
+            >
+              {Object.keys(AI_TASK_MAP).map((taskKey) => {
+                const meta = AI_TASK_MAP[taskKey];
+                const matchingLogs = (telemetry?.recentLogs || []).filter((l) => l.task === taskKey);
+                const count = matchingLogs.length;
+                const totalTokens = matchingLogs.reduce((acc, l) => acc + (l.totalTokens || 0), 0);
+                const avgLatency = count > 0 ? Math.round(matchingLogs.reduce((acc, l) => acc + (l.durationMs || 0), 0) / count) : 0;
+                const isSelected = selectedTaskFilter === taskKey;
+
+                return (
+                  <div
+                    key={taskKey}
+                    onClick={() => {
+                      setSelectedTaskFilter(isSelected ? "ALL" : taskKey);
+                      setCurrentPage(1);
+                    }}
+                    style={{
+                      padding: "10px 12px",
+                      borderRadius: "8px",
+                      backgroundColor: isSelected ? meta.bg : "#f8fafc",
+                      border: isSelected ? `2px solid ${meta.border}` : "1px solid #e2e8f0",
+                      cursor: "pointer",
+                      transition: "all 0.15s ease",
+                      position: "relative",
+                    }}
+                  >
+                    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "4px" }}>
+                      <span style={{ fontSize: "0.6875rem", fontWeight: 700, color: meta.text, textTransform: "uppercase" }}>
+                        {meta.shortName}
+                      </span>
+                      <span
+                        style={{
+                          fontSize: "0.6875rem",
+                          fontWeight: 700,
+                          padding: "1px 6px",
+                          borderRadius: "10px",
+                          backgroundColor: "#ffffff",
+                          color: meta.text,
+                          border: `1px solid ${meta.border}`,
+                        }}
+                      >
+                        {count} call
+                      </span>
+                    </div>
+                    <div style={{ fontSize: "0.9375rem", fontWeight: 700, color: "#0f172a" }}>
+                      {totalTokens.toLocaleString("id-ID")}{" "}
+                      <span style={{ fontSize: "0.6875rem", fontWeight: 500, color: "#64748b" }}>tok</span>
+                    </div>
+                    <div style={{ fontSize: "0.6875rem", color: "#64748b", marginTop: "2px" }}>
+                      Rata-rata: {avgLatency} ms
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Task Filter Chips */}
+            <div style={{ display: "flex", gap: "6px", flexWrap: "wrap", marginBottom: "1rem", alignItems: "center" }}>
+              <span style={{ fontSize: "0.75rem", fontWeight: 600, color: "#64748b", marginRight: "4px" }}>
+                Filter Penggunaan:
+              </span>
+              <button
+                onClick={() => {
+                  setSelectedTaskFilter("ALL");
+                  setCurrentPage(1);
+                }}
+                style={{
+                  padding: "4px 10px",
+                  borderRadius: "6px",
+                  fontSize: "0.75rem",
+                  fontWeight: 600,
+                  border: selectedTaskFilter === "ALL" ? "1px solid #0f172a" : "1px solid #e2e8f0",
+                  backgroundColor: selectedTaskFilter === "ALL" ? "#0f172a" : "#ffffff",
+                  color: selectedTaskFilter === "ALL" ? "#ffffff" : "#475569",
+                  cursor: "pointer",
+                }}
+              >
+                Semua ({telemetry?.recentLogs?.length || 0})
+              </button>
+              {Object.keys(AI_TASK_MAP).map((taskKey) => {
+                const meta = AI_TASK_MAP[taskKey];
+                const count = (telemetry?.recentLogs || []).filter((l) => l.task === taskKey).length;
+                const isSelected = selectedTaskFilter === taskKey;
+                return (
+                  <button
+                    key={taskKey}
+                    onClick={() => {
+                      setSelectedTaskFilter(taskKey);
+                      setCurrentPage(1);
+                    }}
+                    style={{
+                      padding: "4px 10px",
+                      borderRadius: "6px",
+                      fontSize: "0.75rem",
+                      fontWeight: 600,
+                      border: isSelected ? `1px solid ${meta.border}` : "1px solid #e2e8f0",
+                      backgroundColor: isSelected ? meta.bg : "#ffffff",
+                      color: isSelected ? meta.text : "#475569",
+                      cursor: "pointer",
+                    }}
+                  >
+                    {meta.shortName} ({count})
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* Logs Table */}
+            <div style={{ overflowX: "auto", border: "1px solid #e2e8f0", borderRadius: "8px" }}>
               <table style={{ width: "100%", borderCollapse: "collapse", textAlign: "left" }}>
                 <thead>
                   <tr style={{ borderBottom: "1px solid #e2e8f0", background: "#f8fafc" }}>
-                    <th style={{ padding: "10px 14px", fontSize: "0.75rem", fontWeight: 700, color: "#64748b" }}>WAKTU</th>
-                    <th style={{ padding: "10px 14px", fontSize: "0.75rem", fontWeight: 700, color: "#64748b" }}>JUDUL KLIP</th>
-                    <th style={{ padding: "10px 14px", fontSize: "0.75rem", fontWeight: 700, color: "#64748b" }}>MODEL TERPAKAI</th>
+                    <th style={{ padding: "10px 14px", fontSize: "0.75rem", fontWeight: 700, color: "#64748b" }}>WAKTU &amp; ID</th>
+                    <th style={{ padding: "10px 14px", fontSize: "0.75rem", fontWeight: 700, color: "#64748b" }}>PENGGUNAAN / TUGAS AI</th>
+                    <th style={{ padding: "10px 14px", fontSize: "0.75rem", fontWeight: 700, color: "#64748b" }}>TARGET KLIP</th>
+                    <th style={{ padding: "10px 14px", fontSize: "0.75rem", fontWeight: 700, color: "#64748b" }}>MODEL &amp; PROVIDER</th>
                     <th style={{ padding: "10px 14px", fontSize: "0.75rem", fontWeight: 700, color: "#64748b" }}>TOKEN</th>
-                    <th style={{ padding: "10px 14px", fontSize: "0.75rem", fontWeight: 700, color: "#64748b" }}>DURASI</th>
+                    <th style={{ padding: "10px 14px", fontSize: "0.75rem", fontWeight: 700, color: "#64748b" }}>LATENSI</th>
                     <th style={{ padding: "10px 14px", fontSize: "0.75rem", fontWeight: 700, color: "#64748b" }}>HASIL AUDIT</th>
-                    <th style={{ padding: "10px 14px", fontSize: "0.75rem", fontWeight: 700, color: "#64748b", textAlign: "right" }}>DETAIL</th>
+                    <th style={{ padding: "10px 14px", fontSize: "0.75rem", fontWeight: 700, color: "#64748b", textAlign: "right" }}>AKSI</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {filteredLogs.slice(0, 30).map((log, idx) => (
-                    <tr
-                      key={log.id}
-                      style={{
-                        borderBottom: "1px solid #f1f5f9",
-                        backgroundColor: idx % 2 === 0 ? "#ffffff" : "#fafafa",
-                      }}
-                    >
-                      <td style={{ padding: "10px 14px", fontSize: "0.75rem", color: "#64748b", whiteSpace: "nowrap" }}>
-                        {new Date(log.timestamp).toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit" })}
-                      </td>
-                      <td style={{ padding: "10px 14px" }}>
-                        <div style={{ fontSize: "0.8125rem", fontWeight: 600, color: "#0f172a", maxWidth: "260px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                          {log.clipTitle || "Klip Tanpa Judul"}
-                        </div>
-                        <div style={{ fontSize: "0.6875rem", color: "#64748b" }}>Tugas: {log.task}</div>
-                      </td>
-                      <td style={{ padding: "10px 14px" }}>
-                        <div style={{ fontSize: "0.75rem", fontWeight: 600, color: "#0284c7" }}>
-                          {log.model.split("/")[1] || log.model}
-                        </div>
-                        <div style={{ fontSize: "0.6875rem", color: "#64748b" }}>{log.provider}</div>
-                      </td>
-                      <td style={{ padding: "10px 14px" }}>
-                        <span style={{ fontSize: "0.8125rem", fontWeight: 700, color: "#0f172a" }}>{log.totalTokens}</span>{" "}
-                        <span style={{ fontSize: "0.6875rem", color: "#64748b" }}>tok</span>
-                      </td>
-                      <td style={{ padding: "10px 14px", fontSize: "0.75rem", color: "#475569" }}>
-                        {log.durationMs} ms
-                      </td>
-                      <td style={{ padding: "10px 14px" }}>
-                        <span
-                          style={{
-                            display: "inline-flex",
-                            alignItems: "center",
-                            gap: "4px",
-                            padding: "3px 8px",
-                            borderRadius: "12px",
-                            fontSize: "0.6875rem",
-                            fontWeight: 700,
-                            background:
-                              log.verdict === "PASS"
-                                ? "#dcfce7"
-                                : log.verdict === "REVIEW"
-                                ? "#fef3c7"
-                                : "#fee2e2",
-                            color:
-                              log.verdict === "PASS"
-                                ? "#166534"
-                                : log.verdict === "REVIEW"
-                                ? "#92400e"
-                                : "#991b1b",
-                          }}
-                        >
-                          {log.verdict === "PASS" ? (
-                            <CheckCircle2 size={12} />
-                          ) : log.verdict === "REVIEW" ? (
-                            <AlertTriangle size={12} />
-                          ) : (
-                            <XCircle size={12} />
-                          )}
-                          {log.verdict}
-                        </span>
-                      </td>
-                      <td style={{ padding: "10px 14px", textAlign: "right" }}>
-                        <button
-                          onClick={() => setSelectedLog(log)}
-                          style={{
-                            padding: "4px 8px",
-                            fontSize: "0.6875rem",
-                            fontWeight: 600,
-                            color: "#475569",
-                            background: "#f1f5f9",
-                            border: "none",
-                            borderRadius: "4px",
-                            cursor: "pointer",
-                          }}
-                        >
-                          Lihat Alasan
-                        </button>
+                  {paginatedLogs.length === 0 ? (
+                    <tr>
+                      <td colSpan={8} style={{ padding: "2.5rem", textAlign: "center", color: "#64748b", fontSize: "0.875rem" }}>
+                        Tidak ada log telemetri AI yang cocok dengan filter yang dipilih.
                       </td>
                     </tr>
-                  ))}
+                  ) : (
+                    paginatedLogs.map((log, idx) => {
+                      const taskMeta = AI_TASK_MAP[log.task] || {
+                        name: log.task,
+                        shortName: log.task,
+                        desc: "Modul AI",
+                        bg: "#f1f5f9",
+                        text: "#475569",
+                        border: "#cbd5e1",
+                      };
+
+                      return (
+                        <tr
+                          key={log.id || idx}
+                          style={{
+                            borderBottom: "1px solid #f1f5f9",
+                            backgroundColor: idx % 2 === 0 ? "#ffffff" : "#fafafa",
+                          }}
+                        >
+                          {/* Time & Clip ID */}
+                          <td style={{ padding: "10px 14px", whiteSpace: "nowrap" }}>
+                            <div style={{ fontSize: "0.75rem", fontWeight: 600, color: "#0f172a" }}>
+                              {new Date(log.timestamp).toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit", second: "2-digit" })}
+                            </div>
+                            <div style={{ fontSize: "0.6875rem", color: "#94a3b8", fontFamily: "monospace" }}>
+                              {log.clipId || log.id.slice(0, 8)}
+                            </div>
+                          </td>
+
+                          {/* Task Badge & Meaning */}
+                          <td style={{ padding: "10px 14px" }}>
+                            <span
+                              style={{
+                                display: "inline-block",
+                                fontSize: "0.6875rem",
+                                fontWeight: 700,
+                                padding: "2px 8px",
+                                borderRadius: "6px",
+                                backgroundColor: taskMeta.bg,
+                                color: taskMeta.text,
+                                border: `1px solid ${taskMeta.border}`,
+                                whiteSpace: "nowrap",
+                              }}
+                            >
+                              {taskMeta.shortName}
+                            </span>
+                            <div style={{ fontSize: "0.6875rem", color: "#64748b", marginTop: "2px", maxWidth: "200px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                              {taskMeta.name}
+                            </div>
+                          </td>
+
+                          {/* Clip Title */}
+                          <td style={{ padding: "10px 14px" }}>
+                            <div
+                              style={{
+                                fontSize: "0.8125rem",
+                                fontWeight: 600,
+                                color: "#0f172a",
+                                maxWidth: "220px",
+                                overflow: "hidden",
+                                textOverflow: "ellipsis",
+                                whiteSpace: "nowrap",
+                              }}
+                              title={log.clipTitle}
+                            >
+                              {log.clipTitle || "Klip Evaluasi"}
+                            </div>
+                            {log.promptSnippet && (
+                              <div
+                                style={{
+                                  fontSize: "0.6875rem",
+                                  color: "#64748b",
+                                  maxWidth: "220px",
+                                  overflow: "hidden",
+                                  textOverflow: "ellipsis",
+                                  whiteSpace: "nowrap",
+                                  fontFamily: "monospace",
+                                }}
+                              >
+                                {log.promptSnippet.slice(0, 45)}...
+                              </div>
+                            )}
+                          </td>
+
+                          {/* Model & Provider */}
+                          <td style={{ padding: "10px 14px" }}>
+                            <div style={{ fontSize: "0.75rem", fontWeight: 600, color: "#0284c7" }}>
+                              {log.model.split("/")[1] || log.model}
+                            </div>
+                            <div style={{ fontSize: "0.6875rem", color: "#64748b" }}>{log.provider}</div>
+                          </td>
+
+                          {/* Tokens */}
+                          <td style={{ padding: "10px 14px" }}>
+                            <div style={{ fontSize: "0.8125rem", fontWeight: 700, color: "#0f172a" }}>
+                              {log.totalTokens.toLocaleString("id-ID")}{" "}
+                              <span style={{ fontSize: "0.6875rem", fontWeight: 500, color: "#64748b" }}>tok</span>
+                            </div>
+                            <div style={{ fontSize: "0.6875rem", color: "#94a3b8" }}>
+                              {log.promptTokens} in / {log.completionTokens} out
+                            </div>
+                          </td>
+
+                          {/* Latency */}
+                          <td style={{ padding: "10px 14px" }}>
+                            <span
+                              style={{
+                                fontSize: "0.75rem",
+                                fontWeight: 600,
+                                color: log.durationMs < 400 ? "#16a34a" : log.durationMs < 900 ? "#d97706" : "#dc2626",
+                              }}
+                            >
+                              {log.durationMs} ms
+                            </span>
+                          </td>
+
+                          {/* Verdict */}
+                          <td style={{ padding: "10px 14px" }}>
+                            <span
+                              style={{
+                                display: "inline-flex",
+                                alignItems: "center",
+                                gap: "4px",
+                                padding: "3px 8px",
+                                borderRadius: "12px",
+                                fontSize: "0.6875rem",
+                                fontWeight: 700,
+                                background:
+                                  log.verdict === "PASS"
+                                    ? "#dcfce7"
+                                    : log.verdict === "REVIEW"
+                                    ? "#fef3c7"
+                                    : "#fee2e2",
+                                color:
+                                  log.verdict === "PASS"
+                                    ? "#166534"
+                                    : log.verdict === "REVIEW"
+                                    ? "#92400e"
+                                    : "#991b1b",
+                              }}
+                            >
+                              {log.verdict === "PASS" ? (
+                                <CheckCircle2 size={12} />
+                              ) : log.verdict === "REVIEW" ? (
+                                <AlertTriangle size={12} />
+                              ) : (
+                                <XCircle size={12} />
+                              )}
+                              {log.verdict || "SUCCESS"}
+                              {log.score !== undefined && ` (${Math.round(log.score * 100)}%)`}
+                            </span>
+                          </td>
+
+                          {/* Actions */}
+                          <td style={{ padding: "10px 14px", textAlign: "right" }}>
+                            <button
+                              onClick={() => setSelectedLog(log)}
+                              style={{
+                                display: "inline-flex",
+                                alignItems: "center",
+                                gap: "4px",
+                                padding: "5px 10px",
+                                fontSize: "0.6875rem",
+                                fontWeight: 600,
+                                color: "#0284c7",
+                                background: "#f0f9ff",
+                                border: "1px solid #bae6fd",
+                                borderRadius: "6px",
+                                cursor: "pointer",
+                                transition: "background 0.15s ease",
+                              }}
+                            >
+                              <FileText size={12} />
+                              <span>Lihat Detail Log</span>
+                            </button>
+                          </td>
+                        </tr>
+                      );
+                    })
+                  )}
                 </tbody>
               </table>
             </div>
+
+            {/* Pagination Controls */}
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                marginTop: "1rem",
+                flexWrap: "wrap",
+                gap: "12px",
+                fontSize: "0.8125rem",
+                color: "#64748b",
+              }}
+            >
+              <div>
+                Menampilkan{" "}
+                <strong style={{ color: "#0f172a" }}>
+                  {totalLogsCount === 0 ? 0 : (safeCurrentPage - 1) * effectivePageSize + 1}
+                </strong>{" "}
+                –{" "}
+                <strong style={{ color: "#0f172a" }}>
+                  {Math.min(safeCurrentPage * effectivePageSize, totalLogsCount)}
+                </strong>{" "}
+                dari <strong style={{ color: "#0f172a" }}>{totalLogsCount}</strong> log evaluasi
+              </div>
+
+              <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
+                  <span style={{ fontSize: "0.75rem" }}>Baris per halaman:</span>
+                  <select
+                    value={pageSize}
+                    onChange={(e) => {
+                      setPageSize(Number(e.target.value));
+                      setCurrentPage(1);
+                    }}
+                    style={{
+                      padding: "4px 8px",
+                      borderRadius: "6px",
+                      border: "1px solid #cbd5e1",
+                      fontSize: "0.75rem",
+                      outline: "none",
+                      backgroundColor: "#ffffff",
+                      cursor: "pointer",
+                    }}
+                  >
+                    <option value={15}>15</option>
+                    <option value={25}>25</option>
+                    <option value={50}>50</option>
+                    <option value={100}>100</option>
+                    <option value={9999}>Semua</option>
+                  </select>
+                </div>
+
+                <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
+                  <button
+                    disabled={safeCurrentPage <= 1}
+                    onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                    style={{
+                      display: "inline-flex",
+                      alignItems: "center",
+                      padding: "5px 8px",
+                      borderRadius: "6px",
+                      border: "1px solid #cbd5e1",
+                      backgroundColor: safeCurrentPage <= 1 ? "#f1f5f9" : "#ffffff",
+                      color: safeCurrentPage <= 1 ? "#94a3b8" : "#0f172a",
+                      cursor: safeCurrentPage <= 1 ? "not-allowed" : "pointer",
+                    }}
+                  >
+                    <ChevronLeft size={14} />
+                  </button>
+                  <span style={{ fontSize: "0.75rem", padding: "0 4px" }}>
+                    Hal {safeCurrentPage} dari {totalPages}
+                  </span>
+                  <button
+                    disabled={safeCurrentPage >= totalPages}
+                    onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                    style={{
+                      display: "inline-flex",
+                      alignItems: "center",
+                      padding: "5px 8px",
+                      borderRadius: "6px",
+                      border: "1px solid #cbd5e1",
+                      backgroundColor: safeCurrentPage >= totalPages ? "#f1f5f9" : "#ffffff",
+                      color: safeCurrentPage >= totalPages ? "#94a3b8" : "#0f172a",
+                      cursor: safeCurrentPage >= totalPages ? "not-allowed" : "pointer",
+                    }}
+                  >
+                    <ChevronRight size={14} />
+                  </button>
+                </div>
+              </div>
+            </div>
           </div>
 
-          {/* Modal Detail Alasan Evaluasi AI */}
+          {/* Modal Detail Lengkap Log Penggunaan AI */}
           {selectedLog && (
             <div
               style={{
                 position: "fixed",
                 inset: 0,
-                backgroundColor: "rgba(15, 23, 42, 0.6)",
+                backgroundColor: "rgba(15, 23, 42, 0.65)",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
@@ -1198,79 +1630,310 @@ export default function AdminAiMonitoringPage() {
               <div
                 style={{
                   backgroundColor: "#ffffff",
-                  borderRadius: "12px",
-                  padding: "1.5rem",
-                  maxWidth: "32rem",
+                  borderRadius: "14px",
+                  padding: "1.75rem",
+                  maxWidth: "46rem",
                   width: "100%",
-                  boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.1)",
+                  maxHeight: "92vh",
+                  overflowY: "auto",
+                  boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.25)",
                 }}
               >
-                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "1rem" }}>
-                  <h3 style={{ fontSize: "1.125rem", fontWeight: 700, margin: 0, color: "#0f172a" }}>
-                    Detail Penalaran AI
-                  </h3>
+                {/* Modal Header */}
+                <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: "1.25rem", paddingBottom: "1rem", borderBottom: "1px solid #e2e8f0" }}>
+                  <div>
+                    <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "4px" }}>
+                      <span
+                        style={{
+                          fontSize: "0.6875rem",
+                          fontWeight: 700,
+                          padding: "2px 8px",
+                          borderRadius: "6px",
+                          backgroundColor: (AI_TASK_MAP[selectedLog.task]?.bg) || "#f1f5f9",
+                          color: (AI_TASK_MAP[selectedLog.task]?.text) || "#475569",
+                          border: `1px solid ${(AI_TASK_MAP[selectedLog.task]?.border) || "#cbd5e1"}`,
+                        }}
+                      >
+                        {AI_TASK_MAP[selectedLog.task]?.shortName || selectedLog.task}
+                      </span>
+                      <span
+                        style={{
+                          fontSize: "0.6875rem",
+                          fontWeight: 700,
+                          padding: "2px 8px",
+                          borderRadius: "10px",
+                          backgroundColor:
+                            selectedLog.verdict === "PASS"
+                              ? "#dcfce7"
+                              : selectedLog.verdict === "REVIEW"
+                              ? "#fef3c7"
+                              : "#fee2e2",
+                          color:
+                            selectedLog.verdict === "PASS"
+                              ? "#166534"
+                              : selectedLog.verdict === "REVIEW"
+                              ? "#92400e"
+                              : "#991b1b",
+                        }}
+                      >
+                        {selectedLog.verdict || "SUCCESS"}
+                      </span>
+                    </div>
+                    <h3 style={{ fontSize: "1.25rem", fontWeight: 700, margin: 0, color: "#0f172a" }}>
+                      {AI_TASK_MAP[selectedLog.task]?.name || "Detail Eksekusi Modul AI"}
+                    </h3>
+                    <div style={{ fontSize: "0.75rem", color: "#64748b", marginTop: "2px" }}>
+                      Log ID: <span style={{ fontFamily: "monospace" }}>{selectedLog.id}</span> • Waktu: {new Date(selectedLog.timestamp).toLocaleString("id-ID")}
+                    </div>
+                  </div>
+
                   <button
                     onClick={() => setSelectedLog(null)}
-                    style={{ background: "none", border: "none", color: "#64748b", cursor: "pointer" }}
+                    style={{
+                      background: "none",
+                      border: "none",
+                      color: "#94a3b8",
+                      cursor: "pointer",
+                      padding: "4px",
+                      borderRadius: "6px",
+                    }}
                   >
-                    Tutup
+                    <X size={20} />
                   </button>
                 </div>
 
-                <div style={{ marginBottom: "1rem" }}>
-                  <div style={{ fontSize: "0.75rem", color: "#64748b", marginBottom: "4px" }}>JUDUL KLIP:</div>
-                  <div style={{ fontSize: "0.875rem", fontWeight: 600, color: "#0f172a" }}>{selectedLog.clipTitle}</div>
+                {/* Explanation Card */}
+                <div
+                  style={{
+                    backgroundColor: (AI_TASK_MAP[selectedLog.task]?.bg) || "#f8fafc",
+                    border: `1px solid ${(AI_TASK_MAP[selectedLog.task]?.border) || "#e2e8f0"}`,
+                    borderRadius: "8px",
+                    padding: "10px 14px",
+                    marginBottom: "1.25rem",
+                    fontSize: "0.8125rem",
+                    color: (AI_TASK_MAP[selectedLog.task]?.text) || "#334155",
+                    lineHeight: 1.5,
+                  }}
+                >
+                  <strong>Fungsi AI dalam Pipeline:</strong> {AI_TASK_MAP[selectedLog.task]?.desc || "Modul komputasi cerdas dalam pipeline verifikasi konten."}
                 </div>
 
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px", marginBottom: "0.75rem" }}>
-                  <div style={{ background: "#f8fafc", padding: "8px 12px", borderRadius: "6px" }}>
-                    <div style={{ fontSize: "0.6875rem", color: "#64748b" }}>MODEL:</div>
-                    <div style={{ fontSize: "0.8125rem", fontWeight: 600, color: "#0f172a" }}>{selectedLog.model}</div>
-                  </div>
-                  <div style={{ background: "#f8fafc", padding: "8px 12px", borderRadius: "6px" }}>
-                    <div style={{ fontSize: "0.6875rem", color: "#64748b" }}>STATUS / VERDICT:</div>
-                    <div style={{ fontSize: "0.8125rem", fontWeight: 700, color: selectedLog.verdict === "PASS" ? "#16a34a" : "#dc2626" }}>
-                      {selectedLog.verdict} (Skor: {selectedLog.score ?? 0})
+                {/* Overview Metadata Grid */}
+                <div
+                  style={{
+                    display: "grid",
+                    gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))",
+                    gap: "10px",
+                    marginBottom: "1.25rem",
+                  }}
+                >
+                  <div style={{ backgroundColor: "#f8fafc", padding: "10px 12px", borderRadius: "8px", border: "1px solid #e2e8f0" }}>
+                    <div style={{ fontSize: "0.6875rem", fontWeight: 600, color: "#64748b" }}>TARGET VIDEO / KLIP</div>
+                    <div style={{ fontSize: "0.8125rem", fontWeight: 700, color: "#0f172a", marginTop: "2px" }}>
+                      {selectedLog.clipTitle || "Klip Tanpa Judul"}
+                    </div>
+                    <div style={{ fontSize: "0.6875rem", color: "#94a3b8", fontFamily: "monospace" }}>
+                      ID: {selectedLog.clipId || "clip-n/a"}
                     </div>
                   </div>
-                </div>
 
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px", marginBottom: "1rem" }}>
-                  <div style={{ background: "#f8fafc", padding: "8px 12px", borderRadius: "6px" }}>
-                    <div style={{ fontSize: "0.6875rem", color: "#64748b" }}>TOTAL TOKEN:</div>
-                    <div style={{ fontSize: "0.8125rem", fontWeight: 700, color: "#0f172a" }}>
-                      {selectedLog.totalTokens} ({selectedLog.promptTokens} in / {selectedLog.completionTokens} out)
+                  <div style={{ backgroundColor: "#f8fafc", padding: "10px 12px", borderRadius: "8px", border: "1px solid #e2e8f0" }}>
+                    <div style={{ fontSize: "0.6875rem", fontWeight: 600, color: "#64748b" }}>MODEL &amp; PROVIDER</div>
+                    <div style={{ fontSize: "0.8125rem", fontWeight: 700, color: "#0284c7", marginTop: "2px" }}>
+                      {selectedLog.model}
+                    </div>
+                    <div style={{ fontSize: "0.6875rem", color: "#64748b" }}>{selectedLog.provider}</div>
+                  </div>
+
+                  <div style={{ backgroundColor: "#f8fafc", padding: "10px 12px", borderRadius: "8px", border: "1px solid #e2e8f0" }}>
+                    <div style={{ fontSize: "0.6875rem", fontWeight: 600, color: "#64748b" }}>KONSUMSI TOKEN</div>
+                    <div style={{ fontSize: "0.8125rem", fontWeight: 700, color: "#0f172a", marginTop: "2px" }}>
+                      {selectedLog.totalTokens} Token
+                    </div>
+                    <div style={{ fontSize: "0.6875rem", color: "#64748b" }}>
+                      {selectedLog.promptTokens} prompt + {selectedLog.completionTokens} completion
                     </div>
                   </div>
-                  <div style={{ background: "#f8fafc", padding: "8px 12px", borderRadius: "6px" }}>
-                    <div style={{ fontSize: "0.6875rem", color: "#64748b" }}>DURASI INFERENSI:</div>
-                    <div style={{ fontSize: "0.8125rem", fontWeight: 700, color: "#0284c7" }}>
+
+                  <div style={{ backgroundColor: "#f8fafc", padding: "10px 12px", borderRadius: "8px", border: "1px solid #e2e8f0" }}>
+                    <div style={{ fontSize: "0.6875rem", fontWeight: 600, color: "#64748b" }}>DURASI &amp; SKOR</div>
+                    <div style={{ fontSize: "0.8125rem", fontWeight: 700, color: "#0f172a", marginTop: "2px" }}>
                       {selectedLog.durationMs} ms
                     </div>
+                    <div style={{ fontSize: "0.6875rem", color: "#64748b" }}>
+                      Skor Kepatuhan: {selectedLog.score !== undefined ? `${Math.round(selectedLog.score * 100)}%` : "N/A"}
+                    </div>
                   </div>
                 </div>
 
+                {/* Prompt Snippet & Input Context */}
                 <div style={{ marginBottom: "1.25rem" }}>
-                  <div style={{ fontSize: "0.75rem", color: "#64748b", marginBottom: "4px" }}>PENJELASAN EVALUATOR:</div>
-                  <div style={{ fontSize: "0.8125rem", color: "#334155", background: "#f8fafc", padding: "12px", borderRadius: "8px", lineHeight: "1.5", border: "1px solid #e2e8f0" }}>
-                    {selectedLog.reasoning || "Tidak ada rincian penalaran tambahan."}
+                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "6px" }}>
+                    <span style={{ fontSize: "0.75rem", fontWeight: 700, color: "#0f172a" }}>
+                      PROMPT &amp; KONTEKS INPUT YANG DITERIMA MODEL:
+                    </span>
+                    <button
+                      onClick={() => handleCopyText(selectedLog.promptSnippet || "", "prompt")}
+                      style={{
+                        display: "inline-flex",
+                        alignItems: "center",
+                        gap: "4px",
+                        padding: "3px 8px",
+                        fontSize: "0.6875rem",
+                        fontWeight: 600,
+                        backgroundColor: "#f1f5f9",
+                        border: "1px solid #cbd5e1",
+                        borderRadius: "4px",
+                        cursor: "pointer",
+                      }}
+                    >
+                      <Copy size={11} />
+                      <span>{copiedSnippet === "prompt" ? "Tersalin!" : "Salin Prompt"}</span>
+                    </button>
+                  </div>
+                  <pre
+                    style={{
+                      backgroundColor: "#0f172a",
+                      color: "#f8fafc",
+                      padding: "12px",
+                      borderRadius: "8px",
+                      fontSize: "0.75rem",
+                      fontFamily: "monospace",
+                      whiteSpace: "pre-wrap",
+                      wordBreak: "break-word",
+                      maxHeight: "140px",
+                      overflowY: "auto",
+                      margin: 0,
+                    }}
+                  >
+                    {selectedLog.promptSnippet || "Tidak ada rekaman teks prompt mentah untuk panggilan ini."}
+                  </pre>
+                </div>
+
+                {/* Response Snippet & Model Output */}
+                <div style={{ marginBottom: "1.25rem" }}>
+                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "6px" }}>
+                    <span style={{ fontSize: "0.75rem", fontWeight: 700, color: "#0f172a" }}>
+                      RESPONS &amp; OUTPUT HASIL INFERENSI MODEL:
+                    </span>
+                    <button
+                      onClick={() => handleCopyText(selectedLog.responseSnippet || "", "response")}
+                      style={{
+                        display: "inline-flex",
+                        alignItems: "center",
+                        gap: "4px",
+                        padding: "3px 8px",
+                        fontSize: "0.6875rem",
+                        fontWeight: 600,
+                        backgroundColor: "#f1f5f9",
+                        border: "1px solid #cbd5e1",
+                        borderRadius: "4px",
+                        cursor: "pointer",
+                      }}
+                    >
+                      <Copy size={11} />
+                      <span>{copiedSnippet === "response" ? "Tersalin!" : "Salin Respons"}</span>
+                    </button>
+                  </div>
+                  <pre
+                    style={{
+                      backgroundColor: "#1e293b",
+                      color: "#38bdf8",
+                      padding: "12px",
+                      borderRadius: "8px",
+                      fontSize: "0.75rem",
+                      fontFamily: "monospace",
+                      whiteSpace: "pre-wrap",
+                      wordBreak: "break-word",
+                      maxHeight: "140px",
+                      overflowY: "auto",
+                      margin: 0,
+                    }}
+                  >
+                    {selectedLog.responseSnippet || "Tidak ada rekaman output mentah yang tersimpan."}
+                  </pre>
+                </div>
+
+                {/* Reasoning Box */}
+                <div style={{ marginBottom: "1.25rem" }}>
+                  <span style={{ fontSize: "0.75rem", fontWeight: 700, color: "#0f172a", display: "block", marginBottom: "6px" }}>
+                    PENALARAN &amp; JUSTIFIKASI EVALUATOR (REASONING):
+                  </span>
+                  <div
+                    style={{
+                      fontSize: "0.8125rem",
+                      color: "#334155",
+                      backgroundColor: "#f8fafc",
+                      padding: "12px",
+                      borderRadius: "8px",
+                      lineHeight: "1.55",
+                      border: "1px solid #e2e8f0",
+                    }}
+                  >
+                    {selectedLog.reasoning || "Tidak ada catatan penalaran tambahan."}
                   </div>
                 </div>
 
+                {/* Full Raw JSON Payload Accordion */}
+                <div style={{ marginBottom: "1.5rem" }}>
+                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "6px" }}>
+                    <span style={{ fontSize: "0.75rem", fontWeight: 700, color: "#64748b" }}>
+                      RAW TELEMETRY RECORD (JSON):
+                    </span>
+                    <button
+                      onClick={() => handleCopyText(JSON.stringify(selectedLog, null, 2), "json")}
+                      style={{
+                        display: "inline-flex",
+                        alignItems: "center",
+                        gap: "4px",
+                        padding: "3px 8px",
+                        fontSize: "0.6875rem",
+                        fontWeight: 600,
+                        backgroundColor: "#f1f5f9",
+                        border: "1px solid #cbd5e1",
+                        borderRadius: "4px",
+                        cursor: "pointer",
+                      }}
+                    >
+                      <Copy size={11} />
+                      <span>{copiedSnippet === "json" ? "Tersalin!" : "Salin Raw JSON"}</span>
+                    </button>
+                  </div>
+                  <pre
+                    style={{
+                      backgroundColor: "#f1f5f9",
+                      color: "#334155",
+                      padding: "10px",
+                      borderRadius: "6px",
+                      fontSize: "0.6875rem",
+                      fontFamily: "monospace",
+                      whiteSpace: "pre-wrap",
+                      maxHeight: "110px",
+                      overflowY: "auto",
+                      margin: 0,
+                      border: "1px solid #e2e8f0",
+                    }}
+                  >
+                    {JSON.stringify(selectedLog, null, 2)}
+                  </pre>
+                </div>
+
+                {/* Modal Footer Button */}
                 <button
                   onClick={() => setSelectedLog(null)}
                   style={{
                     width: "100%",
-                    padding: "8px",
-                    borderRadius: "6px",
-                    backgroundColor: "#0284c7",
+                    padding: "10px",
+                    borderRadius: "8px",
+                    backgroundColor: "#0f172a",
                     color: "#ffffff",
                     fontWeight: 600,
+                    fontSize: "0.875rem",
                     border: "none",
                     cursor: "pointer",
                   }}
                 >
-                  Selesai
+                  Tutup Rincian Log
                 </button>
               </div>
             </div>
