@@ -377,8 +377,8 @@ export default function CampaignDetailPage({
           </div>
 
           {/* ── HERO CAMPAIGN TITLE & METADATA ──────────────────── */}
-          <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
-            <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", flexWrap: "wrap", fontSize: "0.8125rem", color: "#6d6c6b" }}>
+          <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem", alignItems: "center", textAlign: "center" }}>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "0.5rem", flexWrap: "wrap", fontSize: "0.8125rem", color: "#6d6c6b" }}>
               <span
                 style={{
                   padding: "0.2rem 0.6rem",

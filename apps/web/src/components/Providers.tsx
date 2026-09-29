@@ -74,7 +74,7 @@ function AuthProvider({ children }: { children: ReactNode }) {
     sessionSyncRef.current = privyUser.id;
 
     const wallet = privyUser.linkedAccounts?.find(
-      (a) => a.type === "wallet"
+      (a: any) => a.type === "wallet"
     ) as { address?: string } | undefined;
 
     const displayName =

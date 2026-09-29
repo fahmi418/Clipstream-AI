@@ -667,8 +667,8 @@ export default function ClipperWalletPage() {
                   }}
                   className={`py-2.5 px-2 rounded-xl text-xs sm:text-sm font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
                     activeTab === "FIAT"
-                      ? "bg-white text-sky-600 shadow-sm border border-black/5"
-                      : "text-neutral-500 hover:text-neutral-800"
+                      ? "bg-sky-500 text-white shadow-md"
+                      : "text-neutral-500 hover:bg-black/5 hover:text-neutral-800"
                   }`}
                 >
                   <Zap size={14} className="flex-shrink-0" />
@@ -684,8 +684,8 @@ export default function ClipperWalletPage() {
                   }}
                   className={`py-2.5 px-2 rounded-xl text-xs sm:text-sm font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
                     activeTab === "CRYPTO"
-                      ? "bg-white text-neutral-900 shadow-sm border border-black/5"
-                      : "text-neutral-500 hover:text-neutral-800"
+                      ? "bg-neutral-800 text-white shadow-md"
+                      : "text-neutral-500 hover:bg-black/5 hover:text-neutral-800"
                   }`}
                 >
                   <Wallet size={14} className="flex-shrink-0" />
@@ -701,8 +701,8 @@ export default function ClipperWalletPage() {
                   }}
                   className={`py-2.5 px-2 rounded-xl text-xs sm:text-sm font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
                     activeTab === "HISTORY"
-                      ? "bg-white text-neutral-900 shadow-sm border border-black/5"
-                      : "text-neutral-500 hover:text-neutral-800"
+                      ? "bg-neutral-800 text-white shadow-md"
+                      : "text-neutral-500 hover:bg-black/5 hover:text-neutral-800"
                   }`}
                 >
                   <History size={14} className="flex-shrink-0" />
@@ -857,7 +857,7 @@ export default function ClipperWalletPage() {
                           </div>
 
                           <span className="self-start sm:self-auto text-[10px] font-extrabold text-emerald-800 bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-200 flex-shrink-0">
-                            ⚡ BI-FAST 0 DETIK
+                            <span style={{display:"flex", alignItems:"center", gap:"4px"}}><Zap size={14} /> BI-FAST 0 DETIK</span>
                           </span>
                         </div>
 

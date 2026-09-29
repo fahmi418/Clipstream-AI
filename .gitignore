@@ -90,6 +90,9 @@ SCHEMA-ClipStream-AI.md
 *APP-FLOW*.md
 *PRD*.md
 *TRD*.md
-*SCHEMA*.md
+# ── Launch Video & Brag Outputs ──────────────────────────────────────────
+brag-output/
+brag-output*/
+*.poster.mp4
 
 

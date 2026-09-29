@@ -782,7 +782,7 @@ export default function AdminAiMonitoringPage() {
                   />
                 </div>
                 <div style={{ fontSize: "0.875rem", fontWeight: 700, color: "#0f172a", marginBottom: "4px" }}>
-                  {tier3Model?.name || "Gemini 3.8 Flash"}
+                  {tier3Model?.name || "Gemini 1.5 Flash"}
                 </div>
                 <div style={{ fontSize: "0.75rem", color: "#64748b", marginBottom: "8px" }}>
                   {tier3Model?.provider || "Google Cloud AI"}

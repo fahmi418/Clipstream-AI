@@ -4,12 +4,15 @@ import React, { useState } from "react";
 import {
   Check,
   CheckCircle2,
-  ChevronDown,
-  Filter,
+  Lock,
   Search,
+  Zap,
   ExternalLink,
-  ShieldCheck,
-  Sparkles,
+  Volume2,
+  Eye,
+  FileCheck,
+  ChevronRight,
+  ListOrdered,
 } from "lucide-react";
 
 interface ClipItem {
@@ -24,12 +27,16 @@ interface ClipItem {
   totalUsdt: string;
   totalIdr: string;
   instantUsdt: string;
+  instantIdr: string;
   holdbackUsdt: string;
-  quote: string;
+  holdbackIdr: string;
+  quoteKeyword1: string;
+  quoteKeyword2: string;
   watermarkStatus: string;
   status: "verified" | "holdback" | "queued";
   statusText: string;
   statusColor: string;
+  txHash: string;
 }
 
 const SAMPLE_CLIPS: ClipItem[] = [
@@ -45,13 +52,16 @@ const SAMPLE_CLIPS: ClipItem[] = [
     totalUsdt: "45.00 USDT",
     totalIdr: "Rp 733.500",
     instantUsdt: "31.50 USDT",
+    instantIdr: "Rp 513.450",
     holdbackUsdt: "13.50 USDT",
-    quote:
-      "Pelajari arsitektur smart contract escrow di BNB Chain bersama ClipStream. Klip video kamu dibayar otomatis begitu target views valid tanpa perlu chat admin manual.",
-    watermarkStatus: "Watermark sponsor terdeteksi (00:03 - 00:45)",
+    holdbackIdr: "Rp 220.050",
+    quoteKeyword1: "BNB Chain",
+    quoteKeyword2: "ClipStream",
+    watermarkStatus: "Watermark sponsor terdeteksi aktif (00:03 - 00:45)",
     status: "verified",
     statusText: "98.8% Lolos AI",
     statusColor: "#059669",
+    txHash: "0x8f4c...3a1c",
   },
   {
     id: "clip-2",
@@ -65,13 +75,16 @@ const SAMPLE_CLIPS: ClipItem[] = [
     totalUsdt: "28.50 USDT",
     totalIdr: "Rp 464.550",
     instantUsdt: "19.95 USDT",
+    instantIdr: "Rp 325.185",
     holdbackUsdt: "8.55 USDT",
-    quote:
-      "Swap token tanpa gas fee sekarang makin gampang. Cek integrasi DEX agregator terbaru dengan zero slippage di jaringan layer 2.",
-    watermarkStatus: "Watermark sponsor terdeteksi (00:01 - 00:32)",
+    holdbackIdr: "Rp 139.365",
+    quoteKeyword1: "Gasless Swap",
+    quoteKeyword2: "ClipStream",
+    watermarkStatus: "Watermark sponsor terdeteksi aktif (00:01 - 00:32)",
     status: "verified",
     statusText: "99.2% Lolos AI",
     statusColor: "#059669",
+    txHash: "0x4b1e...99d2",
   },
   {
     id: "clip-3",
@@ -85,13 +98,16 @@ const SAMPLE_CLIPS: ClipItem[] = [
     totalUsdt: "18.00 USDT",
     totalIdr: "Rp 293.400",
     instantUsdt: "12.60 USDT",
+    instantIdr: "Rp 205.380",
     holdbackUsdt: "5.40 USDT",
-    quote:
-      "Bedah kode smart contract timelock: mekanisme multi-sig escrow dan oracle verification anti-sybil pada platform bounty video Web3.",
-    watermarkStatus: "Watermark sponsor terdeteksi (00:04 - 00:58)",
+    holdbackIdr: "Rp 88.020",
+    quoteKeyword1: "Smart Contract",
+    quoteKeyword2: "Multi-Sig",
+    watermarkStatus: "Watermark sponsor terdeteksi aktif (00:04 - 00:58)",
     status: "verified",
     statusText: "Audio Whisper OK",
     statusColor: "#059669",
+    txHash: "0x2e8a...77b1",
   },
   {
     id: "clip-4",
@@ -105,13 +121,16 @@ const SAMPLE_CLIPS: ClipItem[] = [
     totalUsdt: "62.00 USDT",
     totalIdr: "Rp 1.010.600",
     instantUsdt: "43.40 USDT",
+    instantIdr: "Rp 707.420",
     holdbackUsdt: "18.60 USDT",
-    quote:
-      "Automasi trading dengan algoritma on-chain machine learning yang membaca liquidity orderbook secara real-time.",
-    watermarkStatus: "Watermark sponsor terdeteksi (00:02 - 00:25)",
+    holdbackIdr: "Rp 303.180",
+    quoteKeyword1: "AI Agent",
+    quoteKeyword2: "Liquidity",
+    watermarkStatus: "Watermark sponsor terdeteksi aktif (00:02 - 00:25)",
     status: "holdback",
     statusText: "Holdback 72 Jam",
     statusColor: "#d97706",
+    txHash: "0x77c4...55a0",
   },
   {
     id: "clip-5",
@@ -125,13 +144,16 @@ const SAMPLE_CLIPS: ClipItem[] = [
     totalUsdt: "12.00 USDT",
     totalIdr: "Rp 195.600",
     instantUsdt: "8.40 USDT",
+    instantIdr: "Rp 136.920",
     holdbackUsdt: "3.60 USDT",
-    quote:
-      "Tiga tips bikin konten edukasi Web3 yang disukai audiens umum: visual yang padat, bahasa sederhana, dan analogi sehari-hari.",
-    watermarkStatus: "Watermark sponsor terdeteksi (00:02 - 00:41)",
+    holdbackIdr: "Rp 58.680",
+    quoteKeyword1: "Web3 Creator",
+    quoteKeyword2: "ClipStream",
+    watermarkStatus: "Watermark sponsor terdeteksi aktif (00:02 - 00:41)",
     status: "verified",
     statusText: "97.9% Lolos AI",
     statusColor: "#059669",
+    txHash: "0x91d3...11f7",
   },
   {
     id: "clip-6",
@@ -145,59 +167,30 @@ const SAMPLE_CLIPS: ClipItem[] = [
     totalUsdt: "22.50 USDT",
     totalIdr: "Rp 366.750",
     instantUsdt: "15.75 USDT",
+    instantIdr: "Rp 256.725",
     holdbackUsdt: "6.75 USDT",
-    quote:
-      "Mengenal liquidity pool v3 dan concentrated liquidity: bagaimana mengoptimalkan APY dengan risiko impermanent loss yang terukur.",
-    watermarkStatus: "Watermark sponsor terdeteksi (00:02 - 00:35)",
+    holdbackIdr: "Rp 110.025",
+    quoteKeyword1: "Yield Farming",
+    quoteKeyword2: "BNB Chain",
+    watermarkStatus: "Watermark sponsor terdeteksi aktif (00:02 - 00:35)",
     status: "verified",
     statusText: "98.4% Lolos AI",
     statusColor: "#059669",
-  },
-  {
-    id: "clip-7",
-    title: "Hardware Wallet Setup Guide",
-    creator: "@secure_chain",
-    platform: "YouTube Shorts",
-    views: "34.200",
-    duration: "50 detik",
-    audioMatch: 99.0,
-    visionMatch: 98.7,
-    totalUsdt: "25.00 USDT",
-    totalIdr: "Rp 407.500",
-    instantUsdt: "17.50 USDT",
-    holdbackUsdt: "7.50 USDT",
-    quote:
-      "Langkah aman menyimpan seed phrase offline: hindari screenshot di ponsel dan gunakan cold storage bersertifikasi.",
-    watermarkStatus: "Watermark sponsor terdeteksi (00:01 - 00:50)",
-    status: "verified",
-    statusText: "99.0% Lolos AI",
-    statusColor: "#059669",
-  },
-  {
-    id: "clip-8",
-    title: "NFT Royalty Distribution Model",
-    creator: "@meta_reels",
-    platform: "TikTok",
-    views: "15.900",
-    duration: "29 detik",
-    audioMatch: 96.8,
-    visionMatch: 97.4,
-    totalUsdt: "14.50 USDT",
-    totalIdr: "Rp 236.350",
-    instantUsdt: "10.15 USDT",
-    holdbackUsdt: "4.35 USDT",
-    quote:
-      "Bagaimana standar EIP-2981 memastikan royalti kreator tetap berjalan lintas marketplace di ekosistem sekunder.",
-    watermarkStatus: "Watermark sponsor terdeteksi (00:03 - 00:29)",
-    status: "verified",
-    statusText: "96.8% Lolos AI",
-    statusColor: "#059669",
+    txHash: "0x33e8...66cc",
   },
 ];
 
 export function ClipstreamHeroProductScreen() {
   const [selectedId, setSelectedId] = useState<string>("clip-1");
   const [activeMobileTab, setActiveMobileTab] = useState<"list" | "detail">("detail");
+  const [searchQuery, setSearchQuery] = useState<string>("");
+
+  const filteredClips = SAMPLE_CLIPS.filter(
+    (c) =>
+      c.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      c.creator.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
   const selectedClip =
     SAMPLE_CLIPS.find((c) => c.id === selectedId) || SAMPLE_CLIPS[0];
 
@@ -206,91 +199,191 @@ export function ClipstreamHeroProductScreen() {
       className="am-home-duo-product-screen gsap-duo-screen"
       style={{
         backgroundColor: "#ffffff",
-        borderRadius: "16px",
-        border: "1px solid rgba(0, 0, 0, 0.08)",
+        borderRadius: "18px",
+        border: "1px solid #e2e8f0",
         boxShadow:
-          "0 18px 45px -10px rgba(0, 0, 0, 0.1), 0 2px 8px rgba(0, 0, 0, 0.03)",
+          "0 24px 60px -12px rgba(15, 23, 42, 0.12), 0 4px 16px rgba(15, 23, 42, 0.04)",
         overflow: "hidden",
         width: "100%",
         maxWidth: "1120px",
         margin: "0 auto",
-        fontFamily: "var(--font-inter), -apple-system, BlinkMacSystemFont, sans-serif",
+        fontFamily:
+          "var(--font-inter), -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
         textAlign: "left",
         userSelect: "none",
-        color: "#111827",
-        minHeight: "700px",
+        color: "#0f172a",
         display: "flex",
         flexDirection: "column",
       }}
     >
-      {/* ── 1. Top Window Bar ── */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-3 sm:px-4 sm:py-2.5 border-b border-slate-100 bg-white gap-2.5">
-        {/* Left: Window Dots + App Brand + Tabs */}
-        <div className="flex items-center gap-3 flex-wrap">
-          <div className="hidden sm:flex gap-1.5">
-            <span className="w-2.5 h-2.5 rounded-full bg-slate-200 inline-block" />
-            <span className="w-2.5 h-2.5 rounded-full bg-slate-200 inline-block" />
-            <span className="w-2.5 h-2.5 rounded-full bg-slate-200 inline-block" />
+      {/* ── 1. Modern Window Header (macOS Style Chrome) ── */}
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          padding: "12px 18px",
+          borderBottom: "1px solid #e2e8f0",
+          backgroundColor: "#f8fafc",
+          gap: "12px",
+          flexWrap: "wrap",
+        }}
+      >
+        {/* Left: Window Controls + Title */}
+        <div style={{ display: "flex", alignItems: "center", gap: "14px" }}>
+          {/* macOS Traffic Lights */}
+          <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+            <span
+              style={{
+                width: "11px",
+                height: "11px",
+                borderRadius: "50%",
+                backgroundColor: "#ef4444",
+                display: "inline-block",
+                border: "1px solid rgba(0,0,0,0.1)",
+              }}
+            />
+            <span
+              style={{
+                width: "11px",
+                height: "11px",
+                borderRadius: "50%",
+                backgroundColor: "#f59e0b",
+                display: "inline-block",
+                border: "1px solid rgba(0,0,0,0.1)",
+              }}
+            />
+            <span
+              style={{
+                width: "11px",
+                height: "11px",
+                borderRadius: "50%",
+                backgroundColor: "#10b981",
+                display: "inline-block",
+                border: "1px solid rgba(0,0,0,0.1)",
+              }}
+            />
           </div>
 
-          <div className="hidden sm:block h-4 w-px bg-slate-200" />
+          <div
+            style={{
+              width: "1px",
+              height: "16px",
+              backgroundColor: "#cbd5e1",
+            }}
+          />
 
-          <div className="flex items-center gap-2">
-            <span className="text-sm font-bold text-slate-900 tracking-tight">
+          {/* App Title & Protocol Badge */}
+          <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+            <span style={{ fontSize: "0.875rem", fontWeight: 700, color: "#0f172a" }}>
               ClipStream Copilot
             </span>
-            <span className="text-[10px] px-1.5 py-0.5 rounded bg-slate-100 text-slate-600 font-semibold border border-slate-200/60">
+            <span
+              style={{
+                fontSize: "0.6875rem",
+                fontWeight: 600,
+                color: "#475569",
+                backgroundColor: "#e2e8f0",
+                padding: "2px 8px",
+                borderRadius: "6px",
+              }}
+            >
               BNB Chain Escrow
             </span>
           </div>
-
-          <div className="hidden md:flex items-center gap-1.5 ml-2">
-            <span className="px-2.5 py-0.5 rounded-md text-xs font-semibold bg-slate-100 text-slate-900">
-              Antrean Verifikasi <span className="text-slate-500 font-normal">(14)</span>
-            </span>
-            <span className="px-2.5 py-0.5 rounded-md text-xs font-medium text-slate-500">
-              Pencairan Otomatis <span className="text-slate-400">(32)</span>
-            </span>
-          </div>
         </div>
 
-        {/* Right: Status indicator */}
-        <div className="flex items-center gap-2 self-end sm:self-auto">
-          <div className="inline-flex items-center gap-1.5 text-[11px] text-emerald-700 font-semibold bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200/60">
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+        {/* Center/Right: Live Status & Tabs */}
+        <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+          {/* Desktop Mode Tabs */}
+          <div
+            className="hidden sm:flex"
+            style={{
+              alignItems: "center",
+              gap: "4px",
+              backgroundColor: "#e2e8f0",
+              padding: "3px",
+              borderRadius: "8px",
+            }}
+          >
+            <button
+              type="button"
+              style={{
+                fontSize: "0.75rem",
+                fontWeight: 700,
+                color: "#0f172a",
+                backgroundColor: "#ffffff",
+                padding: "4px 10px",
+                borderRadius: "6px",
+                border: "none",
+                boxShadow: "0 1px 2px rgba(0,0,0,0.06)",
+                cursor: "pointer",
+              }}
+            >
+              Antrean Verifikasi ({SAMPLE_CLIPS.length})
+            </button>
+            <button
+              type="button"
+              style={{
+                fontSize: "0.75rem",
+                fontWeight: 600,
+                color: "#64748b",
+                backgroundColor: "transparent",
+                padding: "4px 10px",
+                borderRadius: "6px",
+                border: "none",
+                cursor: "pointer",
+              }}
+            >
+              Pencairan Otomatis (32)
+            </button>
+          </div>
+
+          {/* AI Oracle Status Badge */}
+          <div
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: "6px",
+              fontSize: "0.6875rem",
+              fontWeight: 700,
+              color: "#047857",
+              backgroundColor: "#ecfdf5",
+              border: "1px solid #a7f3d0",
+              padding: "4px 10px",
+              borderRadius: "9999px",
+            }}
+          >
+            <span
+              style={{
+                width: "7px",
+                height: "7px",
+                borderRadius: "50%",
+                backgroundColor: "#10b981",
+              }}
+            />
             <span>AI Oracle Live</span>
           </div>
-
-          <div className="w-6 h-6 rounded-full bg-slate-100 text-slate-700 text-[10px] font-bold flex items-center justify-center border border-slate-200">
-            CS
-          </div>
         </div>
       </div>
 
-      {/* ── 2. Subheader Toolbar ── */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between px-3 sm:px-4 py-2 border-b border-slate-100 bg-slate-50 text-xs text-slate-500 gap-1.5 sm:gap-4">
-        <div className="flex items-center gap-2 flex-wrap">
-          <span className="font-bold text-slate-800">Klip Masuk ({SAMPLE_CLIPS.length})</span>
-          <span className="text-slate-300">•</span>
-          <span className="text-[11px] text-slate-600">Semua Platform</span>
-        </div>
-
-        <div className="flex items-center gap-2 text-[11px] text-slate-600 flex-wrap">
-          <span>Urutkan: Terbaru</span>
-          <span className="text-slate-300">•</span>
-          <span className="text-emerald-700 font-medium">Whisper &amp; Gemini Vision Live</span>
-        </div>
-      </div>
-
-      {/* ── Mobile Viewport Switcher (< md screens) ── */}
-      <div className="flex md:hidden p-1.5 bg-slate-100 border-b border-slate-200 gap-1.5">
+      {/* ── Mobile Viewport Switcher (< 768px) ── */}
+      <div
+        className="flex md:hidden"
+        style={{
+          padding: "8px 12px",
+          backgroundColor: "#f1f5f9",
+          borderBottom: "1px solid #e2e8f0",
+          gap: "8px",
+        }}
+      >
         <button
           type="button"
           onClick={() => setActiveMobileTab("list")}
           style={{
             flex: 1,
-            padding: "8px 10px",
-            borderRadius: "10px",
+            padding: "8px 12px",
+            borderRadius: "8px",
             fontSize: "0.75rem",
             fontWeight: 700,
             border: "none",
@@ -299,22 +392,24 @@ export function ClipstreamHeroProductScreen() {
             alignItems: "center",
             justifyContent: "center",
             gap: "6px",
-            whiteSpace: "nowrap",
-            backgroundColor: activeMobileTab === "list" ? "#111827" : "transparent",
-            color: activeMobileTab === "list" ? "#ffffff" : "#64748b",
-            boxShadow: activeMobileTab === "list" ? "0 2px 8px rgba(0,0,0,0.15)" : "none",
+            backgroundColor: activeMobileTab === "list" ? "#0f172a" : "#ffffff",
+            color: activeMobileTab === "list" ? "#ffffff" : "#475569",
+            boxShadow:
+              activeMobileTab === "list"
+                ? "0 2px 6px rgba(0,0,0,0.15)"
+                : "none",
             transition: "all 0.15s ease",
           }}
         >
-          <span>📋 Daftar Klip ({SAMPLE_CLIPS.length})</span>
+          <ListOrdered size={14} /> Daftar Klip ({SAMPLE_CLIPS.length})
         </button>
         <button
           type="button"
           onClick={() => setActiveMobileTab("detail")}
           style={{
             flex: 1,
-            padding: "8px 10px",
-            borderRadius: "10px",
+            padding: "8px 12px",
+            borderRadius: "8px",
             fontSize: "0.75rem",
             fontWeight: 700,
             border: "none",
@@ -323,271 +418,717 @@ export function ClipstreamHeroProductScreen() {
             alignItems: "center",
             justifyContent: "center",
             gap: "6px",
-            whiteSpace: "nowrap",
-            backgroundColor: activeMobileTab === "detail" ? "#111827" : "transparent",
-            color: activeMobileTab === "detail" ? "#ffffff" : "#64748b",
-            boxShadow: activeMobileTab === "detail" ? "0 2px 8px rgba(0,0,0,0.15)" : "none",
+            backgroundColor:
+              activeMobileTab === "detail" ? "#0f172a" : "#ffffff",
+            color: activeMobileTab === "detail" ? "#ffffff" : "#475569",
+            boxShadow:
+              activeMobileTab === "detail"
+                ? "0 2px 6px rgba(0,0,0,0.15)"
+                : "none",
             transition: "all 0.15s ease",
           }}
         >
-          <span>🔍 Hasil Audit AI</span>
+          <Search size={14} /> Hasil Audit AI
         </button>
       </div>
 
-      {/* ── 3. Main Dashboard Body (Responsive 12-Column Grid) ── */}
-      <div className="flex-1 grid grid-cols-1 md:grid-cols-12 bg-white">
-        {/* ── Left Column: Clean List of Clips ── */}
+      {/* ── 2. Dashboard Body (2 Column Layout) ── */}
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(12, minmax(0, 1fr))",
+          minHeight: "560px",
+          backgroundColor: "#ffffff",
+        }}
+      >
+        {/* ── Left Column: Feed / Clip List ── */}
         <div
-          className={`md:col-span-5 md:border-r md:border-slate-100 bg-white flex-col divide-y divide-slate-50 ${
+          className={`${
             activeMobileTab === "list" ? "flex" : "hidden md:flex"
           }`}
+          style={{
+            gridColumn: "span 5 / span 5",
+            borderRight: "1px solid #e2e8f0",
+            backgroundColor: "#f8fafc",
+            flexDirection: "column",
+            padding: "12px",
+            gap: "8px",
+            overflowY: "auto",
+            maxHeight: "580px",
+          }}
         >
-          {SAMPLE_CLIPS.map((clip) => {
-            const isSelected = clip.id === selectedId;
-            return (
-              <div
-                key={clip.id}
-                onClick={() => {
-                  setSelectedId(clip.id);
-                  setActiveMobileTab("detail");
-                }}
-                className={`p-3.5 sm:px-4 sm:py-3.5 cursor-pointer transition-all flex items-center justify-between gap-3 border-l-4 ${
-                  isSelected
-                    ? "bg-slate-50/80 border-slate-900"
-                    : "bg-white border-transparent hover:bg-slate-50/50"
-                }`}
-              >
-                <div className="flex items-start gap-2.5 min-w-0">
-                  <div
-                    className="w-2 h-2 rounded-full mt-1.5 flex-shrink-0"
-                    style={{ backgroundColor: clip.statusColor }}
-                  />
-                  <div className="min-w-0">
-                    <div className={`text-xs sm:text-sm font-bold truncate ${isSelected ? "text-slate-900" : "text-slate-800"}`}>
-                      {clip.title}
-                    </div>
-                    <div className="text-[11px] text-slate-500 mt-0.5 truncate">
-                      {clip.creator} • {clip.views} views • {clip.platform}
-                    </div>
-                  </div>
-                </div>
+          {/* Quick Search Header */}
+          <div
+            style={{
+              position: "relative",
+              marginBottom: "4px",
+            }}
+          >
+            <Search
+              size={14}
+              style={{
+                position: "absolute",
+                left: "10px",
+                top: "50%",
+                transform: "translateY(-50%)",
+                color: "#94a3b8",
+              }}
+            />
+            <input
+              type="text"
+              placeholder="Cari klip atau kreator..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              style={{
+                width: "100%",
+                padding: "7px 10px 7px 30px",
+                fontSize: "0.75rem",
+                borderRadius: "8px",
+                border: "1px solid #cbd5e1",
+                backgroundColor: "#ffffff",
+                outline: "none",
+                color: "#0f172a",
+              }}
+            />
+          </div>
 
-                <div className="text-right flex-shrink-0">
-                  <div className="text-xs sm:text-sm font-bold text-slate-900">
-                    {clip.totalUsdt}
-                  </div>
+          {/* Clip Items List */}
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              gap: "6px",
+              flex: 1,
+            }}
+          >
+            {filteredClips.map((clip) => {
+              const isSelected = clip.id === selectedId;
+              return (
+                <div
+                  key={clip.id}
+                  onClick={() => {
+                    setSelectedId(clip.id);
+                    setActiveMobileTab("detail");
+                  }}
+                  style={{
+                    padding: "10px 12px",
+                    borderRadius: "10px",
+                    cursor: "pointer",
+                    transition: "all 0.15s ease",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    gap: "10px",
+                    backgroundColor: isSelected ? "#ffffff" : "transparent",
+                    border: isSelected
+                      ? "1px solid #10b981"
+                      : "1px solid transparent",
+                    boxShadow: isSelected
+                      ? "0 4px 12px -2px rgba(16, 185, 129, 0.12), 0 1px 3px rgba(0,0,0,0.05)"
+                      : "none",
+                  }}
+                >
+                  {/* Left Info */}
                   <div
-                    className="text-[10px] font-bold"
-                    style={{ color: clip.statusColor }}
+                    style={{
+                      display: "flex",
+                      alignItems: "flex-start",
+                      gap: "8px",
+                      minWidth: 0,
+                    }}
                   >
-                    {clip.statusText}
+                    <div
+                      style={{
+                        width: "8px",
+                        height: "8px",
+                        borderRadius: "50%",
+                        backgroundColor: clip.statusColor,
+                        marginTop: "5px",
+                        flexShrink: 0,
+                      }}
+                    />
+                    <div style={{ minWidth: 0 }}>
+                      <div
+                        style={{
+                          fontSize: "0.8125rem",
+                          fontWeight: 700,
+                          color: isSelected ? "#0f172a" : "#334155",
+                          whiteSpace: "nowrap",
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
+                        }}
+                      >
+                        {clip.title}
+                      </div>
+                      <div
+                        style={{
+                          fontSize: "0.6875rem",
+                          color: "#64748b",
+                          marginTop: "2px",
+                          display: "flex",
+                          alignItems: "center",
+                          gap: "4px",
+                        }}
+                      >
+                        <span style={{ fontWeight: 600 }}>{clip.creator}</span>
+                        <span>•</span>
+                        <span>{clip.views} views</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Right Status */}
+                  <div style={{ textAlign: "right", flexShrink: 0 }}>
+                    <div
+                      style={{
+                        fontSize: "0.8125rem",
+                        fontWeight: 800,
+                        color: "#0f172a",
+                      }}
+                    >
+                      {clip.totalUsdt}
+                    </div>
+                    <div
+                      style={{
+                        fontSize: "0.6875rem",
+                        fontWeight: 700,
+                        color: clip.statusColor,
+                      }}
+                    >
+                      {clip.statusText}
+                    </div>
                   </div>
                 </div>
-              </div>
-            );
-          })}
+              );
+            })}
+          </div>
         </div>
 
-        {/* ── Right Column: Clean White SaaS Inspector Panel ── */}
+        {/* ── Right Column: AI Inspector Panel ── */}
         <div
-          className={`md:col-span-7 p-4 sm:p-6 bg-white flex-col gap-4 sm:gap-5 ${
+          className={`${
             activeMobileTab === "detail" ? "flex" : "hidden md:flex"
           }`}
+          style={{
+            gridColumn: "span 7 / span 7",
+            padding: "18px 20px",
+            backgroundColor: "#ffffff",
+            flexDirection: "column",
+            gap: "14px",
+            overflowY: "auto",
+            maxHeight: "580px",
+          }}
         >
-          {/* Header of Inspector */}
-          <div className="flex items-start justify-between pb-3 sm:pb-4 border-b border-slate-100 gap-3">
+          {/* Inspector Header */}
+          <div
+            style={{
+              display: "flex",
+              alignItems: "flex-start",
+              justifyContent: "space-between",
+              paddingBottom: "12px",
+              borderBottom: "1px solid #f1f5f9",
+              gap: "12px",
+            }}
+          >
             <div>
-              <div className="flex items-center gap-2 flex-wrap">
-                <span className="text-base sm:text-lg font-extrabold text-slate-900 tracking-tight">
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "8px",
+                  flexWrap: "wrap",
+                }}
+              >
+                <span
+                  style={{
+                    fontSize: "1.0625rem",
+                    fontWeight: 800,
+                    color: "#0f172a",
+                    letterSpacing: "-0.01em",
+                  }}
+                >
                   {selectedClip.creator}
                 </span>
-                <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 font-bold border border-emerald-200/60 inline-flex items-center gap-1">
-                  <Check size={11} strokeWidth={2.5} />
+                <span
+                  style={{
+                    fontSize: "0.6875rem",
+                    fontWeight: 700,
+                    color: "#047857",
+                    backgroundColor: "#ecfdf5",
+                    border: "1px solid #a7f3d0",
+                    padding: "2px 8px",
+                    borderRadius: "9999px",
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: "4px",
+                  }}
+                >
+                  <Check size={11} strokeWidth={3} />
                   <span>Terverifikasi AI</span>
                 </span>
               </div>
-              <div className="text-xs text-slate-500 mt-1">
+              <div
+                style={{
+                  fontSize: "0.75rem",
+                  color: "#64748b",
+                  marginTop: "3px",
+                }}
+              >
                 {selectedClip.title} • {selectedClip.platform} ({selectedClip.duration})
               </div>
             </div>
 
-            <div className="text-right flex-shrink-0">
-              <div className="text-[10px] text-slate-500 font-medium">Total Payout Escrow</div>
-              <div className="text-sm sm:text-base font-extrabold text-slate-900">
+            <div style={{ textAlign: "right", flexShrink: 0 }}>
+              <div style={{ fontSize: "0.6875rem", color: "#64748b", fontWeight: 600 }}>
+                Total Payout Escrow
+              </div>
+              <div
+                style={{
+                  fontSize: "1.0625rem",
+                  fontWeight: 900,
+                  color: "#0f172a",
+                  letterSpacing: "-0.01em",
+                }}
+              >
                 {selectedClip.totalUsdt}
               </div>
-              <div className="text-[10px] text-slate-400">{selectedClip.totalIdr}</div>
+              <div style={{ fontSize: "0.6875rem", color: "#94a3b8", fontWeight: 500 }}>
+                {selectedClip.totalIdr}
+              </div>
             </div>
           </div>
 
-          {/* Section 1: Multimodal AI Verification Details */}
+          {/* ── Section 1: AI Multi-Modal Verification Card ── */}
           <div
             style={{
               backgroundColor: "#f8fafc",
-              borderRadius: "14px",
+              borderRadius: "12px",
               border: "1px solid #e2e8f0",
               padding: "14px 16px",
             }}
           >
-            <div className="text-[10px] sm:text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-2 flex flex-col sm:flex-row justify-between sm:items-center gap-1">
-              <span>Transkrip Audio Whisper &amp; Watermark Gemini</span>
-              <span className="text-emerald-700 font-bold">{selectedClip.audioMatch}% Akurasi Semantik</span>
-            </div>
-
-            <p
+            {/* Header Badge */}
+            <div
               style={{
-                fontSize: "0.8125rem",
-                lineHeight: 1.55,
-                color: "#1e293b",
-                fontStyle: "italic",
-                margin: "0 0 10px 0",
-                padding: "10px 12px",
-                backgroundColor: "#ffffff",
-                borderRadius: "8px",
-                borderLeft: "3px solid #059669",
-                boxShadow: "0 1px 3px rgba(0,0,0,0.03)",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                marginBottom: "10px",
               }}
             >
-              &ldquo;{selectedClip.quote}&rdquo;
-            </p>
-
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between text-xs text-slate-600 gap-1.5">
-              <div className="flex items-center gap-1.5">
-                <CheckCircle2 size={13} className="text-emerald-600 flex-shrink-0" />
-                <span className="truncate">{selectedClip.watermarkStatus}</span>
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "6px",
+                  fontSize: "0.75rem",
+                  fontWeight: 700,
+                  color: "#334155",
+                }}
+              >
+                <Volume2 size={15} style={{ color: "#ea580c" }} />
+                <span>Transkrip Audio Whisper &amp; Watermark Gemini</span>
               </div>
-              <span className="text-[10px] text-slate-400">Resolusi: 1080×1920 (9:16)</span>
+              <span
+                style={{
+                  fontSize: "0.6875rem",
+                  fontWeight: 700,
+                  color: "#047857",
+                  backgroundColor: "#d1fae5",
+                  padding: "2px 8px",
+                  borderRadius: "6px",
+                }}
+              >
+                {selectedClip.audioMatch}% Akurasi Semantik
+              </span>
+            </div>
+
+            {/* Transcript Quote Box */}
+            <div
+              style={{
+                fontSize: "0.8125rem",
+                lineHeight: 1.6,
+                color: "#1e293b",
+                backgroundColor: "#ffffff",
+                padding: "10px 14px",
+                borderRadius: "8px",
+                border: "1px solid #e2e8f0",
+                marginBottom: "10px",
+              }}
+            >
+              &ldquo;Pelajari arsitektur smart contract escrow di{" "}
+              <span
+                style={{
+                  backgroundColor: "#ffedd5",
+                  color: "#c2410c",
+                  fontWeight: 700,
+                  padding: "1px 6px",
+                  borderRadius: "4px",
+                  border: "1px solid #fed7aa",
+                }}
+              >
+                {selectedClip.quoteKeyword1}
+              </span>{" "}
+              bersama{" "}
+              <span
+                style={{
+                  backgroundColor: "#dcfce7",
+                  color: "#15803d",
+                  fontWeight: 700,
+                  padding: "1px 6px",
+                  borderRadius: "4px",
+                  border: "1px solid #bbf7d0",
+                }}
+              >
+                {selectedClip.quoteKeyword2}
+              </span>
+              . Klip video kamu dibayar otomatis begitu target views valid tanpa perlu chat admin manual.&rdquo;
+            </div>
+
+            {/* Watermark Details */}
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                fontSize: "0.75rem",
+                color: "#475569",
+                flexWrap: "wrap",
+                gap: "6px",
+              }}
+            >
+              <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                <CheckCircle2 size={14} style={{ color: "#10b981", flexShrink: 0 }} />
+                <span>{selectedClip.watermarkStatus}</span>
+              </div>
+              <span style={{ fontSize: "0.6875rem", color: "#94a3b8" }}>
+                Resolusi 1080×1920 (9:16)
+              </span>
             </div>
           </div>
 
-          {/* Section 2: Oracle Metrics (3 Clean Responsive Cards) */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+          {/* ── Section 2: Oracle Metrics (3 Cards Grid) ── */}
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(3, minmax(0, 1fr))",
+              gap: "10px",
+            }}
+          >
             <div
               style={{
                 padding: "12px 14px",
-                borderRadius: "12px",
+                borderRadius: "10px",
                 border: "1px solid #e2e8f0",
                 backgroundColor: "#f8fafc",
               }}
             >
-              <div className="text-[10px] sm:text-[11px] text-slate-500 font-bold">Views Terverifikasi</div>
-              <div className="text-base sm:text-lg font-extrabold text-slate-900 mt-0.5">
+              <div style={{ fontSize: "0.6875rem", color: "#64748b", fontWeight: 700 }}>
+                Views Terverifikasi
+              </div>
+              <div
+                style={{
+                  fontSize: "1.125rem",
+                  fontWeight: 900,
+                  color: "#0f172a",
+                  marginTop: "2px",
+                }}
+              >
                 {selectedClip.views}
               </div>
-              <div className="text-[10px] text-emerald-700 font-bold mt-0.5">
-                API Feed Valid
+              <div
+                style={{
+                  fontSize: "0.6875rem",
+                  color: "#047857",
+                  fontWeight: 700,
+                  marginTop: "2px",
+                }}
+              >
+                ✓ API Feed Valid
               </div>
             </div>
 
             <div
               style={{
                 padding: "12px 14px",
-                borderRadius: "12px",
+                borderRadius: "10px",
                 border: "1px solid #e2e8f0",
                 backgroundColor: "#f8fafc",
               }}
             >
-              <div className="text-[10px] sm:text-[11px] text-slate-500 font-bold">Keaslian Penonton</div>
-              <div className="text-base sm:text-lg font-extrabold text-slate-900 mt-0.5">
+              <div style={{ fontSize: "0.6875rem", color: "#64748b", fontWeight: 700 }}>
+                Keaslian Penonton
+              </div>
+              <div
+                style={{
+                  fontSize: "1.125rem",
+                  fontWeight: 900,
+                  color: "#0f172a",
+                  marginTop: "2px",
+                }}
+              >
                 99.2%
               </div>
-              <div className="text-[10px] text-emerald-700 font-bold mt-0.5">
-                Anti-Sybil Organik
+              <div
+                style={{
+                  fontSize: "0.6875rem",
+                  color: "#047857",
+                  fontWeight: 700,
+                  marginTop: "2px",
+                }}
+              >
+                ✓ Anti-Sybil Organik
               </div>
             </div>
 
             <div
               style={{
                 padding: "12px 14px",
-                borderRadius: "12px",
+                borderRadius: "10px",
                 border: "1px solid #e2e8f0",
                 backgroundColor: "#f8fafc",
               }}
             >
-              <div className="text-[10px] sm:text-[11px] text-slate-500 font-bold">Efektif CPM</div>
-              <div className="text-base sm:text-lg font-extrabold text-slate-900 mt-0.5">
+              <div style={{ fontSize: "0.6875rem", color: "#64748b", fontWeight: 700 }}>
+                Efektif CPM
+              </div>
+              <div
+                style={{
+                  fontSize: "1.125rem",
+                  fontWeight: 900,
+                  color: "#0f172a",
+                  marginTop: "2px",
+                }}
+              >
                 Rp 24.500
               </div>
-              <div className="text-[10px] text-slate-500 mt-0.5">
+              <div
+                style={{
+                  fontSize: "0.6875rem",
+                  color: "#64748b",
+                  marginTop: "2px",
+                }}
+              >
                 / 1.000 views
               </div>
             </div>
           </div>
 
-          {/* Section 3: Smart Contract Timelock Escrow Breakdown */}
+          {/* ── Section 3: Smart Contract Timelock Breakdown ── */}
           <div
             style={{
               padding: "14px 16px",
-              borderRadius: "14px",
+              borderRadius: "12px",
               border: "1px solid #e2e8f0",
               backgroundColor: "#f8fafc",
             }}
           >
-            <div className="text-[10px] sm:text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-2.5 flex justify-between items-center">
-              <span>Alokasi Escrow Smart Contract</span>
-              <span className="text-[10px] text-slate-400 lowercase font-normal">
-                bnb chain escrow
+            {/* Split Header */}
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                marginBottom: "10px",
+              }}
+            >
+              <span
+                style={{
+                  fontSize: "0.75rem",
+                  fontWeight: 700,
+                  color: "#334155",
+                  textTransform: "uppercase",
+                  letterSpacing: "0.04em",
+                }}
+              >
+                Alokasi Escrow Smart Contract
+              </span>
+              <span
+                style={{
+                  fontSize: "0.6875rem",
+                  color: "#64748b",
+                  fontWeight: 600,
+                }}
+              >
+                BNB Chain Timelock
               </span>
             </div>
 
-            <div className="flex flex-col gap-2.5">
-              {/* Step 1: 70% Instant */}
+            {/* Split Progress Bar */}
+            <div
+              style={{
+                height: "6px",
+                width: "100%",
+                borderRadius: "9999px",
+                backgroundColor: "#e2e8f0",
+                display: "flex",
+                overflow: "hidden",
+                marginBottom: "12px",
+              }}
+            >
+              <div
+                style={{
+                  width: "70%",
+                  height: "100%",
+                  backgroundColor: "#10b981",
+                }}
+              />
+              <div
+                style={{
+                  width: "30%",
+                  height: "100%",
+                  backgroundColor: "#f59e0b",
+                }}
+              />
+            </div>
+
+            {/* Rows Breakdown */}
+            <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+              {/* 70% Instant */}
               <div
                 style={{
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "space-between",
                   padding: "10px 12px",
-                  borderRadius: "10px",
+                  borderRadius: "8px",
                   backgroundColor: "#ecfdf5",
                   border: "1px solid #a7f3d0",
-                  gap: "8px",
+                  gap: "10px",
                 }}
               >
-                <div className="min-w-0">
-                  <div className="text-xs sm:text-sm font-bold text-slate-900">
-                    70% Pencairan Instan
+                <div style={{ display: "flex", alignItems: "center", gap: "8px", minWidth: 0 }}>
+                  <div
+                    style={{
+                      width: "26px",
+                      height: "26px",
+                      borderRadius: "6px",
+                      backgroundColor: "#059669",
+                      color: "#ffffff",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      flexShrink: 0,
+                    }}
+                  >
+                    <Zap size={14} />
                   </div>
-                  <div className="text-[10px] sm:text-xs text-slate-500 truncate">
-                    Ditransfer langsung via Poko BI-FAST / DANA ke rekening kreator
+                  <div style={{ minWidth: 0 }}>
+                    <div style={{ fontSize: "0.8125rem", fontWeight: 700, color: "#0f172a" }}>
+                      70% Pencairan Instan
+                    </div>
+                    <div
+                      style={{
+                        fontSize: "0.6875rem",
+                        color: "#047857",
+                        whiteSpace: "nowrap",
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                      }}
+                    >
+                      Poko BI-FAST / DANA langsung ke rekening kreator
+                    </div>
                   </div>
                 </div>
-                <div className="text-right flex-shrink-0">
-                  <div className="text-xs sm:text-sm font-extrabold text-emerald-700">
+
+                <div style={{ textAlign: "right", flexShrink: 0 }}>
+                  <div style={{ fontSize: "0.8125rem", fontWeight: 800, color: "#047857" }}>
                     {selectedClip.instantUsdt}
                   </div>
-                  <div className="text-[10px] text-emerald-600 font-medium">Terkirim</div>
+                  <div style={{ fontSize: "0.6875rem", color: "#059669", fontWeight: 600 }}>
+                    {selectedClip.instantIdr}
+                  </div>
                 </div>
               </div>
 
-              {/* Step 2: 30% Holdback */}
+              {/* 30% Holdback */}
               <div
                 style={{
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "space-between",
                   padding: "10px 12px",
-                  borderRadius: "10px",
+                  borderRadius: "8px",
                   backgroundColor: "#fffbeb",
                   border: "1px solid #fde68a",
-                  gap: "8px",
+                  gap: "10px",
                 }}
               >
-                <div className="min-w-0">
-                  <div className="text-xs sm:text-sm font-bold text-slate-900">
-                    30% Escrow Holdback (72 Jam)
+                <div style={{ display: "flex", alignItems: "center", gap: "8px", minWidth: 0 }}>
+                  <div
+                    style={{
+                      width: "26px",
+                      height: "26px",
+                      borderRadius: "6px",
+                      backgroundColor: "#d97706",
+                      color: "#ffffff",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      flexShrink: 0,
+                    }}
+                  >
+                    <Lock size={13} />
                   </div>
-                  <div className="text-[10px] sm:text-xs text-slate-500 truncate">
-                    Terkunci di smart contract untuk proteksi retensi views kampanye
+                  <div style={{ minWidth: 0 }}>
+                    <div style={{ fontSize: "0.8125rem", fontWeight: 700, color: "#0f172a" }}>
+                      30% Escrow Holdback (72 Jam)
+                    </div>
+                    <div
+                      style={{
+                        fontSize: "0.6875rem",
+                        color: "#b45309",
+                        whiteSpace: "nowrap",
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                      }}
+                    >
+                      Terkunci di smart contract untuk proteksi retensi views
+                    </div>
                   </div>
                 </div>
-                <div className="text-right flex-shrink-0">
-                  <div className="text-xs sm:text-sm font-extrabold text-amber-700">
+
+                <div style={{ textAlign: "right", flexShrink: 0 }}>
+                  <div style={{ fontSize: "0.8125rem", fontWeight: 800, color: "#b45309" }}>
                     {selectedClip.holdbackUsdt}
                   </div>
-                  <div className="text-[10px] text-amber-600 font-medium">Timelock Aktif</div>
+                  <div style={{ fontSize: "0.6875rem", color: "#d97706", fontWeight: 600 }}>
+                    {selectedClip.holdbackIdr}
+                  </div>
                 </div>
               </div>
+            </div>
+          </div>
+
+          {/* Footer Sub-bar */}
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              paddingTop: "6px",
+              fontSize: "0.6875rem",
+              color: "#94a3b8",
+            }}
+          >
+            <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
+              <span>On-Chain Tx:</span>
+              <span style={{ fontFamily: "monospace", color: "#64748b" }}>
+                {selectedClip.txHash}
+              </span>
+            </div>
+            <div
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "4px",
+                color: "#2563eb",
+                fontWeight: 600,
+                cursor: "pointer",
+              }}
+            >
+              <span>Verifikasi di BscScan</span>
+              <ExternalLink size={11} />
             </div>
           </div>
         </div>

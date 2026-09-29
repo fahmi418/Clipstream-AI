@@ -983,6 +983,19 @@ export function Nav() {
                     </>
                   )}
 
+                  
+                  {/* Mobile Logout (direct) */}
+                  {isLoggedIn && (
+                    <button
+                      type="button"
+                      onClick={handleLogout}
+                      className="flex lg:hidden items-center justify-center p-2 rounded-full hover:bg-black/5 active:scale-95 transition-all text-red-500 ml-1"
+                      title="Keluar Akun"
+                    >
+                      <LogOut size={18} />
+                    </button>
+                  )}
+
                   {/* Mobile Drawer Hamburger Button */}
                   <button
                     type="button"

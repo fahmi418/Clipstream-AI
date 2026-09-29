@@ -1020,111 +1020,111 @@ function HomePageContent() {
               <div data-w-id="duo-product-screen" className="am-ai-assistant-interaction-wrapper" style={{ position: "relative", marginTop: "3rem" }}>
                 <ClipstreamHeroProductScreen />
 
-                {/* Floating Signal Card 1: Whisper Audio Match (Minimalist White - Top Left) */}
+                {/* Floating Signal Card 1: Whisper Audio Match */}
                 <div
                   className="am-home-duo-product-screen-signal-container gsap-signal-card is-1 hidden md:block"
                   style={{
                     backgroundColor: "#ffffff",
-                    border: "1px solid rgba(0, 0, 0, 0.08)",
-                    borderRadius: "12px",
-                    padding: "1rem 1.25rem",
-                    boxShadow: "0 18px 40px -6px rgba(0, 0, 0, 0.14), 0 3px 10px rgba(0, 0, 0, 0.04)",
-                    width: "255px",
+                    backdropFilter: "none",
+                    WebkitBackdropFilter: "none",
+                    border: "1px solid #e2e8f0",
+                    borderRadius: "14px",
+                    padding: "12px 16px",
+                    boxShadow: "0 16px 36px -6px rgba(15, 23, 42, 0.12), 0 4px 10px rgba(15, 23, 42, 0.04)",
+                    width: "230px",
                     maxWidth: "90vw",
                     zIndex: 10,
                     textAlign: "left",
-                    top: "10%",
+                    top: "8%",
                     left: "-3%",
-                    transform: "rotate(-5deg)",
+                    transform: "rotate(-4deg)",
                     userSelect: "none",
                   }}
                 >
-                  <div
-                    style={{
-                      width: "12px",
-                      height: "12px",
-                      borderRadius: "3px",
-                      backgroundColor: "#e8400d",
-                      marginBottom: "0.625rem",
-                    }}
-                  />
-                  <div style={{ fontSize: "0.875rem", fontWeight: 700, color: "#111111", marginBottom: "0.375rem", lineHeight: 1.3 }}>
+                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "6px" }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                      <div style={{ width: "8px", height: "8px", borderRadius: "50%", backgroundColor: "#e8400d" }} />
+                      <span style={{ fontSize: "0.6875rem", fontWeight: 700, color: "#ea580c" }}>Audio AI</span>
+                    </div>
+                    <span style={{ fontSize: "0.625rem", fontWeight: 700, color: "#047857", backgroundColor: "#ecfdf5", border: "1px solid #a7f3d0", padding: "1px 6px", borderRadius: "9999px" }}>98.8% Match</span>
+                  </div>
+                  <div style={{ fontSize: "0.8125rem", fontWeight: 700, color: "#0f172a", marginBottom: "3px", lineHeight: 1.3 }}>
                     Whisper Audio Match
                   </div>
-                  <div style={{ fontSize: "0.75rem", color: "#6b7280", lineHeight: 1.45 }}>
-                    Mendeteksi kata kunci sponsor dan validasi transkrip audio dari klip secara akurat.
+                  <div style={{ fontSize: "0.6875rem", color: "#64748b", lineHeight: 1.45 }}>
+                    Mendeteksi kata kunci sponsor dan validasi transkrip audio klip secara otomatis.
                   </div>
                 </div>
 
-                {/* Floating Signal Card 2: Gemini Vision Views (Minimalist White - Right) */}
+                {/* Floating Signal Card 2: Gemini Vision + API Oracle */}
                 <div
                   className="am-home-duo-product-screen-signal-container gsap-signal-card is-3 hidden md:block"
                   style={{
                     backgroundColor: "#ffffff",
-                    border: "1px solid rgba(0, 0, 0, 0.08)",
-                    borderRadius: "12px",
-                    padding: "1rem 1.25rem",
-                    boxShadow: "0 18px 40px -6px rgba(0, 0, 0, 0.14), 0 3px 10px rgba(0, 0, 0, 0.04)",
-                    width: "265px",
+                    backdropFilter: "none",
+                    WebkitBackdropFilter: "none",
+                    border: "1px solid #e2e8f0",
+                    borderRadius: "14px",
+                    padding: "12px 16px",
+                    boxShadow: "0 16px 36px -6px rgba(15, 23, 42, 0.12), 0 4px 10px rgba(15, 23, 42, 0.04)",
+                    width: "240px",
                     maxWidth: "90vw",
                     zIndex: 10,
                     textAlign: "left",
-                    top: "32%",
+                    top: "30%",
                     right: "-3%",
-                    transform: "rotate(-6deg)",
+                    transform: "rotate(-5deg)",
                     userSelect: "none",
                   }}
                 >
-                  <div
-                    style={{
-                      width: "12px",
-                      height: "12px",
-                      borderRadius: "3px",
-                      backgroundColor: "#00d084",
-                      marginBottom: "0.625rem",
-                    }}
-                  />
-                  <div style={{ fontSize: "0.875rem", fontWeight: 700, color: "#111111", marginBottom: "0.375rem", lineHeight: 1.3 }}>
+                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "6px" }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                      <div style={{ width: "8px", height: "8px", borderRadius: "50%", backgroundColor: "#059669" }} />
+                      <span style={{ fontSize: "0.6875rem", fontWeight: 700, color: "#047857" }}>Vision OCR</span>
+                    </div>
+                    <span style={{ fontSize: "0.625rem", fontWeight: 700, color: "#047857", backgroundColor: "#ecfdf5", border: "1px solid #a7f3d0", padding: "1px 6px", borderRadius: "9999px" }}>Watermark OK</span>
+                  </div>
+                  <div style={{ fontSize: "0.8125rem", fontWeight: 700, color: "#0f172a", marginBottom: "3px", lineHeight: 1.3 }}>
                     Gemini Vision + API Oracle
                   </div>
-                  <div style={{ fontSize: "0.75rem", color: "#6b7280", lineHeight: 1.45 }}>
-                    Gemini Vision memverifikasi watermark sponsor dan durasi klip, sementara API oracle memvalidasi metrik views.
+                  <div style={{ fontSize: "0.6875rem", color: "#64748b", lineHeight: 1.45 }}>
+                    Memverifikasi watermark sponsor dan durasi klip, lalu oracle memvalidasi views.
                   </div>
                 </div>
 
-                {/* Floating Signal Card 3: Smart Contract Timelock (Minimalist White - Bottom Center) */}
+                {/* Floating Signal Card 3: Smart Contract Timelock */}
                 <div
                   className="am-home-duo-product-screen-signal-container gsap-signal-card is-2 hidden md:block"
                   style={{
                     backgroundColor: "#ffffff",
-                    border: "1px solid rgba(0, 0, 0, 0.08)",
-                    borderRadius: "12px",
-                    padding: "1rem 1.25rem",
-                    boxShadow: "0 18px 40px -6px rgba(0, 0, 0, 0.14), 0 3px 10px rgba(0, 0, 0, 0.04)",
-                    width: "275px",
+                    backdropFilter: "none",
+                    WebkitBackdropFilter: "none",
+                    border: "1px solid #e2e8f0",
+                    borderRadius: "14px",
+                    padding: "12px 16px",
+                    boxShadow: "0 16px 36px -6px rgba(15, 23, 42, 0.12), 0 4px 10px rgba(15, 23, 42, 0.04)",
+                    width: "245px",
                     maxWidth: "90vw",
                     zIndex: 10,
                     textAlign: "left",
-                    bottom: "-3%",
-                    left: "40%",
+                    bottom: "-20px",
+                    right: "8%",
                     transform: "rotate(3deg)",
                     userSelect: "none",
                   }}
                 >
-                  <div
-                    style={{
-                      width: "12px",
-                      height: "12px",
-                      borderRadius: "3px",
-                      backgroundColor: "#06b6d4",
-                      marginBottom: "0.625rem",
-                    }}
-                  />
-                  <div style={{ fontSize: "0.875rem", fontWeight: 700, color: "#111111", marginBottom: "0.375rem", lineHeight: 1.3 }}>
+                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "6px" }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                      <div style={{ width: "8px", height: "8px", borderRadius: "50%", backgroundColor: "#0891b2" }} />
+                      <span style={{ fontSize: "0.6875rem", fontWeight: 700, color: "#0e7490" }}>BNB Chain</span>
+                    </div>
+                    <span style={{ fontSize: "0.625rem", fontWeight: 700, color: "#0284c7", backgroundColor: "#f0f9ff", border: "1px solid #bae6fd", padding: "1px 6px", borderRadius: "9999px" }}>Escrow Lock</span>
+                  </div>
+                  <div style={{ fontSize: "0.8125rem", fontWeight: 700, color: "#0f172a", marginBottom: "3px", lineHeight: 1.3 }}>
                     Smart Contract Timelock
                   </div>
-                  <div style={{ fontSize: "0.75rem", color: "#6b7280", lineHeight: 1.45 }}>
-                    Escrow di BNB Chain mencairkan USDT langsung ke wallet kreator begitu target tercapai.
+                  <div style={{ fontSize: "0.6875rem", color: "#64748b", lineHeight: 1.45 }}>
+                    Escrow BNB Chain mencairkan USDT langsung ke wallet kreator saat target tercapai.
                   </div>
                 </div>
               </div>
