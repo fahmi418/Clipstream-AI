@@ -7,9 +7,30 @@ const USDT_FACTOR = BigInt(10) ** USDT_DECIMALS;
 // Approximate IDR/USDT rate — fetched from chain in practice, hardcoded fallback
 const IDR_PER_USDT_FALLBACK = 16_300;
 
-export function usdtWeiToFloat(wei: bigint | string): number {
-  const n = typeof wei === "string" ? BigInt(wei) : wei;
-  return Number(n) / Number(USDT_FACTOR);
+export function usdtWeiToFloat(wei: bigint | string | number): number {
+  if (!wei) return 0;
+  try {
+    if (typeof wei === "number") {
+      return wei > 1e12 ? wei / 1e18 : wei >= 10000 ? wei / 1e6 : wei;
+    }
+    const str = String(wei).trim();
+    if (str.includes(".")) {
+      const parsed = parseFloat(str);
+      return parsed > 1e12 ? parsed / 1e18 : parsed >= 10000 ? parsed / 1e6 : parsed;
+    }
+    const n = BigInt(str);
+    // If standard 18-decimal EVM wei (length >= 14 or > 1e12)
+    if (str.length >= 14 || n > BigInt(10) ** BigInt(12)) {
+      return Number(n) / 1e18;
+    }
+    // If 6-decimal USDT micro-units (e.g. 10990000 -> 10.99 USDT)
+    if (str.length >= 6 || n >= BigInt(10000)) {
+      return Number(n) / Number(USDT_FACTOR);
+    }
+    return Number(n);
+  } catch {
+    return 0;
+  }
 }
 
 export function formatUsdt(wei: bigint | string, decimals = 2): string {

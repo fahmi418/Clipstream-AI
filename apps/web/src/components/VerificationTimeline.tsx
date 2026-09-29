@@ -71,7 +71,22 @@ interface SsePayload {
 function formatUsdtDisplay(val?: string | number | bigint): string {
   if (!val) return "$0.00 USDT";
   try {
-    const rawNum = typeof val === "bigint" ? Number(val) / 1e18 : typeof val === "string" ? (val.length > 10 ? Number(val) / 1e18 : parseFloat(val)) : val;
+    let rawNum = 0;
+    if (typeof val === "bigint") {
+      rawNum = Number(val) / 1e18;
+    } else if (typeof val === "number") {
+      rawNum = val > 1e12 ? val / 1e18 : val >= 10000 ? val / 1e6 : val;
+    } else if (typeof val === "string") {
+      const parsed = parseFloat(val);
+      if (isNaN(parsed)) return "$0.00 USDT";
+      if (parsed > 1e12 || val.length >= 12) {
+        rawNum = parsed / 1e18;
+      } else if (parsed >= 10000) {
+        rawNum = parsed / 1e6;
+      } else {
+        rawNum = parsed;
+      }
+    }
     if (isNaN(rawNum)) return "$0.00 USDT";
     const usdt = rawNum.toFixed(2);
     const idr = Math.round(rawNum * 15800).toLocaleString("id-ID");
@@ -561,8 +576,10 @@ export function VerificationTimeline({
           });
           handleSseEvent({
             type: "payout",
-            releasedAmount: "10990000",
-            holdbackAmount: "4710000",
+            grossPayout: "2500000000000000000",
+            platformFee: "125000000000000000",
+            releasedAmount: "1662500000000000000",
+            holdbackAmount: "712500000000000000",
             holdbackUnlockAt: new Date(Date.now() + 72 * 3600_000).toISOString(),
             txHash: "0x0e2a43d6d203b4f95a93761c142f85e43d98cf101ee172caadc2c59487057ef7",
             explorerUrl: "https://testnet.opbnbscan.com/tx/0x0e2a43d6d203b4f95a93761c142f85e43d98cf101ee172caadc2c59487057ef7",
